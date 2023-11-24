@@ -6,12 +6,15 @@
 \section{節の使い方}
 \texttt{\bs{}section}や\texttt{\bs{}subsection}を使うと「節」（section）と呼ばれる構造を作ることができます。長い章を分割して論理展開を分かりやすくする目的で使います。
 
+\subsection{小節の使い方}
+小節を作ってみています。
+
 文中で節を参照するときは、\texttt{section}であっても\texttt{subsection}であっても「節」と呼び、「\ref{sec_figure}~節」や「第\ref{sec_figure}~節」のように書きます（\texttt{ref}コマンドの使用は次節参照）。章を参照するときは「\ref{chap_review}~章」や「第\ref{chap_review}~章」とします。
 
 \section{図の使い方}
 \label{sec_figure} % このようにラベルをつけることで、\refコマンドで節や図の番号を参照できます。
 
-論文中に図を入れるときは、\texttt{figure}環境を使用します。画像形式は図~\ref{fig_CTA}のようなJPEG（主に写真などに最適）やPNG（色数の少ない画像に最適）に加え、図~\ref{fig_histogram}のようにPDF（グラフなどに最適）も使うことができます。実際の使い方は、この\LaTeX{}のコードを読んでください。\textsf{\textbf{EPS形式はいまどき誰も使いません。古い\LaTeX{}の本や年寄りに騙されないでください。}}
+論文中に図を入れるときは、\texttt{figure}環境を使用します。(これで\texttt{太字}が打てるのは面白いですね。)画像形式は図~\ref{fig_CTA}のようなJPEG（主に写真などに最適）やPNG（色数の少ない画像に最適）に加え、図~\ref{fig_histogram}のようにPDF（グラフなどに最適）も使うことができます。実際の使い方は、この\LaTeX{}のコードを読んでください。\textsf{\textbf{EPS形式はいまどき誰も使いません。古い\LaTeX{}の本や年寄りに騙されないでください。}}
 
 \begin{figure} % 特に強い理由がない限り、[htbp]のような指定はしないでください。
   \centering
@@ -23,6 +26,17 @@
   % これで本文中から参照できます。
   \label{fig_CTA}
 \end{figure}
+
+figure
+
+\begin{figure}
+  \centering
+  \includegraphics[width=10cm]{fig/TB3.png}
+  \caption[3号館のテストベンチ]{QAQC試験のために3号館にセットしたテストベンチの様子}
+  \label{fig_TB3}
+\end{figure}
+
+
 
 \begin{figure}
   \centering
@@ -161,6 +175,16 @@
   \label{eq_pizero}
 \end{equation}
 のように書けますし、もっとややこしい数式も色々と書けますが、詳細は「LaTeX 数式」などでインターネット上で検索してください。この例のように、本文中に数式を入れるときは\texttt{\$\$}でその式を囲み、独立した行に数式を書くときは\texttt{equation}や\texttt{align}\footnote{\texttt{amsmath}パッケージで使用可能です。}環境を使ってください。
+
+久しぶりに数式を書いてみます。インラインの場合は$\pi=3.14$こんな感じでしょうか。別行立ての場合は
+\begin{equation}
+  \pi = 3.14
+  \label{piexample}
+\end{equation}
+こんな感じでしょうか。
+
+式番号を参照する時には~式\ref{piexample}このようにすると丸括弧がつきますね。
+
 
 式番号を参照するときも図のときと同様に\texttt{ref}コマンドを使うことができますが、これだと自動で丸括弧がつかず、式~\ref{eq_pizero}のようになってしまいます。丸括弧を自動で入れるには\texttt{amsmath}パッケージの\texttt{refeq}コマンドを使用することで、式~\eqref{eq_pizero}のようになります。
 
