@@ -16,12 +16,12 @@
 \usepackage{amsmath}
 
 % citep や citet を有効にする
-\usepackage{natbib}
+% \usepackage{natbib}
 
 % (Okumura, 2009) などを (Okumura 2009) とする
 % 日本語文章で全角丸括弧の表示にし、かつ \inhibitglue で役物同士の字間を適切にする。
 % https://oku.edu.mie-u.ac.jp/tex/mod/forum/discuss.php?d=2349
-\setcitestyle{aysep={},notesep={},open={\inhibitglue（},close={）\inhibitglue}}
+% \setcitestyle{aysep={},notesep={},open={\inhibitglue（},close={）\inhibitglue}}
 
 % bibliography を目次に追加
 \usepackage[nottoc,notlot,notlof]{tocbibind}
@@ -97,16 +97,16 @@
 \include{1.Introduction}
 \include{2.Review}
 \include{3.WhatYouDid}
-\include{4.LaTeX}
-\include{5.Plagiarism}
-\include{6.Color}
+% \include{4.LaTeX}
+% \include{5.Plagiarism}
+% \include{6.Color}
 \include{7.Discussion}
 \include{8.Conclusion}
 \include{Appendix}
 \include{Acknowledgments}
 
 \renewcommand{\bibname}{引用文献}
-\bibliographystyle{jecon}
+\bibliographystyle{unsrt}
 \bibliography{thesis}
 \label{page:bib}
 
