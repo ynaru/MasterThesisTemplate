@@ -12,7 +12,7 @@ TGC検出器フロントエンドエレクトロニクスの一つであるPS bo
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/PSBschedule.png}
+\includegraphics[width=16cm]{fig/PSBschedule.png}
 \caption[PS board量産のスケジュール]{PS board量産のスケジュール。PS boardはこれまでに第一試作機、第二試作機を通したシステム開発が完了いる。2023年現在、プレ量産された各個体に対しての試験を進めている。2024年から1400枚の本量産が開始され2026年から実験室への設置が開始される。}
 \label{PSBschedule}
 \end{figure}
@@ -27,7 +27,7 @@ PS boardに搭載されている素子や各素子間の配線を把握し、ハ
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/PSBoverall.png}
+\includegraphics[width=16cm]{fig/PSBoverall.png}
 \caption[PSboardの全体像]{PS boardの全体像。PS boardに搭載されている各素子とその間の配線を示している。PS boardはSLと光ケーブル、JATHubとCat6ケーブルで接続される。PS board FPGAとDAC、ADC、Si5395、QSPI、PPASICはI2CまたはSPIバスで接続される。DACからアナログ信号として供給される閾値電圧は8台のASDボードとモニター用のADCに分配される。FPGAはPPASICにTTC信号を送信し、ヒット信号を受信する。1つのPPASICは2台のASDボードと接続されテストパルス信号を送信し、それぞれから8チャンネル分のヒットデータを受信する。}
 \label{PSBconcept}
 \end{figure}
@@ -67,7 +67,7 @@ PS boardは高速光シリアルリンクを介してSLと通信する。PS boar
     \vskip0.5\baselineskip
     \begin{figure} 
     \centering
-    \includegraphics[width=16cm]{figQAQC/JATHubsem.png}
+    \includegraphics[width=16cm]{fig/JATHubsem.png}
     \caption[JATHubによるリカバリー手続き]{JATHubによるリカバリー手続きの概念図。PS boardに自己修復不可能なSEU事象が発生した場合、RcvB線を通じてJATHubに救難信号が発出される。JATHubはPROBG線をアサートすることでPS board FPGAのリセットを命ずる。}
     \label{JATHubsem}
     \end{figure}
@@ -82,7 +82,7 @@ PS boardは高速光シリアルリンクを介してSLと通信する。PS boar
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/PSBtestdesign.png}
+\includegraphics[width=16cm]{fig/PSBtestdesign.png}
 \caption[PS board QAQC試験セットアップの概念図]{PS board QAQC試験セットアップの概念図}
 \label{PSBtestdesign}
 \end{figure}
@@ -99,7 +99,7 @@ ASDテストパルスとはPPASICからASDに発せされる試験用電荷の�
 \vskip0.5\baselineskip
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/PSBasdtp.png}
+\includegraphics[width=16cm]{fig/PSBasdtp.png}
 \caption[ASDテストパルスの概念図]{ASDテストパルス機構の概念図。SLを起点にテストパルストリガー信号が駆動され、PS board FPGAを経由してPPASICに届けられる。PPASIC内のテストパルスジェネレーターはテストパルストリガー信号をトリガーに参照クロックの立ち上がりと同期した試験電荷をASDに送る。ASDで閾値電圧を信号はデジタル信号へ変換され、PPASIC、PS board FPGA、SLへとヒット信号が伝搬される。}
 \label{PSBasdtp}
 \end{figure}
@@ -109,7 +109,7 @@ ASDテストパルスとはPPASICからASDに発せされる試験用電荷の�
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/QAQCasdtp.png}
+\includegraphics[width=16cm]{fig/QAQCasdtp.png}
 \caption[QAQC用JATHubを用いたASDテストパルス試験]{QAQC用JATHubを用いたASDテストパルス試験。QAQC用JATHubが試験のマスターとして、PS boardの制御、テストパルストリガーの駆動およびヒットデータの読み出しを行う。Zynq SoCのPL領域にPS board制御および読み出しのための回路を実装し、Ubuntu上のアプリケーションを起点に動作する。読み出し回路によりUbuntuに読み出されたヒットデータはローカルのSDカード上にテキストファイルとして保存する。}
 \label{QAQCasdtp}
 \end{figure}
@@ -133,7 +133,7 @@ ASDテストパルス試験に関与する素子とパスを図\ref{QAQCasdtpele
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/QAQCasdtpelements.png}
+\includegraphics[width=16cm]{fig/QAQCasdtpelements.png}
 \caption[ASDテストパルス試験で検証できる素子]{ASDテストパルス試験で検証することができる素子、素子間の配線を赤枠で示す。}
 \label{QAQCasdtpelements}
 \end{figure}
@@ -162,7 +162,7 @@ JATHubがPS boardに対して行うJTAG線を介したファームウェアの�
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/PSBtpg.png}
+\includegraphics[width=16cm]{fig/PSBtpg.png}
 \caption[テストパルスジェネレーターの回路図]{テストパルスジェネレーターの回路図。PS board FPGAからTRIG信号を受け取り、参照クロックである40 MHzクロックの立ち上がりに同期してASDに対して差動の矩形波を送信する。矩形波の幅や高さはFPGAから設定可能なパラメーターである。}
 \label{PSBtpg}
 \end{figure}
@@ -177,7 +177,7 @@ JATHubがPS boardに対して行うJTAG線を介したファームウェアの�
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/JAThubinfra.png}
+\includegraphics[width=16cm]{fig/JAThubinfra.png}
 \caption[QAQC用JATHubのシステム全体像]{QAQC用JATHubのシステム全体像}
 \label{JAThubinfra}
 \end{figure}
@@ -192,7 +192,7 @@ QAQC用JATHubではUbuntuの起動にSDカードを利用する。Zynqの起動�
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/JATHubboot.png}
+\includegraphics[width=16cm]{fig/JATHubboot.png}
 \caption[Ubuntuの起動シークエンス]{Ubuntuの起動シークエンス}
 \label{JATHubboot}
 \end{figure}
@@ -221,7 +221,7 @@ PS領域からこのレジスタへは少なくとも2通りの方法でアク�
 
 \begin{figure} 
 \centering
-\includegraphics[width=10cm]{figQAQC/JATHubaddress.png}
+\includegraphics[width=10cm]{fig/JATHubaddress.png}
 \caption[アドレスマップ]{JAThub PL領域に割り当てられたアドレスマップ。各AXI GPIOレジスタには固有の物理アドレスが割り当てられる。}
 \label{JATHuaddress}
 \end{figure}
@@ -233,7 +233,7 @@ PS領域からこのレジスタへは少なくとも2通りの方法でアク�
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/JATHubgtx.png}
+\includegraphics[width=16cm]{fig/JATHubgtx.png}
 \caption[QAQC用JATHubにおけるGTXトランシーバーの概要]{QAQC用JATHubにおけるGTXトランシーバーの概要}
 \label{JATHubgtx}
 \end{figure}
@@ -249,7 +249,7 @@ RXロジック重要な役割を果たすのがRX Clock Data Recovery機構(CDR)
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/JATHubcomma.png}
+\includegraphics[width=16cm]{fig/JATHubcomma.png}
 \caption[comma detectorの概要]{comma detectorの概要}
 \label{JATHubcomma}
 \end{figure}
@@ -263,7 +263,7 @@ Zynq FPGA内でのデータ転送はO(~10) MHzの高速クロックをもとに�
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/JATHubarbitator.png}
+\includegraphics[width=16cm]{fig/JATHubarbitator.png}
 \caption[PLからPSでのデータ読み出しシステム概要]{PLからPSでのデータ読み出しシステム概要}
 \label{JATHubarbitor}
 \end{figure}
@@ -272,7 +272,7 @@ FPGA内からUbuntuに読み出したいデータはFPGA内の動作クロック
 AXI GPIOレジスタにはFPGAからもUbuntuからも任意のタイミングでアクセスすることができる。そのためUbuntuがデータを読み出す前にFIFOがデータを書き換えると、そのデータはUbuntuから読み出されずロスすることになる。またFIFOがデータを書き換える前にUbuntuが2回読み出し動作を行うと、同じデータが重複して読み出される。全てのデータを漏れや重複なく読み出すため、FIFOとUbuntuがAXI GPIOレジスタにアクセスするタイミングを取り持つ調停回路を設置した。調停回路は1bitのフラグとステートマシンからなる。フラグはUbuntuとFIFO間の状況伝達に利用しており 0: FIFOからの書き込み待ち 1: Ubuntuからの読み出し待ちで定義する。調停回路で実現される読み出しシークエンスを\ref{JATHubarbitation}で示す。
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/JATHubarbitation.png}
+\includegraphics[width=16cm]{fig/JATHubarbitation.png}
 \caption[調停回路のシークエンス]{調停回路のシークエンス}
 \label{JATHubarbitation}
 \end{figure}
@@ -294,7 +294,7 @@ FPGA内の各機能の操作はControlCenter内のレジスタ操作により一
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/JATHubccenter.png}
+\includegraphics[width=16cm]{fig/JATHubccenter.png}
 \caption[JATHubコントロール回路]{JATHubコントロール回路。ZynqのOSからPL領域のControlCenter内のレジスタを操作することによりFPGA内の各機能の制御やPS boardへのコントロール信号を制御する。OSからControlCenter内のレジスタ操作はInterpreterが仲介する。ユーザーはアドレスとデータを指定することでVMEプロトコルに従ってレジスタの書き込みを行うことができる。データの読み出しには自作調停回路を利用しており、複数回の読み出しでも安全な設計が実現されている。}
 \label{JATHubccenter}
 \end{figure}
@@ -313,21 +313,21 @@ QSPIフラッシュメモリーへの書き込み/読み出しはJATHubから直
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/JATHubpsbformat.png}
+\includegraphics[width=16cm]{fig/JATHubpsbformat.png}
 \caption[JATHubとPS boardの間で定義された通信フォーマット]{JATHubとPS boardの間で定義された通信フォーマット}
 \label{JATHubpsbformat}
 \end{figure}
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/JATHubmonitor.png}
+\includegraphics[width=16cm]{fig/JATHubmonitor.png}
 \caption[JATHub monitor]{JAThubに実装された監視機構。PS boardから送られる制御用データをデコードし、ControlCenter内のレジスタに格納する}
 \label{JATHubmonitor}
 \end{figure}
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/PSBdataformat.png}
+\includegraphics[width=16cm]{fig/PSBdataformat.png}
 \caption[PS boardから送信されるモニターデータのフォーマット]{PS boardから送信されるモニターデータのフォーマット}
 \label{PSBdataformat}
 \end{figure}
@@ -339,7 +339,7 @@ QSPIフラッシュメモリーへの書き込み/読み出しはJATHubから直
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/JAThubreadout.png}
+\includegraphics[width=16cm]{fig/JAThubreadout.png}
 \caption[読み出し回路の全体像]{読み出し回路の全体像}
 \label{fig_CTA}
 \end{figure}
@@ -382,7 +382,7 @@ QSPIフラッシュメモリーへの書き込み/読み出しはJATHubから直
     \vskip0.5\baselineskip
     \begin{figure} 
     \centering
-    \includegraphics[width=16cm]{figQAQC/JTAHubreadspeed.png}
+    \includegraphics[width=16cm]{fig/JTAHubreadspeed.png}
     \caption[PSからのヒットデータ読み出し速度の測定]{PSからのヒットデータ読み出し速度の測定}
     \label{JTAHubreadspeed}
     \end{figure}
@@ -393,7 +393,7 @@ QSPIフラッシュメモリーへの書き込み/読み出しはJATHubから直
 
     \begin{figure} 
     \centering
-    \includegraphics[width=16cm]{figQAQC/JATHubbackpressure.png}
+    \includegraphics[width=16cm]{fig/JATHubbackpressure.png}
     \caption[リードアウト回路におけるバックプレッシャー機能]{リードアウト回路におけるバックプレッシャー機能}
     \label{JATHubbackpressure}
     \end{figure}
@@ -419,7 +419,7 @@ Cat 6ケーブル経由でのJTAG通信によるファームウェア書き込�
 
     \begin{figure} 
     \centering
-    \includegraphics[width=16cm]{figQAQC/JATHubclockmasurement.png}
+    \includegraphics[width=16cm]{fig/JATHubclockmasurement.png}
     \caption[JATHubによるクロック位相測定の概念図]{JATHubによるクロック位相測定の概念図}
     \label{JATHubclockmeasure}
     \end{figure}
@@ -450,7 +450,7 @@ PPASICの遅延パラメーターは使用するシグナルケーブルの長�
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/QAQCdelayscan.png}
+\includegraphics[width=16cm]{fig/QAQCdelayscan.png}
 \caption[ディレイカーブ]{テストベンチで測定したdelay curve}
 \label{QAQCdelayscan}
 \end{figure}
@@ -467,14 +467,14 @@ DACの閾値電圧は使用するASDのノイズの大きさに依存して変�
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/QAQCnoisescan.png}
+\includegraphics[width=16cm]{fig/QAQCnoisescan.png}
 \caption[ノイズスキャン]{ノイズスキャンの結果}
 \label{QAQCnoisescan}
 \end{figure}
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/QAQCresult.png}
+\includegraphics[width=16cm]{fig/QAQCresult.png}
 \caption[ASDテストパルスの結果]{ASDテストパルス試験の結果}
 \label{QAQCresult}
 \end{figure}
@@ -499,7 +499,7 @@ DACの閾値電圧は使用するASDのノイズの大きさに依存して変�
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/QAQCpararell.png}
+\includegraphics[width=16cm]{fig/QAQCpararell.png}
 \caption[並列化システムの概要]{並列化システムの概要}
 \label{QAQCpararell}
 \end{figure}
@@ -507,7 +507,7 @@ DACの閾値電圧は使用するASDのノイズの大きさに依存して変�
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/QAQCpararellpicture.png}
+\includegraphics[width=16cm]{fig/QAQCpararellpicture.png}
 \caption[並列化システムの写真]{並列化システムの写真}
 \label{QAQCpararellpicture}
 \end{figure}
@@ -520,7 +520,7 @@ DACの閾値電圧は使用するASDのノイズの大きさに依存して変�
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/JATHubEIL4.JPG}
+\includegraphics[width=16cm]{fig/JATHubEIL4.JPG}
 \caption[QAQC用JATHubの使用例:EIL4チェンバー試験]{QAQC用JATHubの使用例:EIL4チェンバー試験\cite{mt_wada}}
 \label{JATHubEIL4}
 \end{figure}
@@ -529,7 +529,7 @@ DACの閾値電圧は使用するASDのノイズの大きさに依存して変�
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{figQAQC/JATHubSEU.JPG}
+\includegraphics[width=16cm]{fig/JATHubSEU.JPG}
 \caption[QAQC用JATHubの使用例:PS board SEUモニター]{QAQC用JATHubの使用例:PS board SEUモニター\cite{mt_hashimoto}}
 \label{JATHubSEU}
 \end{figure}
