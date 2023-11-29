@@ -20,7 +20,7 @@
   \centering
   % 図の横幅をちょうど良い具合に自分で調整します。
   % 図中の文字を読めないような大きさにはしないでください。
-  \includegraphics[width=14cm]{figQAQC/CTA.jpg}
+  \includegraphics[width=14cm]{fig/CTA.jpg}
   % 図の説明が長い場合、[]で囲むことで短い図の説明を目次のみに表示できます。
   \caption[CTAの完成想像図]{CTAの完成想像図（画像提供：G.~Pérez、IAC、SMM）。JPEG（ビットマップ画像）なので、出力PDFで拡大するとドットが見えます。}
   % これで本文中から参照できます。
@@ -31,7 +31,7 @@ figure
 
 \begin{figure}
   \centering
-  \includegraphics[width=10cm]{figQAQC/TB3.png}
+  \includegraphics[width=10cm]{fig/TB3.png}
   \caption[3号館のテストベンチ]{QAQC試験のために3号館にセットしたテストベンチの様子}
   \label{fig_TB3}
 \end{figure}
@@ -41,7 +41,7 @@ figure
 \begin{figure}
   \centering
   % PDFも使えます。
-  \includegraphics[width=14cm]{figQAQC/histogram.pdf}
+  \includegraphics[width=14cm]{fig/histogram.pdf}
   \caption[ガウシアンでヒストグラムをフィットした例]{ガウシアンでヒストグラムをフィットした例。PDF（ベクター画像）なので、出力PDFで拡大しても滑らかです。また文字列もPDF中で検索することができます。}
   \label{fig_histogram}
 \end{figure}
@@ -55,19 +55,19 @@ figure
 \begin{figure}
   \centering
   \subfigure[]{% {の直後に%を置くことで、改行をさせない（図(b)を改行させない）。
-    \includegraphics[width=.5\textwidth,clip]{figQAQC/histogram.pdf}%
+    \includegraphics[width=.5\textwidth,clip]{fig/histogram.pdf}%
     \label{fig_subfigure_a}%
   }%
   \subfigure[]{%
-    \includegraphics[width=.5\textwidth,clip]{figQAQC/histogram.pdf}%
+    \includegraphics[width=.5\textwidth,clip]{fig/histogram.pdf}%
     \label{fig_subfigure_b}%
   }
   \subfigure[]{%
-    \includegraphics[width=.5\textwidth,clip]{figQAQC/histogram.pdf}%
+    \includegraphics[width=.5\textwidth,clip]{fig/histogram.pdf}%
     \label{fig_subfigure_c}%
   }%
   \subfigure[]{%
-    \includegraphics[width=.5\textwidth,clip]{figQAQC/histogram.pdf}%
+    \includegraphics[width=.5\textwidth,clip]{fig/histogram.pdf}%
     \label{fig_subfigure_d}%
   }
   \caption[複数の図を並べた例]{複数の図を並べた例。(a)ガウシアンフィット。(b)同じもの。(c)これも同じもの。(d)これも同じもの。}
@@ -80,17 +80,17 @@ figure
   \begin{minipage}[b]{.3333\linewidth}
     \leftline{(a)}
     \centering
-    \includegraphics[width=\columnwidth]{figQAQC/histogram.pdf}
+    \includegraphics[width=\columnwidth]{fig/histogram.pdf}
   \end{minipage}%
   \begin{minipage}[b]{.3333\linewidth}
     \leftline{(b)}
     \centering
-    \includegraphics[width=\columnwidth]{figQAQC/histogram_png.png}
+    \includegraphics[width=\columnwidth]{fig/histogram_png.png}
   \end{minipage}%
   \begin{minipage}[b]{.3333\linewidth}
     \leftline{(c)}
     \centering
-    \includegraphics[width=\columnwidth]{figQAQC/histogram_jpg.jpg}
+    \includegraphics[width=\columnwidth]{fig/histogram_jpg.jpg}
   \end{minipage}
   \caption[異なる画像形式の比較]{異なる画像形式の比較。(a) PDF形式。拡大しても綺麗であり、文字も検索やコピーができる。(b) PNG形式。拡大するとビットマップ画像であることが分かる。文字を選択できない。(c) JPEG形式。PNGに比べ、JPEG圧縮特有のブロックノイズ、モスキートノイズが発生しており非常に汚いことが分かる。}
   \label{fig_formats}
