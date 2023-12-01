@@ -27,8 +27,8 @@
 \usepackage[nottoc,notlot,notlof]{tocbibind}
 
 % subfigure 環境で、(a)、(b) などの番号を左上に表示する。宇宙系の分野ではこれが一般的なはず。
-\usepackage[nooneline]{subfigure}
-\subfiguretopcaptrue
+% \usepackage[nooneline]{subfigure}
+% \subfiguretopcaptrue
 
 % 行番号を表示する。添削時のみに使い、事務提出版ではコメントアウトする
 %\usepackage{lineno}
@@ -65,6 +65,12 @@
 \newcommand{\ugreen}[1]{\textcolor{green}{\underline{\textcolor{black}{#1}}}}
 \newcommand{\ublue}[1]{\textcolor{blue}{\underline{\textcolor{black}{#1}}}}
 
+%naru added
+\newcommand{\two}{I\hspace{-1.2pt}I}
+\usepackage[hang,small,bf]{caption}
+\usepackage[subrefformat=parens]{subcaption}
+\captionsetup{compatibility=false}
+
 % 氏名などの情報が入っているファイル。各自で編集。
 \include{AuthorInfo}
 
@@ -96,12 +102,12 @@
 % include を使うことで、別ファイルに分割することができます。
 \include{1.Introduction}
 \include{2.Review}
-\include{3.WhatYouDid}
+% \include{3.WhatYouDid}
 % \include{4.LaTeX}
 % \include{5.Plagiarism}
 % \include{6.Color}
-\include{7.Discussion}
-\include{8.Conclusion}
+% \include{7.Discussion}
+% \include{8.Conclusion}
 \include{Appendix}
 \include{Acknowledgments}
 
