@@ -36,7 +36,7 @@
     \end{figure}
   
     \subsection{ミューオンスペクトロメーター}
-ミューオンスペクトロメーターはATLAS検出器最外層に設置された検出器で、カロリーメーターを透過したミューオンの横方向運動量を測定する役割を担う。ミューオンスペクトロメーターは主にMonitored Drift Tube(MDT)、Resistive Plate Chamber(RPC)、Thin Gap Chamber(TGC)検出器で構成される。RPCとTGCは時間分解能に優れ、応答時間も高速であるためトリガーに利用される。MDTは位置分解能に優れているため、運動量の精密測定に利用される。トロイド磁場内部にはトリガー用の検出器としてTile Calorimeter、TGC EI、RPC BIS78、NSW、が設置されている。
+ミューオンスペクトロメーターはATLAS検出器最外層に設置された検出器で、カロリーメーターを透過したミューオンの横方向運動量を測定する役割を担う。ミューオンスペクトロメーターは主にMonitored Drift Tube (MDT) 、Resistive Plate Chamber (RPC) 、Thin Gap Chamber (TGC)  検出器で構成される。RPCとTGCは時間分解能に優れ、応答時間も高速であるためトリガーに利用される。MDTは位置分解能に優れているため、運動量の精密測定に利用される。トロイド磁場内部にはトリガー用の検出器としてTile Calorimeter、TGC EI、RPC BIS78、NSW、が設置されている。
 
 各検出器の設置される領域を図\ref{Muonspectrometer2}に示す。ミューオンスペクトロメーターはトロイドマグネットの磁場構造に合わせて8回対称になっており、マグネットや支持構造と干渉しないよう、$\phi$方向にLarge sector、Small sectorという2種類のsectorに分かれている。トリガー用の検出器として|$eta$| < 1.05のバレル領域ではRPC、1.05 < |$\eta$| < 2.4のエンドキャップ領域ではTGCが最外層に設置される。エンドキャップ領域において磁場内部の検出器カバーする$\eta$、$\phi$領域を図\ref{SL_InnerCoin_covarage}に示す。1.3 < $eta$ < 2.4の領域はNSWが網羅的にカバーしており、1.05 < $eta$ < 1.3領域ではTGC EI、RPC BIS78、Tile カロリメーターがそれぞれ補的にカバーする。
 
@@ -57,7 +57,7 @@
 
 
 %TGC検出器
-Thin Gap Chamber(TGC)は1.05 < |$\eta$| < 2.4のエンドキャップ領域をカバーする円盤型のミューオントリガー検出器である。TGCはEndcapトロイドマグネットより内側に位置するEndcap Innner(EI)と外側に位置するBig Wheel(BW)に大別される。図\ref{TGC_picture}にBWの写真を示す。TGC BWはz方向に3つのステーションが連なって構成され、衝突点に近い方からM1、M2、M3ステーションと呼ぶ。各ステーションは2層または3層のガス層で構成されており、2層のものをdoublet、3層のものをtripletと呼ぶ。BWではM1がtriplet、M2、M3がdoubletである。
+Thin Gap Chamber (TGC) は1.05 < |$\eta$| < 2.4のエンドキャップ領域をカバーする円盤型のミューオントリガー検出器である。TGCはEndcapトロイドマグネットより内側に位置するEndcap Innner (EI) と外側に位置するBig Wheel (BW) に大別される。図\ref{TGC_picture}にBWの写真を示す。TGC BWはz方向に3つのステーションが連なって構成され、衝突点に近い方からM1、M2、M3ステーションと呼ぶ。各ステーションは2層または3層のガス層で構成されており、2層のものをdoublet、3層のものをtripletと呼ぶ。BWではM1がtriplet、M2、M3がdoubletである。
 
 \begin{figure} 
 \centering
@@ -86,16 +86,14 @@ TGCチェンバーの構造を図\ref{TGC_structure}に示す。TGCはアノー�
 
 荷電粒子がTGCに入射すると、荷電粒子によりガス分子が電離される。電離した電子はワイヤーに印加された2.8 kVの電圧によりワイヤー方向に集められ、ワイヤー付近に到達すると強い電場により電子雪崩を生じる。ワイヤーでは電子雪崩で生じた正イオンのドリフトが、ストリップではそれらの鏡像電荷が電流信号として検出される。
 
-TGC検出器はトリガー用の検出器であり、ガスギャップが薄く、ワイヤー間隔が小さいため時間応答がよい。これにより陽子衝突頻度である25nsより細かな時間分解能でミューオンを検出し、そのミューオンがどの陽子バンチ衝突に由来するのかを識別(Bunch Crossing IDentification, BCID)することができる。一方、TGC検出器はそれほど高い位置分解能が求められていないため、ワイヤー電極を4 ~ 20本まとめてから読み出しを行う。結果としてワイヤー、ストリップは合計32万チャンネルをもつ。
+TGC検出器はトリガー用の検出器であり、ガスギャップが薄く、ワイヤー間隔が小さいため時間応答がよい。これにより陽子衝突頻度である25nsより細かな時間分解能でミューオンを検出し、そのミューオンがどの陽子バンチ衝突に由来するのかを識別( Bunch Crossing IDentification, BCID) することができる。一方、TGC検出器はそれほど高い位置分解能が求められていないため、ワイヤー電極を4 ~ 20本まとめてから読み出しを行う。結果としてワイヤー、ストリップは合計32万チャンネルをもつ。
 
 \begin{itembox}{要修正}
     一時的に青木さんの丸パクリしてる。
 \end{itembox}
 
-BWの外側(1.05 < |$\eta$| < 1.92)はエンドキャップ領域、円盤の内側(1.92 < |$\eta$|< 2.4)はフォワード領域と呼ばれる。エンドキャップ領域では$\phi$方向に48回対称になるよう、フォワードでは$\phi$方向に24回対称になるようにチェンバーが設置されている。エンドキャップ領域の1/48、フォワードの1/24はトリガー回路的に独立しており、そrぞれが"トリガーセクター"と呼ばれる。
+BWの外側 (1.05 < |$\eta$| < 1.92) はエンドキャップ領域、円盤の内側 (1.92 < |$\eta$|< 2.4) はフォワード領域と呼ばれる。エンドキャップ領域では$\phi$方向に48回対称になるよう、フォワードでは$\phi$方向に24回対称になるようにチェンバーが設置されている。エンドキャップ領域の1/48、フォワードの1/24はトリガー回路的に独立しており、そrぞれが"トリガーセクター"と呼ばれる。
 また電源供給、ガス供給、電気回路制御、読み出しの観点からBWは$\phi$方向に12個のセクターに分割される。各"1/12セクター"はx軸の正の方からy軸の正の方向に向かって順にA-sideではA01からA12、C-sideではC01からC12までの名前がついている。
-
-
 
 \section{ATLAS実験におけるTDAQシステム}
 \label{sec_TDAQ}
@@ -160,13 +158,12 @@ L0 TriggerはL0 Calo、L0 Muon、Global Trigger、CTPで構成される。L0 Muo
 \end{figure}
 
 
-
 \section{TGC検出器トリガーシステム}
 \label{sec_TGCtrigger}
 
     \subsection{TGCトリガーのコンセプト}
 
-衝突点からエンドキャップ方向(1.05 < |$\eta$| < 2.4)に飛来するミューオンはエンドキャップトロイド磁石で曲げられ、TGC検出器に入射する。TGC検出器各層ではワイヤー、ストリップの2次元読み出しにより(R、$\phi$)2次元座標が検出される。TGC検出器はz方向に3つのステーションを有しており、3ステーション間のコインシデンスをとることでミューオンの3次元飛跡を再構成し、運動量を概算する。TGC検出器における運動量概算手法のコンセプトを図\ref{TGC_triggerconcept}に示す。
+衝突点からエンドキャップ方向 (1.05 < |$\eta$| < 2.4) に飛来するミューオンはエンドキャップトロイド磁石で曲げられ、TGC検出器に入射する。TGC検出器の各層ではワイヤー、ストリップのによる2次元読み出しで、TGCを通過したミューオンの (R、$\phi$) 座標を検出する。TGC検出器はz方向に3つのステーションを持っており、ステーション間のコインシデンスをとることでミューオンの3次元飛跡を再構成し、運動量を概算する。TGC検出器での運動量概算手法のコンセプトを図\ref{TGC_triggerconcept}に示す。
 
 \begin{figure} 
 \centering
@@ -175,15 +172,24 @@ L0 TriggerはL0 Calo、L0 Muon、Global Trigger、CTPで構成される。L0 Muo
 \label{TGC_triggerconcept}
 \end{figure}
 
-内部飛跡検出器では、磁場で曲げられた粒子の曲率半径を利用して運動量を測定する。一方、TGC検出器自体には磁場がかけられておらず、ミューオンはTGC検出器を直線的に通過するためこの手法は利用できない。そこでTGC検出器では3ステーションのヒットから再構成したミューオンの飛跡と、M3のヒット点と衝突点を直線的結んだ無限運動量飛跡のを比較することで\pt を概算する。具体的には、ミューオンが実際に残したヒット点と無限運動量飛跡のM1及びM2の交点との位置の差分($\mathrm{dR}$,$\mathrm{\phi}$)を利用する。\pt が小さいミューオンほどトロイド磁場領域で大きく曲げられるため、$\mathrm{dR}$ 及び $\mathrm{\phi}$は大きくなる。
-\ref{}節で述べたようにエンドキャップトロイド磁石から作られる磁場とバレルトロイド磁石で作られる磁場は互いに干渉しており、エンドキャップ領域に張られる磁場は、$\phi$方向の成分だけでなくR方向にも成分をもつ。そのため衝突点から飛来するミューオンはR方向だけでなく$\phi$方向にも曲げられる。また磁場が一様でないため、($\mathrm{dR}$,$\mathrm{\phi}$)とpTの関係はミューオンの飛来する場所に依存する複雑な関数となり、代数的に求めるのが困難である。そこであらかじめシミュレーションを用いて、($\mathrm{dR}$,$\mathrm{\phi}$)とPtの関係性をまとめたテーブル(Look Up Table、LUT)を領域ごとに用意する。これにより再構成した($\mathrm{dR}$,$\mathrm{\phi}$)をもとにLUTに問い合わせることで高速でpTを計算することができる。
+内部飛跡検出器では、磁場で曲げられた粒子の曲率半径を利用して運動量を測定する。一方で、TGC検出器自体には磁場がかけられておらず、ミューオンは検出器を直線的に通過するため、この手法は利用できない。そこでTGC検出器では、3つのステーションのヒットから再構成したミューオンの飛跡と、M3のヒット点と衝突点を直線的結んだ無限運動量飛跡とを比較し、\pt を概算する。具体的には、ミューオンが実際に残したヒット点と無限運動量飛跡のM1及びM2の交点との位置の差分 ($\mathrm{dR}$ , $\mathrm{d\phi}$)を 利用する。\pt が小さいミューオンほどトロイド磁場領域で大きく曲げられるため、$\mathrm{dR}$ 及び $\mathrm{d\phi}$は大きくなる。
+\ref{}節で述べたようにエンドキャップトロイド磁石から作られる磁場とバレルトロイド磁石で作られる磁場は互いに干渉しており、エンドキャップ領域に張られる磁場は、$\phi$方向の成分だけでなくR方向にも成分をもつ。そのため衝突点から飛来するミューオンはR方向だけでなく$\phi$方向にも曲げられる。また磁場が一様でないため、($\mathrm{dR}$,$\mathrm{d\phi}$)と\pt の関係はミューオンの飛来する場所に依存する複雑な関数となり、代数的に求めるのが困難である。そこでシミュレーションを用いて、あらかじめ ($\mathrm{dR}$,$\mathrm{d\phi}$) と\pt の関係性をまとめたテーブル (Look Up Table、LUT) を領域ごとに用意することで、迅速に\pt を概算することが可能になる。
 
-加えて、Run2以降のトリガーロジックではTGC BWの情報で得られたミューオン候補はエンドキャップトロイド磁場内部に位置する検出器とコインシデンスがとられる。このコインシデンスをInner Coincidenceと呼ぶ。これにより図\ref{}に示すようなフェイクトリガーと呼ばれる、衝突点に由来しない荷電粒子によるトリガーを削減することが期待される。フェイクトリガーの発生源としては陽子陽子衝突やハドロンカロリメーター内で生じた中性ハドロンが、トロイド磁石と衝突して荷電粒子を吐き出す事象などが考えられる。またNSWなど位置分解能に優れた検出器からの情報を組み合わせてptを計算することでTGC BW単体で計算するよりptの計算精度を高めることができる。
+\begin{figure} 
+\centering
+\includegraphics[width=16cm]{fig/Intro/TGC_Inner_concept.png}
+\caption[フェイクトリガーの例]{Inner Coincidenceで落とすことが期待されるフェイクトリガーの例}
+\begin{itembox}{自分で作り直す}
+    河本さんの修論スクショしただけ
+\end{itembox}
+\label{TGC_Inner_concept}
+\end{figure}
 
-このpTに対して閾値を設け、それ以上のpTを持つミューオンを含む事象を選別する。
+加えてRun2以降のトリガーロジックでは、TGC BWの情報から再構成されたミューオン候補とエンドキャップトロイド磁場内部にある検出器とのコインシデンスがとられる。このコインシデンスをInner Coincidenceと呼ぶ。これにより、図\ref{TGC_Inner_concept}に示されるフェイクトリガーと呼ばれる衝突点に由来しない荷電粒子をトリガーしてしまう事象を減らすことができる。衝突点に由来しない荷電粒子の例として、陽子陽子衝突やハドロンカロリメーター内で生成される中性ハドロンが、エンドキャップトロイド磁石と相互作用して放出される粒子などが挙げられる。またNSWのような位置分解能に優れた検出器からの情報を組み合わせて\pt を計算することで、TGC BW単体での計算よりも精度を高めることが可能である。
+この\pt に対して閾値を設け、それ以上の\pt を持つミューオンを含む事象を選別する。
 
     \subsection{Run3でのTGCトリガーシステム}
-上記のトリガーのコンセプトを実現するRun3 TGCシステムにおけるTDAQシステムのブロック図を図\ref{TGC_run3tdaq}に示す。
+上記のトリガーのコンセプトを実現するRun3 TGC TDAQシステムのブロック図を図\ref{TGC_run3tdaq}に示す。
 
 \begin{figure} 
 \centering
@@ -194,21 +200,29 @@ L0 TriggerはL0 Calo、L0 Muon、Global Trigger、CTPで構成される。L0 Muo
 
 図の赤色の線はトリガーパス、青色はデータパスを示す。
 
-TGC検出器にミューオンが入射すると、\ref{}節で述べたように各ガスレイヤーに張られたワイヤー、ストリップにアナログの電流信号が発生する。アナログ信号はTGC検出器に直接取り付けられたAmplifier Shaper-Discriminator(ASD)に集められる。ASDでは信号を増幅、整形し、閾値電圧と比較することでデジタル信号に変換される。デジタル信号は後段のPS board上に搭載されたPatch-Panel ASIC(PPASIC)において、ミューオンの飛行時間の違いやASDからPS boardに至るケーブルの長さの違いに起因する、チャンネルごとの信号到達時間の差を調整し、各デジタル信号がどのバンチ陽子衝突に由来するのか識別する(BCID)。この後から信号はトリガーパスとリードアウトパスに分けられる。
+TGC検出器にミューオンが入射すると、各ガスレイヤーに張られたワイヤーとストリップでアナログの電流信号が発生する。アナログ信号はTGC検出器に直接取り付けられたAmplifier Shaper-Discriminator (ASD) に集められる。ASDは信号を電圧信号に変換し増幅したのち、閾値電圧と比較することでデジタル信号を生成する。デジタル信号は後段のPS board上に搭載されたPatch-Panel ASIC (PPASIC) において、どのバンチ陽子衝突に由来するものか識別される (BCID) 。この後から信号はトリガーパスとリードアウトパスに分けられる。
 
-トリガーパスはSlave Board(SLB)、High-pt(HPT)ボード、Sector Logic(SL)というパスを辿る。SLBではワイヤーとストリップそれぞれでM1ステーション内およびM2、M3間のコインシデンスがとられ、($\mathrm{dR_{23}}$,$\mathrm{\phi_{23}}$)が計算される。M1では3層中2層以上のコインシデンスが、M2、M3では4層中3層以上のヒットが要求され、コインシデンスが取れたもののうち検出位置の差が小さいものを絞って出力する。High-pT(HPT)ボードではM1、M3間のコインシデンスがとられ($\mathrm{dR_{13}}$,$\mathrm{\phi_{13}}$)が計算され、絶対値の小さいもの(高いpTを持った)から出力される。SLボードではM3におけるヒット位置および($\mathrm{dR_{13}}$,$\mathrm{\phi_{13}}$)をもとにワイヤー・ストリップ間のコインシデンスがとられ、LUTをもとにptを概算する。また磁場内部に位置する検出器(NSW、RPC BIS78、TGC EI、Tile カロリメーター)の飛跡情報ともコインシデンスがとられ、より精度の高いptが計算される。SLで得られた入射位置とpt情報はMUon-to Central Trigger Processor Interface(MUCTPI)に送られCTPへpT情報が渡される。CTPで後段へ送るべきと判断された場合にはL1A信号が発行される。
+トリガーパスは、Slave Board (SLB) ボード、High-pt (HPT) ボード、Sector Logic (SL) というパスを経由して後段に渡される。SLBではワイヤーとストリップそれぞれでM1ステーション内コインシデンスが取らる。またM2、M3ステーション間のコインシデンスもとられ、無限運動量飛跡との位置の差分、($\mathrm{dR_{23}}$,$\mathrm{\phi_{23}}$)が計算される。この際、M1では3層中2層以上のヒット、M2、M3では4層中3層以上のヒットが要求され、コインシデンスが取れたもののうち$\mathrm{dR_{23}}$小さいものを選択して出力する。HPTボードではM1とM3のコインシデンスにより($\mathrm{dR_{13}}$,$\mathrm{\phi_{13}}$)が計算され、絶対値の小さいものが優先的に出力される。SLボードではM3におけるヒット位置および($\mathrm{dR_{13}}$,$\mathrm{\phi_{13}}$)をもとにワイヤー・ストリップ間のコインシデンスがとられ、LUTをもとにして\pt を概算する。また磁場内部に位置する検出器(NSW、RPC BIS78、TGC EI、Tile カロリメーター)の飛跡情報とのコインシデンスもとられ、より精度の高い\pt が計算される。SLで得られた入射位置と\pt 情報はMUon-to Central Trigger Processor Interface (MUCTPI) に送られ、CTPへ情報が渡される。CTPで後段へ送るべきと判断された場合にはL1A信号が発行される。
 
-読み出しパスはSLB、Star SWitch(SSW)ボード、ReadOut Driver(ROD)というパスを辿る。PPASICで同期された信号はトリガー判定が完了するまで、SLB内のL1Bufferに一時的に保存される。SLBでは最大128イベント分の信号をバッファーすることができる。\ref{}節で述べたようにL1-TriggerはFixed latency schemeを採用しており、L1 Bufferにデータが入ってからそのイベントにL1Aが出されるまでの時間は固定である(L1-latency)。そのためSLBはL1Aを受けた後、L1 latencyだけ前のデータを読み出すことで正しくL1Aに対応するデータを読み出すことができる。SLBから読み出されたデータはSSWボードでゼロサプレスと呼ばれるデータ圧縮を行い、イベント毎にパッケージする(Event Building)。RODは1つのセクター内の全てのSLB-SSWから送られるすべてのデータをまとめ、さらに後段のReadOut System(ROS)へとデータを送信する。
+読み出しパスはSLB、Star SWitch (SSW) ボード、ReadOut Driver (ROD) というパスを経由して後段へ渡される。PPASICで同期された信号は、トリガー判定が完了するまでSLB内のL1 Bufferに保存される。SLBでは最大128イベント分の信号をバッファリングすることが可能である。前節で述べた通り、L1 TriggerはFixed latency schemeを採用しており、L1 Bufferにデータが入ってからそのイベントにL1Aが出されるまでの時間 (L1 latency) は固定されている。そのためSLBはL1Aを受信した後、L1 latencyだけ前のデータを読み出すことで、正しくデータを読み出すことができる。SLBから読み出されたデータはSSWボードでゼロサプレスと呼ばれるデータ圧縮を行われ、イベント毎にパッケージされる (Event Building)。RODは1つのセクター内の全てのSLB-SSWから送られたデータ集約し、さらに後段のReadOut System (ROS) へとデータを送信する。
 
-これらのTGCエレクトロニクスのうち、ASD、PS board、HPT、SSWはフロントエンドエレクトロニクスと呼ばれ、UX15というTLAS実験室内に設置される。
+これらのTGCエレクトロニクスのうち、ASD、PS board、HPT、SSWはATLAS実験室内に設置され、フロントエンドエレクトロニクスと呼ばれる。
+図\ref{TGC_elec_mount}にフロントエンドエレクトロニクスの設置場所を示す。
 
-ASDはTGCチェンバーに直接取りつけたアダプタボードにマウントされる。PS boardは2枚毎にアルミケース(PS-pack)に収納され、TGCチェンバー付近に設置される。HPTおよびSSWは、BWの外側のMini-Rack内のVMEクレートに収められる。
+\begin{figure} 
+\centering
+\includegraphics[width=16cm]{fig/Intro/TGC_elec_mount.png}
+\caption[TGCエレクトロニクスが設置されている場所]{TGCエレクトロニクスが設置されている場所}
+\label{TGC_elec_mount}
+\end{figure}
 
-SL、ROD以降バックエンドエレクトロニクスと呼ばれUX15から100 mほど離れたUSA15というATLAS回路室内に設置される。HPTからSLおよびSSWからRODへの通信はUX15とUS15間の限られた帯域幅を用いて行う必要があり、高輝度LHC-ATLAS実験ではG-linkと呼ばれる旧式のシリアル通信規格で接続している。G-linkにおけるシリアルデータの転送レートは約1 Gpbsである。
+ASDはTGCチェンバーに直接取り付けられたアダプタボードにマウントされる。PS boardは2枚ごとにアルミケース (PS-pack) に収納され、TGCチェンバー付近に設置される。HPTおよびSSWはBWの外側にあるMini-Rack内のVMEクレートに収められる。
+
+SL、ROD以降のエレクトロニクスはUX15から100 mほど離れたUSA15というATLAS回路室内に設置され、バックエンドエレクトロニクスと呼ばれる。HPTとSLおよびSSWとRODの通信はUX15とUS15間の限られた帯域幅を用いて行われる必要があり、Run3ではG-linkと呼ばれる旧式のシリアル通信規格で接続される。G-linkにおけるシリアルデータ転送レートはおよそ1 Gpbsである。
 
 次にTTC系について述べる。
 
-Level 1 Buffer以前の読み出し回路およびトリガー回路はFixed latency schemeを実現するためにLHCの陽子バンチ衝突と同期して動作する必要がある。このために各検出器とLHCを同期するためのシステムをTiming, Trigger and Control (TTC)システムとよび、そのために配布される信号をTTC信号と呼ぶ。TTC信号には陽子バンチ衝突と同期した40.079 MHzのクロックであるLHCバンチ交差クロックやL1A信号などが含まれる。Run3でのTTC系の概要を図\ref{}に示す。TTC信号はCTPから各検出機サブシステムのLocal Trigger Processor(LTP)に配られる。その後TTC信号はTTCvi, TTCex、TTXrx と呼ばれる TTC 専用モジュール及び TTC 専用線を用いて PS board, HPT, SSW, SL へ分配される。
+Level1 Bufferより前の読み出し回路およびトリガー回路は、Fixed latency schemeを実現するためLHCの陽子バンチ衝突と同期して動作する必要がある。この同期のために、各検出器とLHCを同期させるシステムをTiming, Trigger and Control (TTC) システムとよび、そのために配布される信号をTTC信号と呼ぶ。TTC信号には陽子バンチ衝突と同期した40.079 MHzのLHCバンチ交差クロック (LHCクロック) やL1A信号などが含まれる。Run3におけるTTC系の概要を図\ref{Run3_TTC}に示す。TTC信号はCTPから各検出機サブシステムのLocal Trigger Processor (LTP) に配られる。その後TTC信号はTTCvi、TTCex、TTXrxと呼ばれるTTC専用モジュールおよび専用線を通じて、PS board、HPT、SSW、SLへ分配される。
 
 \begin{figure} 
 \centering
@@ -217,16 +231,12 @@ Level 1 Buffer以前の読み出し回路およびトリガー回路はFixed lat
 \label{Run3_TTC}
 \end{figure}
 
-\begin{itembox}{要修正}
-    モロパクリ
-\end{itembox}
-以上で述べたRun3のTDAQシステムでは高輝度LHC-ATLAS実験におけるトリガー・読み出し性能の要求を満たすことができない。限界は主にSLBに設置されるL1 Bufferの大きさとATLAS実験室と回路しつの間の帯域幅からきている。Run3のL1 Bufferは最大128イベント分のデータしか保存することができないため、高輝度LHC-ATLAS実験のL0-latencyの要求10us(400バンチ)の間データを保持しておくことができない。また1 MHzの初段トリガーレートを満たす量のデータを読み出すには、現行システムでのATLAS実験室とATLAS回路質間の帯域幅では不十分である。
-フロントエンドエレクトロニクスの設置場所を図\ref に示す。
+以上に述べたRun3のTDAQシステムでは、高輝度LHC-ATLAS実験のトリガーおよび読み出し性能の要求を満たすことができない。この限界は、主にSLBに設置されるL1 Bufferの容量と、ATLAS実験室と回路室間の帯域幅に由来している。Run3では、L1 Bufferは最大128イベント分のデータしか保存できないため、高輝度LHC-ATLAS実験のL0 latencyの要求である10us (400バンチ) の間データを保持することができない。さらに、1 MHzの初段トリガーレートに対応するデータ量を読み出すためには、現行システムのATLAS実験室と回路室間の帯域幅では不十分である。
 
     \subsection{高輝度LHC-ATLAS実験でのTGCトリガーシステム}  
-前節で述べた困難を克服するため、高輝度LHC-ATLAS実験に向けてTGC検出器エレクトロニクスシステムは大幅にアップグレードされる。主な違いはPS boardでBCIDされたすべてのヒット信号がトリガーをかけられることなく後段のSLに送られることである。Run3のトリガーパスではSLBボードやHPTボードでコインシデンスをとることで、TGCからのヒット信号はデータサイズを徐々に減らしながら回路室へ送られる。高輝度LHC-ATLAS実験では新しく高速シリアル通信技術を導入することで、実験室と回路室の間の帯域幅を1 Gbps程度から10 Gbpsへ大幅に拡張する。これにより、PS boardで受け取ったTGCからの信号を、削減することなくすべて回路室のSLへ転送することが可能になった。回路室ではボードのサイズや放射線への堅牢性に対する制約がないため、バックエンドエレクトロニクスであるSLには大規模なFPGAを搭載することができる。その結果、CTPからL0Aが発行されるまでデータを保管しておくL0バッファーも余裕を持って実装することができ、10 usのL0レイテンシーに対応することができる。またSLは1つのトリガーセクター内の全てのPS boardからのヒット信号を集約するため、TGC BW 7層分の情報を利用したより包括的なトリガーアルゴリズムを実現することができる。高輝度LHC-ATLAS実験でのトリガーロジックの詳細は\ref{}節で示す。
+前節で述べた問題を解決するため、高輝度LHC-ATLAS実験ではTGC検出器のエレクトロニクスシステムが大幅にアップグレードされる。主な違いはPS boardでBCIDされたすべてのヒット信号がトリガーをかけられることなく後段のSLに送られることである。Run3のトリガーパスでは、検出器からの信号はSLBやHPTボードでのコインシデンスを通じて、データサイズを徐々に減らしながら回路室へ送られる。高輝度LHC-ATLAS実験では新しく高速シリアル通信技術を導入することで、実験室と回路室の間の帯域幅を1 Gbps程度から10 Gbpsへ大幅に拡張する。これにより、PS boardで受け取ったTGCからの信号を削減することなくすべて回路室のSLへ転送することが可能になった。回路室では、ボードのサイズや放射線への耐性に対する制約が少ないため、バックエンドエレクトロニクスであるSLには大規模なFPGAを搭載することができる。その結果、CTPからL0Aが発行されるまでデータを保管しておくL0バッファーも余裕を持って実装することができ、10 usのL0 latencyに対応することが可能である。またSLは1つのトリガーセクター内の全てのPS boardからのヒット信号を集約するため、TGC BW 7層分の情報を利用した、より包括的なトリガーアルゴリズムを実現することができる。高輝度LHC-ATLAS実験でのトリガーロジックの詳細は\ref{}節で示す。
 
-図\ref{TGC_phase2tdaq}に高輝度LHC-ATLAS実験でのTGC検出器エレクトロニクスの概要を示す。ASDは現行システムのものをそのまま用いる。一方Run3で使われていたPS board、SLB、HPT、SLは全て撤廃され、新しくPrimary ProceSsor board(PS board)、JTAG AssisTance Hub(JATHub)、TAM(Timing Alignment Master)、Endcap Sector Logic(SL)が設置される。PS boardはRun3と同様のPS-packに格納され、TGC検出器付近に設置される。JATHubとTAMはMini-pack内のVMEクレート内に設置される。SLはUSA15に設置される。1つのSLはTGCの1/24セクター担当し、このセクターを担当する最大31枚のPS boardからヒットデータを受け取る。
+図\ref{TGC_phase2tdaq}に高輝度LHC-ATLAS実験でのTGC検出器エレクトロニクスの概要を示す。ASDは現行システムのものを引き続き使用する。一方で、Run3で使われていたPS board、SLB、HPT、SLはすべて撤去され、新しくPrimary ProceSsor board (PS board)、JTAG AssisTance Hub (JATHub)、Endcap Sector Logic (SL) が設置される。PS boardはRun3と同様にPS-packに格納され、TGC検出器付近に設置される。JATHubはMini-pack内のVMEクレートに設置される。SLはUSA15のATCAクレートに設置される。1つのSLはTGCの1/24セクター担当し、このセクターを担当する最大31枚のPS boardからヒットデータを受け取る。
 
 \begin{figure} 
 \centering
@@ -235,123 +245,134 @@ Level 1 Buffer以前の読み出し回路およびトリガー回路はFixed lat
 \label{TGC_phase2tdaq}
 \end{figure}
 
-トリガーパスにおけるデータの伝達を赤色の矢印で示す。TGCで生じた電流信号はASDで電圧信号に変換されたのち、PS board上のPP ASICでタイミングが揃えられ、BCIDされる。PP ASICからの信号はヒットの有無に関わらずPS board上のFPGAから光ファイバーを通じてSLに送信される。SLはTGC BW、TGC EI、NSW、RPC BIS78、Tile カロリメーターの情報を用いてミューオンのptを概算する。その後SLはMDT Trigger Processorにミューオン飛跡候補を送信し、よりよいpt分解能の情報を得る。SLからのトリガー出力はMUCTPI通じてCTPへ送信される。
+トリガーパスにおけるデータ伝達を図中赤色の矢印で示す。TGCで生じる電流信号はASDでデジタル信号に変換された後、PS board上のPP ASICで陽子バンチ交差クロックと同期される。PP ASICからの信号は、ヒットの有無に関わらず、PS board上のFPGAから光ファイバーを通じてSLに送信される。SLは、PS boardから送られるTGC BW 7層の情報に加え、TGC BW、TGC EI、NSW、RPC BIS78、Tile カロリメーターの情報も用いてミューオンの\pt を概算する。その後SLはMDT Trigger Processorにミューオン飛跡候補を送信し、よりよい\pt 分解能の情報を得る。SLからのトリガー出力はMUCTPI通じてCTPへ送信される。CTPでのトリガー判定を待っている間のデータのバッファーもSLで行われる。SLはL0Aを受信すると、対応するイベントのデータをFELIXを通じて後段に送信する。
 
-CTPでのトリガー判定を待っている間のデータのバッファーもSLで行われる。SLはL0Aを受けると、そのイベントに該当するデータをFELIXを通じて後段に送信する。
-
-TTC信号はCTPからFELIXを通してSLに分配される。SLはPS boardへのコントロール信号に乗せてTTC信号を分配する。
-
-このシステムではバックエンドのSLとフロントエンドのPS boardは光リンクだけで接続され、
+コントロールパスを青色で示す。SLは光ファイバーを通じてコントロール信号を送ることでPS boardを制御する。さらに、SLはCTPからFELIXを介して取得したTTC信号をこの線に乗せてPS boardに分配する。
+このシステムではlバックエンドのSLとフロントエンドのPS boardが光リンクのみで接続されており、
 トリガー・データ読み出し、コントロール、TTCの分配を単純なセットアップで実現している。
 
 以下にそれぞれのエレクトロニクスとその役割を説明する。
 
-    \subsection*{Amplifier-Shaper-Discriminator(ASD)}
-ワイヤー、ストリップからの電流信号はTGCのチェンバーに直接取り付けられているAmplifier-Shaper-Discriminator(ASD)ボードで電圧信号に変換された後に増幅され、閾値電圧との比較による信号識別を経て、最終的にLVDS規格のデジタル信号へ変換される。図\ref{TGC_ASD}にASDの概要を示す。ASDはチャージアンプである前段増幅器(Preamplifier)、差動電圧増幅回路、コンパレーターからなる。前段増幅回路では0.8 V/pのゲインで電流信号を電圧信号に変換する。その信号は差動電圧増幅回路で7倍に増幅され、コンパレーターで閾値電圧を超えている時間に対応するパルス長のLVDS信号に変換される。この閾値電圧はPS boardから設定できるようになっている。またASDにはTGCのチャージ出力をエミュレートするTest Pulse源が実装されており、ASD以降のトリガー・データパスのデバッグに利用される。1枚のASDボードには4枚のASDチップが搭載されており、1枚あたり4チャンネル、全部で16チャンネルの信号を処理する。TGCの読み出しチャンネルはおよそ32 万チャンネルであるため、システム全体ではおよそ2万枚のASDボードが設置される。
+        \subsection*{Amplifier-Shaper-Discriminator(ASD)}
+    ワイヤー、ストリップからの電流信号はTGCのチェンバーに直接取り付けらたAmplifier-Shaper-Discriminator (ASD) ボードで電圧信号に変換された後に増幅され、閾値電圧との比較による信号識別を経て、最終的にLVDS規格のデジタル信号へ変換される。図\ref{TGC_ASD}にASDの概要を示す。ASDはチャージアンプである前段増幅器(Preamplifier)、差動電圧増幅回路、コンパレーターから構成されている。前段増幅回路では、0.8 V/pのゲインで電流信号を電圧信号に変換する。その信号は差動電圧増幅回路で7倍に増幅され、コンパレーターで閾値電圧を超えている時間に対応するパルス長のLVDS信号に変換される。この閾値電圧はPS boardから設定できるようになっている。またASDにはTGCのチャージ出力をエミュレートするTest Pulse源が実装されており、ASD以降のトリガー・データパスのデバッグに利用される。1枚のASDボードには4枚のASDチップが搭載されており、1枚あたり4チャンネル、全部で16チャンネルの信号を処理する。TGCの読み出しチャンネルはおよそ32万チャンネルであるため、システム全体ではおよそ2万枚のASDボードが設置される。
 
-\begin{figure}
-\begin{minipage}[b]{.5\linewidth}
-\centering
-\includegraphics[height=5cm]{fig/Intro/TGC_ASD.pdf}
-\subcaption{ASDボードの写真}
-\end{minipage}%
-\begin{minipage}[b]{.5\linewidth}
-\centering
-\includegraphics[height=5cm]{fig/Intro/TGC_ASDcircuite.pdf}
-\subcaption{ASDチップの回路ブロック図}
-\end{minipage}%
-\caption[ASDの概要]{ASDの概要\cite{ASD}}
-\label{TGC_ASD}
-\end{figure}
+    \begin{figure}
+    \begin{minipage}[b]{.5\linewidth}
+    \centering
+    \includegraphics[height=5cm]{fig/Intro/TGC_ASD.pdf}
+    \subcaption{ASDボードの写真}
+    \end{minipage}%
+    \begin{minipage}[b]{.5\linewidth}
+    \centering
+    \includegraphics[height=5cm]{fig/Intro/TGC_ASDcircuite.pdf}
+    \subcaption{ASDチップの回路ブロック図}
+    \end{minipage}%
+    \caption[ASDの概要]{ASDの概要\cite{ASD}}
+    \label{TGC_ASD}
+    \end{figure}
 
-    \subsection*{Primary ProceSsor board(PS board)}
-ASDボードから送られるヒット信号は次にPS boardに入る。PS boardはPP ASICとXilinx 社製のKintex-7 FPGAという二つの集積回路を搭載している。PP ASICは各ASDからの入力信号の到着時間を揃え、その信号がどの陽子バンチ衝突に由来する信号か識別する(BCID)。PS board FPGAはBCIDされたヒット信号を高速光シリアル通信に乗せてSLへ転送する。図\ref{TGC_PSB}にPS boardの最終試作機の写真とブロック図を示す。PS boardには8つのPPASICが搭載され、そのうち4つはメザニンカード上に乗せられる。1つのPP ASICは2台のASDと接続され、合計32チャンネルの信号を処理する。PS board FPGAは8つのPP ASICからの信号をまとめ上げ、合計256チャンネル分のヒットデータをヒットの有無に関わらずSLに送る。
-PS boardはその他にDAC(Degital Analog Converter)、ADC(Analog Degital Converter)、クロックジッタークリーナー、QSPIフラッシュメモリー、SFP+などの素子を搭載している。DACはASD ASICのコンパレーターにアナログの閾値電圧を供給するための素子であり、PS board FPGAから閾値電圧の大きさを設定することができる。ADCはDACから供給される閾値電圧をモニターする。クロックジッタークリーナーはPS baord FPGAがシリアルデータから再構成したLHCバンチ衝突クロックのジッターを低減する。QSPI フラッシュメモリーは不揮発性のメモリーであり、ボードの電源が落とされた場合でも書き込まれた値を保持しておくことができる。これを利用してPS board FPGAのファームウェアやボードごとに定義されるPP ASICの遅延値などのパラメーターを保存する役割を果たす。
-またインターフェイスとして、電気信号を光信号に変換し光通信を行うためのSFP+モジュール、Cat-6ケーブルのコネクターであるRJ45を有しており、それぞれ後述のSLとJATHubと接続される。
-PS baordはシステム全体で1434枚設置される。
-以下ではPP ASICとPS board FPGAの役割を詳しく説明する。
+        \subsection*{Primary ProceSsor board(PS board)}
+    ASDボードからのヒット信号は、次にPS boardに送られる。PS boardはPP ASICとXilinx 社製のKintex-7 FPGAという二つの集積回路を搭載している。PP ASICは各ASDからの入力信号の到着時間を揃え、その信号がどの陽子バンチ衝突に由来するかを識別する(BCID)。PS board FPGAはBCIDされたヒット信号を高速光シリアル通信に乗せてSLへ転送する。図\ref{TGC_PSB}にPS boardの最終試作機の写真とブロック図を示す。PS boardには8つのPPASICが搭載され、そのうち4つはメザニンカード上に乗せられる。1つのPP ASICは2台のASDと接続され、合計で32チャンネルの信号を処理する。PS board FPGAは8つのPP ASICからの信号をまとめ上げ、合計256チャンネル分のヒットデータをヒットの有無に関わらずSLに送る。
+    PS boardはその他にDAC (Degital Analog Converter) 、ADC (Analog Degital Converter) 、クロックジッタークリーナー、QSPIフラッシュメモリーなどの素子を搭載している。DACはASD ASICのコンパレーターにアナログの閾値電圧を供給するための素子であり、PS board FPGAから閾値電圧の大きさを設定することができる。ADCはDACから供給される閾値電圧をモニターする。クロックジッタークリーナーは、PS baord FPGAがシリアルデータから再構成したLHCバンチ衝突クロックのジッターを低減するために使用される。QSPI フラッシュメモリーは不揮発性のメモリーであり、ボードの電源が落とされた場合でも書き込まれた値を保持しておくことができる。これを利用してPS board FPGAのファームウェアやボードごとに定義されるPP ASICの遅延値などのパラメーターを保存する役割を果たす。xADCは電源として供給された電圧をモニターするための素子である。
+    またインターフェイスとしては、電気信号を光信号に変換して光通信を行うSFP+モジュール、Cat-6ケーブルのコネクターであるRJ45を有しており、それぞれSLとJATHubと接続される。システム全体で1434枚のPS boardが設置される。
 
-\begin{figure}
-\begin{minipage}[b]{.5\linewidth}
-\centering
-\includegraphics[height=8cm]{fig/Intro/TGC_PSB.pdf}
-\subcaption{PS boardの写真}
-\end{minipage}%
-\begin{minipage}[b]{.5\linewidth}
-\centering
-\includegraphics[height=8cm]{fig/Intro/TGC_PSBblock.pdf}
-\subcaption{PS boardのブロック図}
-\end{minipage}%
-\caption[PS boardの概要]{PS boardの概要}
-\label{TGC_PSB}
-\end{figure}
+    以下ではPP ASICとPS board FPGAの役割を詳しく説明する。
 
-\subsubsection*{Patch-Panel ASIC(PP ASIC)}
-図\ref{}にPP ASICのブロック図を示す。PP ASICは主に可変遅延回路と陽子バンチ識別回路で構成される。
+    \begin{figure}
+    \begin{minipage}[b]{.5\linewidth}
+    \centering
+    \includegraphics[height=8cm]{fig/Intro/TGC_PSB.pdf}
+    \subcaption{PS boardの写真}
+    \end{minipage}%
+    \begin{minipage}[b]{.5\linewidth}
+    \centering
+    \includegraphics[height=8cm]{fig/Intro/TGC_PSBblock.pdf}
+    \subcaption{PS boardのブロック図}
+    \end{minipage}%
+    \caption[PS boardの概要]{PS boardの概要}
+    \label{TGC_PSB}
+    \end{figure}
 
-\begin{figure} 
-\centering
-\includegraphics[width=16cm]{fig/Intro/TGC_PPASIC.pdf}
-\caption[PP ASIC回路のブロック図]{PP ASIC回路のブロック図\cite{PPASIC}}
-\label{TGC_PPASIC}
-\end{figure}
+    \subsubsection*{Patch-Panel ASIC(PP ASIC)}
+    図\ref{TGC_PPASIC}にPP ASICのブロック図を示す。PP ASICは主に可変遅延回路と陽子バンチ識別回路で構成される。
 
-PP ASICが受け取るLVDS信号の入力時間は、チャンネルごとに最大26 ns程度のばらつきが存在する。これは、チャンネルごとにミューオンの衝突点から検出器までの飛行時間(Time-of-Flight)やASDからPP ASICまでのLVDSケーブルの長さが異なるからである。また、TGCの同一のチャンネルであってもイベント毎に信号到着時間が20 ~ 30 nsバラつく。(\ref{}参照)これはミューオンの入射位置によって、チェンバー内で電荷が検出される位置からASDまでの距離や、電荷のドリフト時間が変わるからである。
+    \begin{figure} 
+    \centering
+    \includegraphics[width=16cm]{fig/Intro/TGC_PPASIC.pdf}
+    \caption[PP ASIC回路のブロック図]{PP ASIC回路のブロック図\cite{PPASIC}}
+    \label{TGC_PPASIC}
+    \end{figure}
 
-このばらつきを揃えるために、各ASDごとに固有の遅延をかけるのが可変遅延回路である。可変遅延回路は1ns以下の刻み幅で、最大45 nsの遅延をかけることができる。PP ASICに到着するのが一番遅いASDからの信号の立ち上がりに、他のASDからの信号の立ち上がりを揃えるように遅延パラメーターを設定する。この遅延パラメーターはPS boardのFGPAから設定することができる。
+    PP ASICが受け取るLVDS信号の入力時間は、チャンネルごとに最大26 ns程度のばらつきが存在する。これは、チャンネルごとにミューオンの衝突点から検出器までの飛行時間 (Time-of-Flight) やASDからPP ASICまでのLVDSケーブルの長さが異なるからである。さらに、TGCの同じチャンネル内でもイベントごとに信号の到着時間が20 ~ 30 ns程度変動する。(\ref{}参照)これはミューオンの入射位置によって、チェンバー内で電荷が検出される位置からASDまでの距離や、電荷のドリフト時間が変わるからである。
 
-可変遅延回路でタイミングが揃えられた信号は、次に陽子バンチ識別回路に入る。陽子バンチ識別回路は、PP ASICに入射するデジタル信号の立ち上がりを検出し、その信号がどの陽子バンチ衝突に由来するのか識別する。陽子バンチ回路の概念図を図\ref{TGC_BCID}に示す。上述したように同じチャンネル内でもヒット信号の到着時間はイベント毎に20 ~ 30 ns程度の幅を持ち、この時間幅のうちに来るヒット信号には同じBCIDを付与する必要がある。そのため、同じBCIDを付与する時間幅(有効ゲート幅)をASDごとに設定できるようになっており、信号到着時間幅が25 nsを超える場合に対応するため、有効ゲート幅は25 nsを超えて設定できるようになっている。この場合、図\ref{TGC_BCID}のピンク色で囲まれた領域が示すように、2つの有効ゲートが重なる時間が存在するが、このタイミングに入射した信号に対しては2バンチ分の信号を出力する。有効ゲート幅もPS boardのFPGAから設定することができる。
+    このばらつきを揃えるために、各ASDごとに固有の遅延をかけるのが可変遅延回路である。可変遅延回路は1ns以下の刻み幅で、最大45 nsの遅延をかけることができる。PP ASICに一番遅く到着するASDからの信号の立ち上がりと他のASDからの信号の立ち上がりを合わせるように、遅延パラメーターが決められる。この遅延パラメーターはPS boardのFGPAから設定することができる。
 
-\begin{figure} 
-\centering
-\includegraphics[width=16cm]{fig/Intro/TGC_BCID.pdf}
-\caption[陽子バンチ識別回路のタイミングチャート]{陽子バンチ識別回路のタイミングチャート\cite{mt_takemoto}}
-\label{TGC_BCID}
-\end{figure}
+    可変遅延回路でタイミングが揃えられた後、信号は陽子バンチ識別回路に送られる。陽子バンチ識別回路は、PP ASICに入射するデジタル信号の立ち上がりを検出し、その信号がどの陽子バンチ衝突に由来するのか識別する。陽子バンチ回路の概念図を図\ref{TGC_BCID}に示す。前述の通り、同じチャンネル内であってもヒット信号の到着時間はイベント毎に20 ~ 30 ns程度の幅を持ち、この時間幅のうちに来るヒット信号には同じBCIDを付与する必要がある。そのため、同じBCIDを付与する時間幅(有効ゲート幅)をASDごとに設定できるようになっており、信号到着時間幅が25 nsを超える場合に対応するため、有効ゲート幅は25 ns以上に設定できるようになっている。この状況では、2つの有効ゲートが重なる時間が存在するが、このタイミングに入射した信号には2バンチ分の信号が出力される。有効ゲート幅もPS boardのFPGAから設定することができる。
 
-\subsubsection*{PS board FPGA}
-PS board FPGAはSLへヒットデータを転送することに加え、PS board上の各素子の制御及びLHCバンチ交差クロックの再構成を担う。
+    \begin{figure} 
+    \centering
+    \includegraphics[width=16cm]{fig/Intro/TGC_BCID.pdf}
+    \caption[陽子バンチ識別回路のタイミングチャート]{陽子バンチ識別回路のタイミングチャート\cite{mt_takemoto}}
+    \label{TGC_BCID}
+    \end{figure}
 
-8つのPP ASICでLHC バンチ交差クロックと同期された256チャンネルのヒット信号はPS board上のFPGAでまとめられ、光ファイバーを経由してSLに転送される。
+    \subsubsection*{PS board FPGA}
+    PS board FPGAはSLへのヒットデータ転送に加えて、PS board上の各素子の制御/監視およびLHCバンチ交差クロックの再構成も担当する。
+    8つのPP ASICでLHCバンチ交差クロックと同期された256チャンネルのヒット信号は、PS board FPGAで集められ、光ファイバーを通じてSLに転送される。
+    PS boardからSLに送られるデータフォーマットを図\ref{TGC_PSBuplink}に示す。256チャンネルのヒットデータに加え、64 bitのヘッダーが付与され合計320bitのデータが25 nsおきに送信される。320ビットのデータは2本の光ファイバーに分けられ、32ビットごとにワードとしてまとめられて送信される。ここでワード0ではヘッダーが、ワード1 ~ 4にヒットデータが詰められる。データ転送には高速シリアル通信に対応したGTXトランシーバーを用いる。ここでは8b10bコーディングが用いられ、FPGA内のパラレルデータをシリアルデータに変換する。そのため、1本の光リンクのラインレートは$160 bit \times 10/8 \times 40 \mathrm{\,MHz} = 8Gbps$となる。
 
-PS boardからSLに送られるデータフォーマットを図\ref{TGC_PSBuplink}に示す。256チャンネルのヒットデータに加え、64 bitのヘッダーが付与され合計320bitのデータが25 nsおきに送信される。320 bit のデータは2本の光ファイバーに分けられ、32bitごとにワードという塊を形成して送られる。ここでワード0ではヘッダーが、ワード1 ~ 4にヒットデータが詰められる。データ転送には高速シリアル通信に対応したGTXトランシーバーを用いる。ここでは8b10bコーディングを用いてFPGA内のパラレルデータからシリアルデータに変換するため、1本の光リンクのラインレートは$160 bit \times 10/8 \times 40 \mathrm{\,MHz} = 8Gbps$となる。
+    \begin{figure} 
+    \centering
+    \includegraphics[width=16cm]{fig/Intro/TGC_PSBuplink.pdf}
+    \caption[PS boardからSLへ送るデータフォーマット]{PS boardからSLへ送るデータフォーマット\cite{mt_aoki}}
+    \label{TGC_PSBuplink}
+    \end{figure}
 
-\begin{figure} 
-\centering
-\includegraphics[width=16cm]{fig/Intro/TGC_PSBuplink.pdf}
-\caption[PS boardからSLへ送るデータフォーマット]{PS boardからSLへ送るデータフォーマット\cite{mt_aoki}}
-\label{TGC_PSBuplink}
-\end{figure}
+    PS board FGPAはSLからコントロール用の信号を1本の光ファイバーを通じて受け取る。SLからPS boardに送られるデータフォーマットを図\ref{TGC_PSBdownlink}に示す。SLはワード2と3で定義されたAddress、Data、Commandを利用してPS board FPGA内のレジスタを操作する。また、PS board FPGAとQSPIフラッシュメモリーはSPIバスで接続されており、SLがFPGAを経由してSPIバスをビットバンギングすることでQSPIフラッシュメモリーに値を書き込むことができる。このパスを利用して、PPASICの遅延パラメーターや有効ゲート幅、ASDに供給する閾値電圧など、各PS board毎に異なるパラメーターを設定する必要がある制御用パラメーターをQSPI フラッシュメモリー上に保存することができる。
+    また、PS board FPGAはQSPIフラッシュメモリーに書き込まれた制御用パラメーターを自動で読み取り、PP ASIC、ASDに分配する。これを自立型制御機構と呼ぶ。この機構により、1434枚のPS boardを迅速かつ正確に制御することができる。
+    PS board FPGA にはPS board上の素子の状態を監視するための機構も備わっており、DACに分配した設定値、ADC、xADC\footnote{Xilinx Analog-Digital Converter、FPGA内部の温度、電源電圧、外部からのアナログ信号を監視するためのモジュール。PS boardに供給される3.3 VD (デジタル) 、+ 3 VA (アナログ) 、-3 VAをモニターする}のモニター値、GTXトランシーバーのロック信号を定期的に読み出し、SLに送信する。これによりコントロールマスターのSLはフロントエンドのPS boardの状態を常に把握することができる。
 
-また、PS board FGPAはSLからコントロール用の信号を1本の光ファイバー経由で受け取る。SLからPS boardに送られるデータフォーマットを図\ref{TGC_PSBdownlink}に示す。SLはワード2,3で定義されたAddress、Data、Command、データを利用しPS board FGPA内のレジスタを操作する。またPS board FPGAとQSPIフラッシュメモリーはSPIバスで繋がれており、SLからFPGAを経由してSPIバスをビットバンギングすることでQSPIフラッシュメモリーにデータを書き込むことができる。このパスを利用して、PPASICの遅延パラメーターや有効ゲート幅、ASDに供給する閾値電圧など、各PS board毎に異なるパラメーターがQSPIフラッシュメモリーに書き込まれる。
+    \begin{figure} 
+        \centering
+        \includegraphics[width=16cm]{fig/Intro/TGC_PSBdownlink.pdf}
+        \caption[SLからPS boardへ送るコントロールデータのフォーマット]{SLからPS boardへ送るコントロールデータのフォーマット\cite{mt_aoki}}
+        \label{TGC_PSBdownlink}
+    \end{figure}
+    
+    TTC信号もこのコントロール線に乗せられてPS boardに分配される。PS boardのGTXトランシーバーは、ワード0で定義されるComma ワードを使用してシリアルデータからLHCバンチ交差クロックを再構成する。PS boardで再構成されたLHCバンチ交差クロックには適切な遅延が加えられた後、ジッタークリーナーを経由してFPGA、GTXトランシーバー、PP ASICへ分配される。    
 
-\begin{figure} 
-\centering
-\includegraphics[width=16cm]{fig/Intro/TGC_PSBdownlink.pdf}
-\caption[SLからPS boardへ送るコントロールデータのフォーマット]{SLからPS boardへ送るコントロールデータのフォーマット\cite{mt_aoki}}
-\label{TGC_PSBdownlink}
-\end{figure}
+    さらに、PS boardは放射線損傷に対する堅牢性を実現するシステムを搭載している。FPGAに対する放射線損傷として、電子回路上のメモリのビットが反転してしまうSingle Event Upset (SEU) が考えられる。FPGAには修復可能なSEU (1ビットエラーおよび隣接する2ビットエラー)を自動的に修復するSoft Error Mitigation Controller (SEM) が実装されている。また修復不可能なSEU (隣接しない2ビットエラーおよび3ビット以上のエラー) が生じた際には、PS boardの制御を担当するフロントエンドエレクトロニクスであるJATHubに対して救難信号を送り、JATHubからFPGAの再コンフィギュレーション用の信号を送ってもらう。これにより、PS board FPGAの修復不可能なSEUによるデッドタイムを最小限に抑えることができる。
 
-TTC信号もこのコントロール線に乗せられてPS boardに分配される。PS boardのGTXトランシーバーはワード0で定義されたComma ワードを利用して、シリアルデータからLHCバンチ交差クロックを再構成する。PS boardで再構成されたLHCバンチ交差クロックは適切な遅延をかけられてから、ジッタークリーナーを通りFPGAやGTXトランシーバー、PPASICに分配される。
+        \subsection*{JTAG AssisTance Hub(JATHub)}
+    JATHubはデータパスとは独立した、PS board制御用の回路である。
 
-    \subsection*{JTAG AssisTance Hub(JATHub)}
-JATHubはデータパスとは独立した、PS board制御用回路である。JATHubはPS board FPGAを常時モニターしており、PS board FPGAに修復不可能なSingle Event Upset(SEU)が生じた場合に、再コンフィギュレーション用の信号を送る。またPS board QSPIフラッシュメモリへのファームウェアの書き込み、LHCバンチ交差クロックの位相測定を行う。
+    概要を図\ref{TGC_JATHub}に示す。JATHubはプロセッサーとFPGAを組み合わせたXilinx社製のZynq SoCをメインドライバーとして搭載する。Zynqはプロセッサー部分であるProcessing System (PS) と、FPGA部分であるProgrammable Logic (PL、FPGA部分) で構成されていて、PS 部分にLinuxを起動することで自由自在にFPGAを操作することができる。
 
-概要を図\ref{TGC_JATHub}に示す。JATHubはプロセッサーとFPGAを組み合わせたXilinx社製のZynq SoCをメインドライバーとして搭載する。Zynqはプロセッサー部分であるProcessing System (PS)と、FPGA部分であるProgrammable Logic(PL、FPGA部分)で構成される。PS 部分にはLinuxを起動し、PS、PL間通信を利用してFPGAを操作することができる。
+    \begin{figure} 
+        \centering
+        \includegraphics[width=16cm]{fig/Intro/TGC_JATHub.pdf}
+        \caption[JATHubの概要]{JATHubの概要}
+        \label{TGC_JATHub}
+    \end{figure}
+    
+    インターフェイスとして、PS boardとLVDS通信をするためのRJ45コネクターと、ATLAS回路室とのイーサーネット通信をするためのSFP+モジュールを搭載している。1枚のJATHubは最大で11枚のPS boardと接続可能であり、それぞれ2本のCat-6\footnote{Category-6 ケーブル。4対8線の動線で構成されており、4種類の差動信号線を束ねている。}ケーブルで接続される。
 
-\begin{figure} 
-\centering
-\includegraphics[width=16cm]{fig/Intro/TGC_JATHub.pdf}
-\caption[JATHubの概要]{JATHubの概要}
-\label{TGC_JATHub}
-\end{figure}
+    一本のCat-6ケーブルはJTAGプロトコルでのビットバンギング用に定義されておりJTAG線と呼ぶ。PS boardに搭載されているFPGAはStatic Random Access Memory (SRAM) にファームウェアを書き込むことにより、内部の論理回路を何度でも書き直すことができる。しかし、一般にFPGAファームウェアを書くには、書き込み用アプリケーションが走るホストPCをFPGAの近くまで持っていき、JTAG4線用のCopperケーブルでホストPCとFPGAを接続させる必要がある。PS boardはTGC検出器上に設置されており、実質的にそのようなアクセスはできない。そこで遠隔からのファームウェア書き込みの中継点として、JATHubが機能する。回路室のネットワークからJATHubにアクセスし、PSでアプリケーションを走らせることで、遠隔でJTAG線をドライブすることができる。また、SRAMは揮発性のメモリであり、PS boardの電源を入れ直すたびにファームウェアを書き直す必要がある。そこでPS boardではファームウェアをQSPI フラッシュメモリーに保存する。FGPAの電源が入れられたときや、再コンフィギュレーション信号を受信した時には、QSPIフラッシュメモリー内のファームウェアを自動的に読み込みデジタル回路を構成する。
 
-インターフェイスとして、PS boardと接続するためのRJ45コネクター、ATLAS回路室とイーサーネット通信を行うためのSFP+モジュールを搭載している。JATHub 1枚で最大11枚のPS boardと接続され、それぞれ2本のCat-6ケーブルで接続される。
+    もう一本のCat-6ケーブルはPS boardの放射線損傷に対する回復、およびLHCバンチ交差クロックの再構成に利用されRecovery/Monitor線と呼ぶ。図\ref{JATHubsem}にJATHubのRecovery/Monitorパスの概要を示す。PS board FPGAで自己修復不可能なSEUが生じた場合、RcvB線を通じて救難信号が出される。JATHubはこれを受けるとPS boardにFPGA再コンフィギュレーション用の信号をPROGB線を通じて送信する。この一連の手続きをリカバリー手続きと呼ぶ。MON線はPS boardが再構成したLHCバンチ交差クロックをJATHubに送信するために利用される。JATHubは接続される11台のクロックをモニターし、その位相差を測定する。
 
-1本のCat-6ケーブルはJTAGパスと呼ばれ、PS board QSPIフラッシュメモリーにファームウェアを書き込むのに使われる。もう一本はRecovery/Monitorパスと呼ばれ、PS boardの再コンフィギュレーションやPS board上のバンチ交差クロックをJATHubに送るために利用される。
+    \begin{figure} 
+    \centering
+    \includegraphics[width=16cm]{fig/QAQC/JATHubsem.png}
+    \caption[JATHub によるリカバリー手続きの概要]{JATHub によるリカバリー手続きの概要\cite{mt_atanaka}。PS board に自己修復不可能な SEU 事象が発生した場合、RcvB線を通じてJATHubに救難信号が発出される。これを受信したJATHubはPROBG線をアサートすることでPS board FPGAの再コンフィギュレーションを行う。}
+    \label{JATHubsem}
+    \end{figure}
 
-    \subsection*{Sector Logic(SL)}
-PS board FPGAでまとめられた256チャンネル分のヒットデータはSLに入る。SLはVirtex UltraScale+ FPGAという大規模FPGAとZynq UltraScale+ MPSoCという2つの集積回路を搭載している。UltraScale+FPGAはSL FPGAと呼ばれ、PS boardから受信したヒットデータを用いてトリガー演算を行う。SL FPGAはCTPからL0Aが発行されるまでのデータのバッファーおよび後段への読み出しも担当する。Zynq UltraScale+ MPSoCはVirtexUltraScale+ FPGAやPS boardのコントロールマスターとして機能する。
+        \subsection*{Sector Logic (SL) }
+
+
+        \subsection*{Sector Logic (SL) }
+PS board FPGAでまとめられた256チャンネル分のヒットデータはSLに集められる。SLはVirtex UltraScale+ FPGAという大規模FPGAとZynq UltraScale+ MPSoCという2つの集積回路を搭載されている。Virtex UltraScale+ FPGAはSL FPGAと呼ばれ、PS boardから受信したヒットデータを用いてトリガー演算を行う。また、SL FPGAはCTPからL0Aが発行されるまでのデータバッファリングおよび後段への読み出しも担当する。Zynq UltraScale+ MPSoCはVirtex UltraScale+ FPGAやPS boardのコントロールマスターとして機能する。
 
 SLの第一試作機の写真を図\ref{TGC_SL}に示す。
 
@@ -362,9 +383,9 @@ SLの第一試作機の写真を図\ref{TGC_SL}に示す。
 \label{TGC_SL}
 \end{figure}
 
-SLはAdvanced Telecommunications Computing Architecture(ATCA)規格のボードである。ユーザーはATCAクレートのShelf managerからCERNで開発されたIntelligent Platform Management Controller(IPMC)を介して、SLの電源や電圧のモニター、遠隔での電源操作を行うことができる。また外部とのインターフェイスとして電気信号を光信号に変換するためのFireFlyを送信用に10個、受信用に10個搭載している。それぞれが12リンクを束ねているため、送受信120リンクの光通信が可能である。LANケーブルのインターフェイスであるRJ45コネクターも搭載しており、ethernetを経由したネットワーク通信を行うことができる。
+SLはAdvanced Telecommunications Computing Architecture(ATCA)規格のボードである。ユーザーはATCAクレートのShelf managerからCERNで開発されたIntelligent Platform Management Controller (IPMC) を介して、SLの電源や電圧のモニター、遠隔での電源操作を行うことができる。さらに、外部とのインターフェイスとして電気信号を光信号に変換するためのFireFlyを送信用に10個、受信用に10個搭載している。それぞれが12リンクを束ねるため、送受信120リンクの光通信が可能である。LANケーブルのインターフェイスであるRJ45コネクターも搭載しており、ethernetを介したネットワーク通信も可能である。
 
-1枚のSLはTGCの1/24セクターからの信号処理を担当し、合計31台のPS boardと接続する(BW用に29 枚、EI用に2 枚)。A side、Cside合わせて合計で48枚のSLが設置される。以下にそれぞれのモジュールの機能の詳細を述べる。
+1枚のSLはTGCの1/24セクターからの信号処理を担当し、合計31台のPS boardと接続する(BW用に29 枚、EI用に2 枚)。AsideとCsideを合わせて、合計で48枚のSLが設置される。以下にそれぞれのモジュールの機能の詳細を述べる。
 
     \subsubsection{SL FPGA}
 SL FPGAに実装するファームウェアの概要を図\ref{}に示す。ファームウェアは大別してトリガー回路、読み出し回路、コントロールパスに分けられる。PS boardから光リンクを経由して送られるヒット情報は、トリガー回路および読み出し回路に入れられる。
@@ -376,11 +397,13 @@ SL FPGAに実装するファームウェアの概要を図\ref{}に示す。フ�
 \label{fig_CTA}
 \end{figure}
 
-トリガー回路はPS boardから送られるBW 7層分のヒットデータを用いてpt判定を行なった後、エンドキャップトロイド磁石より内側のNSW、RPC BIS78、TIleカロリメーターから受信した情報も用いてより精度の高いpt概算を行う。実装されたトリガーロジックの詳細は次節で述べる。トリガー回路の出力情報はMUCTPIへ転送するとともに、モニターのためトリガー読み出し回路に入れられる。
+トリガー回路は、PS boardから送られるBW 7層分のヒットデータを用いてpt判定を行なった後、エンドキャップトロイド磁石より内側にあるNSW、RPC BIS78、TIleカロリメーターからの情報も用いて、より精度の高い\pt の概算を行う。実装されたトリガーロジックの詳細は次節で述べる。トリガー回路の出力情報はMUCTPIへ転送されるとともに、モニタリングのためトリガー読み出し回路にも送られる。
 
-読み出し回路はPS board から送られてきたヒットデータと、そのイベントに対するトリガーデータをバッファーしておき、L0A が発行されたイベントのデータを選択的に後段へ転送する役割を担う。読み出されるデータにはZerosuppressという圧縮処理が行われ、全PS board分のデータをイベントごとにパッキング(Event Building)した後FELIXへ送られる。
+読み出し回路は、PS board から送られてきたヒットデータとそのイベントに対応するトリガーデータをバッファーしておき、L0A が発行されたイベントのデータを選択的に後段へ転送する役割を担う。読み出されるデータにはゼロサプレスという圧縮処理が行われ、すべてのPS baordからのデータをイベントごとにパッキング (Event Building) してから、FELIXに送信される。
 
-コントロールパスはSL FPGA内のコンフィギュレーションやパラメーター制御、などLHC バンチ交差クロックと同期する必要のないスローな制御を担当する。コントロールマスターのMPSoCからSL FPGA内のレジスタを操作することで、SLのトリガー・読み出しに関連するパラメーターの設定や、PS boardの制御を行う。
+コントロールパスは、SL FPGA内の設定やパラメーターの制御など、LHC バンチ交差クロックと同期する必要のないスローな制御を担当する。コントロールマスターのMPSoCからSL FPGA内のレジスタを操作することで、SLのトリガー・読み出しに関連するパラメーターの設定や、PS boardの制御を行う。
 
     \subsubsection*{Zynq MPSoC}
-Zynq MPSoCは図\ref{}に示すようにProcessing System (PS)とProgrammable Logic(PL)から構成される。PSにはプロセッサやメモリが搭載されていて、標準的なOSであるcentos 7を起動する。ユーザーはネットワークを経由してSLにアクセスし、PSとPL間の通信を介してPLを操作することができる。また、Zynq MPSoCのPLとSL FPGAはGTHトランシーバーを介したチップ間通信が可能となっており、PSからSL FPGAを操作することができる。また、Zynq MPSOはTDAQシステムやDetector Control System(DCS)とのインターフェイスとなる。
+Zynq MPSoCは図\ref{}に示すようにProcessing System (PS)とProgrammable Logic(PL)から構成される。PSにはプロセッサやメモリが搭載されていて、標準的なOSであるCentOS7を起動する。ユーザーはネットワークを通じてSLにアクセスし、PSとPL間の通信を介してPLを操作することができる。また、Zynq MPSoCのPLとSL FPGAはGTHトランシーバーを介してチップ間通信が可能であり、PSからSL FPGAの操作も行うことができる。また、Zynq MPSOCはTDAQシステムやDetector Control System(DCS)とのインターフェイスとなる。
+
+    \subsection{高輝度LHC-ATLAS実験におけるトリガーロジック}
