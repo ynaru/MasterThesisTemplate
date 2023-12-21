@@ -140,3 +140,104 @@ Wire Segment Reconstructionではエンドキャップ領域の検出器の中�
 \paragraph{Wire Strip Coincidence}　　
 \par
 Wire Strip CoincidenceではStrip、WireそれぞれのInefficiencyに加えて、未だ解決されていないWire スタッガードID 400 番以降の不具合が見えている。
+
+\section{MCデータを用いた試験に際して行われたトリガーロジックの修正}
+
+\paragraph{Wire Strip Coincidence}　　
+\par
+シングルミューオンMCを用いた試験を始めた当初、Wire Strip Coincidenceで判定される\pt がtruth \pt と対応していないという問題があった。図\ref{pt_before}にWire LUT修正前の結果を示す。この図では横軸にtruth muonの\pt、縦軸にはWire Strip Coincidenceで判定された\pt を示す。本来であればであればtruth muonが5 - 10 GeVのイベントは\pt 閾値 5 GeV、10 - 15 GeV以上のものは10 GeV、とtruth ptに対応した\pt 閾値が出されるはずであるがそうなっていない。
+
+\begin{figure} 
+\centering
+\includegraphics[width=16cm]{fig/Test/pt_before.png}
+\caption[]{Wire LUT修正前のTruth $p_mathrm{T}$とWire Strip Coincidenceで判定された$p_mathrm{T}$の関係。}
+\label{pt_before}
+\end{figure}
+
+問題のデバッグを行ったところ、Wire Segment Reconstructionの出力として定義される$\Delta\theta$の単位とWire Strip Coincidenceの入力として定義される$\Delta\theta$の単位が互いに異なっていた。Wire Segment reconstructionでは$\Delta\theta$は4 mrad区切りの整数値として出力される。一方、Wire Strip Coincidenceでは1.25 mrad区切りの整数値として解釈する。そのため、例えばTruthの$\Delta\theta$が10 mradの場合、Wire Segmnet Reconstructionは" $10 \mathrm{mrad} //4 = 2$ "という整数値を出力し、Wire Strip Coincidenceではそれを$1.25 \times 2 = 2.5 \mathrm{mrad}$と解釈してコインシデンスを行っていた。これによりTruthの\pt が小さく、$\Delta\theta$が大きいイベントに対しても高い\pt 閾値判定を行っていた。
+この不具合の修正のため、Wire Strip Coincidenceの高い分解能に合わせる形でWire LUTを作り直した。その結果を図\ref{}に示す。期待通りの\pt 判定が行われるようになったことが見てとれる。
+ 
+\begin{figure} 
+\centering
+\includegraphics[width=16cm]{fig/Test/pt_after.png}
+\caption[]{Wire LUT修正後のTruth $p_mathrm{T}$とWire Strip Coincidenceで判定された$p_mathrm{T}$の関係。}
+\label{fig_CTA}
+\end{figure}
+
+
+
+\section{プラトー領域のInefficiencyの調査}
+\label{sec:appendix:plateau}
+図\ref{SM_A_WS_turnon}で示すようにシングルミューオンモンテカルロデータを利用すると、Truth Pt が 20 GeVより十分大きいプラトー領域においても6 \%程度のInefficiencyが見られる。本節ではこのInefficiencyの原因について考察する。
+Inefficiencyの原因として主に以下の2つが考えられる。一つ目はTGC検出器のミューオン検出効率が100 \%ではないことによるInefficiencyである。高輝度LHC-ATLAS実験でのトリガーロジックはワイヤーでは7層中5層かつ各ステーションに少なくても1つヒットがあること、ストリップでは6層中4層かつ各ステーションに少なくても1つヒットがあること、が要求される。そのため例えばミューオンがM2の2層ともヒットを残さず、素通りしたとすると飛跡を再構成することはできない。2017年の運転におけるTGC各層のヒット検出効率分布を図\ref{tgchit_efficiency}に示す。1枚のガスレイヤーにおけるヒット検出効率の平均ははワイヤーで92.7 \%、ストリップで92.1 \%程度であることが知られている。
+
+\begin{figure}
+\begin{minipage}[b]{.5\linewidth}
+\centering
+\includegraphics[height=5cm]{fig/Test/tgchit_wire.pdf}
+\subcaption{ワイヤー}
+\end{minipage}%
+\begin{minipage}[b]{.5\linewidth}
+\centering
+\includegraphics[height=5cm]{fig/Test/tgchit_strip.pdf}
+\subcaption{ストリップ}
+\end{minipage}%
+\caption[2017年運転における TGC 各層のヒット検出効率]{2017年運転における TGC 各層のヒット検出効率\cite{mt_kawaguchi}}
+\label{tgchit_efficiency}
+\end{figure}
+
+2つ目はTGC検出器にミューオンのヒット信号は検出されるが、多重散乱や制動放射に起因するInefficiencyである。多重散乱によりミューオン飛跡が途中で大角度に屈折したり、制動放射で生じた光子から電磁シャワーが生じ大量のヒットがTGCに残される場合には、Segment Reconstructionで正しい飛跡を再構成できなくなる。このようなイベントの例を図\ref{Brems}に示す。この図は実際のシングルミューオンモンテカルロサンプルに含まれる、TGCのヒット情報を3次元的にプロットしたものである。横軸と縦軸にヒットのあった座標位置、奥行き方向にTGCのレイヤー番号を示す。赤色の点がWireのヒットで青色がStripのヒット情報を表す。このイベントでは3層目でミューオンが制動放射を起こし、それに起因する電磁シャワーが4層目以降に複数のヒットを残していると推測される。
+
+\begin{figure} 
+\centering
+\includegraphics[width=16cm]{fig/Test/Brems.png}
+\caption[制動放射が生じたと思われるイベントディスプレイ]{制動放射が生じたと思われるイベントディスプレイ}
+\label{Brems}
+\end{figure}
+
+Wire Strip Coincidenceで見られた6 \%のInefficiencyがどのような理由で生じているか調査するため、実機試験で落ちたイベントに対してイベントディスプレイを作成し、アイスキャンを行った。
+
+データセットとして、フォワード領域のシングルミューオンイベントを10,000イベント用意した。このうちWire Strip Coincidenceで飛跡再構成に失敗したイベントは合計 583 イベントだった。
+アイスキャンによる落ちた原因の調査結果を表\ref{tab:eyscan}に示す。結果、プラトー領域における6 \%程度のInefficiencyのうち3割はヒットレイヤーが少ないことが原因、もう3割は多重散乱や制動放射により正しく飛跡を再構成することが困難なイベント、残りの4割は原理的な困難はなくLUTの調整などにより解決できる可能性があるものであるとわかった。
+
+\begin{table}[]
+  \centering
+  \caption{Wire Strip Coincidenceで飛跡再構成に失敗したイベントの調査結果}
+  \label{tab:eyscan}
+  \begin{tabular}{|c|c|}
+  \hline
+  飛跡再構成の原因                        & イベント数       \\ \hline\hline
+  ヒットを残したレイヤーが少なく原理的に飛跡再構成ができないもの & 169 / 10000 \\ \hline
+  多重散乱や制動放射により正しく飛跡を再構成することが困難なもの & 181 / 10000 \\ \hline
+  その他 (アイスキャンでは原因を判断できなかったものを含む)  & 233 / 10000 \\ \hline
+  合計                              & 583 / 10000 \\ \hline
+  \end{tabular}
+\end{table}
+
+
+\section{アライメントのずれに対するInefficiencyの考察}
+モンテカルデータはTGC検出器が、設計通りの理想位置に設置されていることを仮定して作成されたデータセットである。しかし、実際のTGC検出器はアライメントのずれにより、理想位置からずれた位置に設置されている。年度末のメンテナンス期間にはTGC検出器は一時移動し、再設置されるため、その度ごとにアライメントのずれが生じる。TGCトリガーロジックではチャンネルのヒット位置をもとに角度情報を算出するため、このアライメントのずれは角度再構成や\pt 再構成に影響を与える。特にその影響が顕著なWire Segment Reconstructionではこのずれを吸収するために、アライメントが行われるごとに新しくLUTを作成する予定である。しかし、これまでにアライメントのずれがどれだけトリガー性能に影響を与えるか評価されたことがない。
+そこで本研究では、シングルモンテカルロデータを用いて、アライメントのずれを考慮した場合と、考慮しない場合でどれだけ検出効率に差が生じるか測定した。
+具体的には理想位置のジオメトリをもとに作成されたシングルミューオンイベントに対し、理想位置のジオミトリをもとに作成したLUTを使用してWire Segment Reconstructionを走らせた場合とと、2022年のアライメント後のジオミトリ情報をもとに作成したLUTを使用した場合とを比較する。
+
+図\ref{alignment_wire}にWire Segment Reconstruction検出効率を示す。
+アライメントのずれを考慮した場合と考慮しない場合で、数\%程度検出効率に差が生じることがわかった。特に、フォワード領域ではジオミトリのずれによるInefficiencyが顕著な様子が窺える。
+
+\begin{figure} 
+\centering
+\includegraphics[width=16cm]{fig/Test/alignment_wire.pdf}
+\caption[]{理想位置のジオミトリを仮定したLUTと、2022年の実際のアライメントを考慮した場合のWire Segment Reconstructionの飛跡再構成効率の比較}
+\label{alignment_wire}
+\end{figure}
+
+図\ref{alignment_ws}にWire Strip Coincidenceの\pt 閾値20 GeVに対するトリガー効率を示す。アライメントを考慮したLUTではTruth Muon \pt が20 GeVより小さいイベントに対して、不当に高い検出効率を持ってしまっていることがわかる。これはアライメントのずれによる角度再構成の不正確さが、角度を本来よりも小さく見積もる方向に働いた結果であると推測される。このように\pt 分解能が落ちると、物理的に興味のある\pt が高いイベントのみを選択するというトリガー本来の役割を果たせない。
+この結果では、アライメントを考慮したLUTを作成することが必要であると結論付けられる。
+
+\begin{figure} 
+\centering
+\includegraphics[width=16cm]{fig/Test/alignment_ws.pdf}
+\caption[CTAの完成想像図]{理想位置のジオミトリを仮定したLUTと、2022年の実際のアライメントを考慮した場合のWire Strip Coincidenceの飛跡再構成効率の比較}
+\label{alignment_ws}
+\end{figure}
+
+

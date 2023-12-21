@@ -442,10 +442,122 @@ Wire Segment Reconstructionではフォワード領域で99.6 \% ( 15,179 / 15,3
 \section{モンテカルロデータを用いたトリガーロジックの試験}
 \label{sec_SingleMuon}
 
+本節ではより現実的なミューオンイベントに対するトリガー応答を調べるために行った、シングルミューオンモンテカルロデータを用いた試験について述べる。シングルミューオンとは衝突点から検出器に1本のミューオンが入射する物理イベントをエミュレートしたデータセットである。ミューオンがTGC検出器を素通りする事象や、多重散乱で飛跡が曲げられる事象、制動放射と電磁シャワーで複数のヒットが発生する事象など、実際に起こりうる物理過程を考慮したデータセットになっているため、より現実的なトリガー性能を調べることができる。用意したデータセットの概要を表\ref{tab:SingleMuon}にまとめる。本試験ではトリガー回路自体の性能にフォーカスした検証をするため、そもそもTGC検出器のカバレージに入っていないミューオンイベントはカットしている。具体的にはテストパターンを作る段階で、M1、M2、M3の各ステーションに最低限1つのヒットがあることを要求している。
+
+\begin{table}[]
+    \centering
+    \caption[用意したシングルミューオンモンテカルロデータの概要]{用意したシングルミューオンモンテカルロデータの概要}
+    \label{tab:SingleMuon}
+    \begin{tabular}{|c|c|}
+    \hline
+    Parameter        &                                                                                              \\ \hline
+    $p_{\mathrm{T}}$ & $ 0 \, < \, p_{\mathrm{T}}\, < 50$ GeV flat                                                  \\ \hline
+    $\eta$           & 1.06 \textless |$\eta$| \textless 2.4 flat                                                   \\ \hline
+    $\phi$           & 0 \textless{} $\phi$ \textless 2\textbackslash{}pi flat                                      \\ \hline
+    イベント数            & 500,000                                                                                      \\ \hline
+    イベントカット          & \begin{tabular}[c]{@{}c@{}}1つのトリガーセクター内のM1、M2、M3各ステーションに\\ それぞれ1つ以上のヒットがあることを要求\end{tabular} \\ \hline
+    \end{tabular}
+\end{table}
+
+\subsection{モジュールごとのEfficiency}
+\par
+\subsubsection*{Strip Segment Reconstruction}
+ここでは\pt が十分大きい事象を確実にトリガーできているか調べることを目的とするため、Truth \pt 20 GeV 以上のミューオンイベントに対する検出効率を評価する。Efficiencyは式\ref{eq:Strip_Efficiency}のように定義する。
+
+\begin{equation}
+    \mathrm {Efficiency} = \frac{\mathrm{Strip\,Segment \,Reconstruction\,で\Delta\phi\,を再構成できたイベント数}}{\mathrm{Truth\,pt \,20 \,GeV以上のイベント数}}
+    \label{eq:Strip_Efficiency}
+\end{equation}
+
+Strip Segment Reconstructionの検出効率の$\eta$、$\phi$依存性を図\ref{SM_A_strip}に示す。黒色の点はSL実機システムの出力結果を示し、赤色の点はBitwise シミュレーターの出力結果を示す。$\phi$全領域での平均のトリガー検出効率は97.4 \%であり、先行研究のソフトウェアシミュレーションの結果と矛盾のない結果が得られた。
+
+トリガー効率の$\phi$依存性を見ると、チェンバーとチェンバーの境界に位置する領域 (でンドキャップ領域ではTGC BW 1周を48のトリガーセクターで分割するので 2$\pi$ / 48 = 0.26 おきにチェンバーの境界が位置する) でEfficiencyが15 \%程度下がる傾向が確認された。事前のカットで3つのステーションにヒットがあることを要求しているため、原理的にはチェンバー境界であってもEfficiencyが落ちることはなく、この部分は改善すべき課題である。
+このInefficiencyはBitwiseシミュレーターでも再現されていることから、ファームウェアに固有の問題ではなく、共通に使用しているLUTや元のデータセットの不具合に起因するものであると考えられる。今後はBitwiseシミュレーターを用いてイベントごとに飛跡再構成されなかった理由を詳細に調査し、修正を施していく。
+
+また、Strip Segment Reconstructionでは実機とBitwiseシミュレーターの結果が概ねよく一致していることがわかる。BitwiseシミュレーターがHDLのロジックを極めて正確に再現できていることを示す。一方、2 < $\eta$のFW領域の特に$\phi$チェンバー境界領域で、局所的に両者の出力に違いが生じていることも読み取れる。原理的にはこの2つの出力は完全に一致するべきものである。この差はBitwiseシミュレーターとファームウェアで、チェンバー境界領域の取扱い方などにわずかなロジックの差が生まれていることを示唆している。今後、両者のロジックを精密に比較し出力の違いを埋めていく。
+
+\begin{figure}
+\begin{minipage}[b]{\linewidth}
+\centering
+\includegraphics[height=10cm]{fig/Test/A_SM_wire_eta.pdf}
+\subcaption{Strip Segment Reconstructino 検出効率の$\eta$依存性}
+\end{minipage}\\
+\begin{minipage}[b]{\linewidth}
+\centering
+\includegraphics[height=10cm]{fig/Test/A_SM_strip_phi.pdf}
+\subcaption{Strip Segment Reconstructino 検出効率の$\phi$依存性}
+\end{minipage}%
+\caption[Strip Segment Reconstructionの検出効率]{Strip Segment Reconstructionの検出効率}
+\label{SM_A_strip}
+\end{figure}
 
 
 
+\subsubsection{Wire Segment Reconstruction}
+\par
+Stripの場合と同様にEfficiencyは式\ref{eq:Wire_Efficiency}のように定義する。
 
-\subsection{問題点の解決結果}
+\begin{equation}
+    \mathrm {Efficiency} = \frac{\mathrm{Wire\,Segment \,Reconstruction\,で\Delta\eta\,を再構成できたイベント数}}{\mathrm{Truth\,pt \,20 \,GeV以上のイベント数}}
+    \label{eq:Wire_Efficiency}
+\end{equation}
+
+
+Strip Segment Reconstructionの検出効率の$\eta$、$\phi$依存性を図\ref{SM_A_strip}に示す。$\eta$全領域での平均のトリガー効率は96.3 \%であり、先行研究のVivadoシミュレーターの結果と矛盾のない結果が得られた。
+
+トリガー効率の$\eta$依存性を見ると、$\eta \sim 1.4$ 付近で5 \%程度のInefficiencyが見られる。Bitwiseシミュレーターを用いて詳細な調査を行ったところ、Station Coincidenceまでは期待通り動作しているが、Segment ReconstructionでLUTから飛跡情報を取ってこれなかった結果、飛跡再構成に失敗しているイベントが多いとわかった。今後LUTの修正を図り、この領域のInefficiencyを改善していく。
+
+\begin{figure}
+    \begin{minipage}[b]{\linewidth}
+    \centering
+    \includegraphics[height=10cm]{fig/Test/A_SM_wire_eta.pdf}
+    \subcaption{Wire Segment Reconstructino 検出効率の$\eta$依存性}
+    \end{minipage}\\
+    \begin{minipage}[b]{\linewidth}
+    \centering
+    \includegraphics[height=10cm]{fig/Test/A_SM_wire_phi.pdf}
+    \subcaption{Wire Segment Reconstructino 検出効率の$\phi$依存性}
+    \end{minipage}%
+    \caption[Wire Segment Reconstructionの検出効率]{Wire Segment Reconstructionの検出効率}
+    \label{SM_A_Wire}
+\end{figure}
+
+\subsubsection{Wire Strip Coincidence}
+Wire Strip Coincidenceは無限運動量飛跡を用いた試験で既にエンドキャップ領域に不具合が確認されているため、フォワード領域のみを評価する。またStripの試験で明らかになったチェンバー境界領域 (チェンバーの両端から$\phi$方向に1割の領域) も除き、不具合が確認されていない領域における検出効率を評価することを目的とする。ここではEfficiencyを式\ref{}のように定義する。
+
+\begin{equation}
+    \mathrm {Efficiency} = \frac{\mathrm{Wire\,Strip\, Coincidenceで\,pt \,閾値\,20\,GeVと判定されたイベント数}}{\mathrm{Truth\,pt \,20 \,GeV以上のイベント数}}
+    \label{eq:WS_Efficiency}
+\end{equation}
+
+図\ref{SM_A_WS}にWire Strip Coincidenceのフォワード領域検出効率の$\eta$依存性及び$\phi$依存性を示す。平均のトリガー効率は93.5 \%であり、ソフトウェアシミュレーションの結果と矛盾のない結果が得られた。
+
+\begin{figure}
+    \begin{minipage}[b]{\linewidth}
+    \centering
+    \includegraphics[height=10cm]{fig/Test/A_SM_ws_eta.pdf}
+    \subcaption{Wire Strip Coincidence 検出効率の$\eta$依存性}
+    \end{minipage}\\
+    \begin{minipage}[b]{\linewidth}
+    \centering
+    \includegraphics[height=10cm]{fig/Test/A_SM_ws_phi.pdf}
+    \subcaption{Wire Strip Coincidence 検出効率の$\phi$依存性}
+    \end{minipage}%
+    \caption[Wire Strip Coincidenceの検出効率]{Wire Strip Coincidenceの検出効率}
+    \label{SM_A_WS}
+\end{figure}
+
+図\ref{SM_A_WS_turnon}にWire Strip Coincidenceの$p_\mathrm{T}$ごとの検出効率を示す。一般にこのような図をターンオンカーブという。赤色、青色、緑色、ピンクのそれぞれがトリガー閾値20 GeV、15 GeV、10 GeV、5 GeVと判断されたイベントの割合を示す。どの\pt 閾値に対してもプラトー領域のefficiencyは93.5 \%程度であり、ソフトウェアシミュレーションやVivado シミュレーションの結果と一致している。今後はエンドキャップ領域やチェンバー境界領域の不具合を解決し、全ての領域で期待されるパフォーマンスが発揮されるよう改善を続ける。
+
+この結果を得るまでにWire Segment Reconstructionの問題点が発見され、修正が行われた。詳細をAppendix{}に述べる。また、プラトー領域に存在する6.5 \%程度のInefficiencyの原因の調査を行った。この結果をAppendix\ref{}に述べる。さらに、今回の試験ではTGC検出器は理想位置と呼ばれる設計段階の位置に設置されていることを仮定して、モンテカルロデータやLUTを作成した。実験本番ではTGC検出器はアライメントの誤差により理想位置からずれた場所に設置される。このずれがトリガー効率にどれほど影響を与えるか調査した。その結果をAppendix{}に示す。
+
+\begin{figure} 
+\centering
+\includegraphics[width=16cm]{fig/Test/A_SM_ws_turnon.pdf}
+\caption[]{Wire Strip Coincidenceの$p_\mathrm{T}$ごとの検出効率}
+\label{SM_A_WS_turnon}
+\end{figure}
+
+
 
 
