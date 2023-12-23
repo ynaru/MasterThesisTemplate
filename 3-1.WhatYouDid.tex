@@ -1,5 +1,134 @@
-\chapter{トリガーロジックの統合}
+\chapter{高輝度LHC-ATLAS実験に向けたエンドキャップミューオントリガーの統合}
 \label{chap_TriggerIntegration}
+
+\section{トリガー開発の流れとこれまでの性能検証}
+\label{sec_TriggerTestSystem}
+本節では、これまでのトリガーロジック開発フローを説明し、本研究で取り組んだ実機試験の位置付けを明らかにする。図\ref{Develop_flow}にトリガーロジックの開発フローを示す。トリガーの開発はまず高輝度LHC-ATLAS実験におけるL0 Trigger systemの要求 (トリガー効率、再構成した角度分解能、トリガーレート、トリガーレイテンシー) を満たすよう、前章で紹介したコンセプトが設計された。次にそのコンセプトをデジタル回路上で実現される論理回路として実装するため、モジュールごとにHDL開発が行われた。HDLで書かれたファームウェアはVivadoによるインプリメンテーション\footnote{Vivadoのインプリメンテーションプロセスは、主に1. ロジック最適化、2.デザイン配置、3.配置後のデザインの物理最適化、4. デザインの配線、5. 配線後のデザインの物理最適化、6 ビットストリームの生成で構成される。}を経て、ハードウェアで動作させることができる。また、それぞれの工程において検証システムも同時に整備されており、開発とフィードバックのループを回すことで、期待した性能をもつトリガーが実現できていることを確かめながら、着実に開発を進めている。
+
+\begin{figure} 
+\centering
+\includegraphics[width=16cm]{fig/Test/Develop_flow.png}
+\caption[TGCトリガー開発の流れ]{TGCトリガー開発の流れ。}
+\label{Develop_flow}
+\end{figure}
+
+\subsection*{トリガーロジックの概念設計}
+設計されたロジックの概念を、より具体的なデザインに落とし込み、その性能を評価する作業にはソフトウェアシミュレーターが用いられた。ソフトウェアは開発が容易で、ロジックの実装→性能評価→ロジックの修正→…という開発サイクルを比較的早く回すことができる。そのため、グローバルなデザインを決めていく初期の開発では重宝された。例えば、TGC BW 7層のヒット情報をStatino Coincidenceにより3つの代表点に絞り、その後パターンマッチングで角度情報を取得する、などの大枠の設計はここで決められた。また、各コインシデンスロジックの最小単位であるユニットの定義や、Segment Reconstructionで複数の飛跡候補が存在する時に、ヒットレイヤーの多さを基準に候補を絞る、などの具体的なデザインもここで決められた。さらに、パターンマッチングに利用されるLUTもロジックの設計と同時にソフトウェア的に開発されており、ソフトウェアシミュレーターはLUTも含めたトリガーロジックの性能評価を行っている。
+
+図\ref{Soft_WS}にソフトウェアシミュレーターで測定された、TGC BW コインシデンスのトリガー効率を示す。トリガー効率の評価にはSingle Muon MCサンプルが用いられた。このイベントにはフォワードおよびエンドキャップ領域 ($1.05 < | \eta | < 2.4$) 、$\phi$全領域 (-3.14 < $\phi$ < 3.14) が含まれる。MCサンプルに含まれるTGC チェンバーのヒットチャンネル情報をトリガーロジックのインプットとして利用している。Efficiencyは以下のように定義され\pt 閾値ごとにビンわけされている。
+
+\begin{equation}
+\mathrm{Efficiency} = \frac{\mathrm{TGC\,BW\,coincidenceで}\,p_{\mathrm{T}}\,閾値20、15、10、5\,\mathrm{GeV}と判断されたミューオンの数}{オフラインで再構成されたミューオンの数}
+\end{equation}
+
+プラトー領域でのEfficiencyは94 \%程度で、高い検出効率を貯まっている。また閾値より低い\pt のミューオンを効率的に削減することができている。
+
+\begin{figure} 
+\centering
+\includegraphics[width=16cm]{fig/Test/Soft_WS.pdf}
+\caption[ソフトウェアシミュレーターで測定された、Wire Strip Coincidenceのトリガー効率]{ソフトウェアシミュレーターで測定された、Wire Strip Coincidenceのトリガー効率\cite{SLPDR}}
+\label{Soft_WS}
+\end{figure}
+
+\subsection*{トリガーロジックのRTL実装}
+次に開発されたロジックを実現するRegister Transfer Level (RTL) の設計が進められた。この過程ではソフトウェアで記述された論理を、Hardware Description Language (HDL) と呼ばれるデジタル回路における信号遷移におとしこむ作業が行われた。開発されたRTLの動作検証および実装されたトリガー回路の性能評価には、Vivado シミュレーターが用いられる。Vivado シミュレーターとはHDLで記述されるデジタル回路の動作をエミュレートするソフトウェアツールで、ロジック全体の信号の遷移を厳密にシミュレーションし、任意の信号をプローブすることができる。
+
+Vivado シミュレーターで行われた各モジュールの性能評価の結果を述べる。Wire Segment Reconstructionの性能評価の結果を図\ref{Vivado_Wire_Efficiency}に示す。この試験でも同様のSingle Muon MCサンプルが利用され、イベント数は150,000 である。MCサンプルに含まれるTGC チェンバーのヒットチャンネル情報をWire Station Coincidenceのインプットに適したフォーマットに整形し、それに対する応答を調査しているEfficiencyは以下のように定義され、Truth Muonの$\eta$、$\phi$ごとにビンわけされている。
+
+\begin{figure}
+\begin{minipage}[b]{.5\linewidth}
+\centering
+\includegraphics[height=6cm]{fig/Test/Vivado_Wire_eta.pdf}
+\subcaption{Efficiencyの$\eta$依存性}
+\end{minipage}%
+\begin{minipage}[b]{.5\linewidth}
+\centering
+\includegraphics[height=6cm]{fig/Test/Vivado_Wire_phi.pdf}
+\subcaption{Efficiencyの$\phi$依存性}
+\end{minipage}%
+\caption[Wire Segment Reconstructionの検出効率]{Wire Segment Reconstructionの検出効率\cite{mt_nabeyama}}
+\label{Vivado_Wire_Efficiency}
+\end{figure}
+
+\begin{equation}
+\mathrm{Efficiency} = \frac{\mathrm{Wire \,Segment \,Reconstructionで}\,\Delta\theta\,\mathrm{を再構成できたイベント数}}{\mathrm{Truth ミューオン の数}}
+\end{equation}
+
+
+TGCチェンバーの構造やエンドキャップマグネットとの干渉によると考えられる、数\%のInefficiencyが局所的に見られるものの、Efficiencyは$\eta$、$\phi$全領域で95 \%程度に達している。これによりWIre Segment ReconstructionのHDL実装が期待通り達成されていることが検証された。
+
+HDL実装された Strip Segment Reconstruction と Wire strip Coincidence の動作検証は、ソフトウェアシミュレーターの出力との一致を確かめることで行われた。Strip Segment Reconstruction ではソフトウェアシミュレーターによるStrip Station Coincidenceの出力をインプットとして利用し、Segment Reconstruction の出力をソフトウェアシミュレーターとVivado シミュレーターで比較している。比較結果を表\ref{tab:Vivado_strip}に示す。エンドキャップ領域 (EC) 、フォワード領域 (FW)それぞれで出力の96 \%程度は一致している。数\%の不一致は、Segment Reconstructionをパスした飛跡候補が複数あった場合にどれを優先的に後段に送るか、という候補選択ロジックの差異によるものであると理解されている。同じユニット内でヒットレイヤー数が同じ、かつユニット中心からの距離も同じである候補が存在する場合、HDLではM3 スタッガードチャンネルの上位bitを優先に選ぶ、というロジックが実装されているがソフトウェアシミュレーターではその二つを仕分ける方法を用意するのが原理的に困難である。
+
+
+\begin{table}[]
+    \centering
+    \caption*{Strip Segment Reconstruction出力のソフトウェアシミュレーターとVivadoシミュレーター比較結果。ECはエンドキャップ領域、FWはフォワード領域を示す。\cite{mt_kawamoto}}
+    \label{tab:Vivado_strip}
+    \begin{tabular}{|c|cc|}
+    \hline
+    \multirow{2}{*}{}        & \multicolumn{2}{c|}{割合}                \\ \cline{2-3} 
+                             & \multicolumn{1}{c|}{EC}      & FW      \\ \hline\hline
+    飛跡情報が一致したイベント            & \multicolumn{1}{c|}{96.8 \%} & 97.8 \% \\ \hline
+    候補の選び方の違いに由来する差異があったイベント & \multicolumn{1}{c|}{3.2 \%}  & 2.2 \%  \\ \hline
+    候補の選び方以外に由来する差異があったイベント  & \multicolumn{1}{c|}{1.8 \%}  & 0 \%    \\ \hline
+    \end{tabular}
+\end{table}
+
+Wire Strip Segment Reconstruction はソフトウェアシミュレーターのWire Segment Reconstruction、Strip Segment Reconstruction の出力を取り出してインプットとしている。比較結果を表\ref{tab:Vivado_WS}に示す。同様のわずかなロジックの違いによる出力の不一致は存在するが、おおむねソフトウェアで設計されたロジックと同等のものをHDLで実装できていることが確認された。
+
+% Please add the following required packages to your document preamble:
+% \usepackage{multirow}
+\begin{table}[]
+    \centering
+    \caption*{Wire Strip Coincidence出力のソフトウェアシミュレーターとVivadoシミュレーター比較結果。ECはエンドキャップ領域、FWはフォワード領域を示す。\cite{mt_kawamoto}}
+    \label{tab:Vivado_WS}
+    \begin{tabular}{|c|cc|}
+    \hline
+    \multirow{2}{*}{}                      & \multicolumn{2}{c|}{割合}                \\ \cline{2-3} 
+                                           & \multicolumn{1}{c|}{EC}      & FW      \\ \hline\hline
+    飛跡情報が一致したイベント                          & \multicolumn{1}{c|}{98.4 \%} & 99.9 \% \\ \hline
+    飛跡情報の異なったイベント                          & \multicolumn{1}{c|}{1.6 \%}  & 0.07 \% \\ \hline
+    イベントで最大の\textbackslash{}pt出力がことなったイベント & \multicolumn{1}{c|}{0.09 \%} & 0.02 \% \\ \hline
+    \end{tabular}
+\end{table}
+
+\subsection*{トリガーロジックのハードウェアでの実現}
+最後にRTLで実装されたトリガー論理回路をハードウェア上で実現するためのインプリメンテーション作業が行われた。論理回路をハードウェア上で実現するため前章に述べたような、FPGAのリソースやタイミングの制約を満たす形での最適化が行われた。また、トリガー回路へどのように信号を入力し、演算結果をどのように取り出すかという、周辺システムの設計・実装も行われた。
+
+しかし、実機上で動作するトリガー回路の動作検証、性能評価には工夫が必要となる。トリガー回路の入力はPS boardから受信する光信号で、出力はFelixに送信する光信号である。このままではPS boardやFelix、さらに後段の読み出し回路が完成するまで、ハードウェア上で動いているトリガー回路を検証するすべがない。
+
+そこで本研究では、ハードウェア上で動作するトリガー回路にPS boardからの出力をエミュレートしたテストパターンを投入し、その出力をMPSoCから読み出す、シングルボード試験システムを開発した。この試験システムと、先行研究で開発されたテストパターン生成機構を用いることで、トリガー回路を限りなく本番運用に近い形で試験することができる。Vivado シミュレーター、ソフトウェアシミュレーターでこれまで行われていた試験と、本システムで達成する試験システムのフローの違いを図\ref{Test_Flow}に示す。
+
+\begin{figure}
+\begin{minipage}[b]{0.9\linewidth}
+\centering
+\includegraphics[height=4.8cm]{fig/Test/Flow_Wire.png}
+\subcaption{Vivadoシミュレーターによる試験フロー : Wire Segment Reconstruction}
+\end{minipage}\\
+\begin{minipage}[b]{0.9\linewidth}
+    \centering
+    \includegraphics[height=4.8cm]{fig/Test/Flow_WS.png}
+    \subcaption{Vivadoシミュレーターによる試験フロー : Wire Strip Coincidence}
+\end{minipage}\\
+    \begin{minipage}[b]{0.9\linewidth}
+        \centering
+        \includegraphics[height=4.8cm]{fig/Test/Flow_zikki.png}
+        \subcaption{実機試験システムによる試験フロー}
+    \end{minipage}\\
+
+\caption[試験フロー]{Vivado シミュレーター、ソフトウェアシミュレーターによる試験フローと実機試験フローの比較。}
+\label{Test_Flow}
+\end{figure}
+
+
+これまでの試験はMCサンプルやソフトウェアシミュレーターから、各モジュールのインプットを直接生成し、トリガーロジックの一部分のHDLをVivadoシミュレーターで試験していた。本試験システムではTGCのヒット情報から、フロントエンドエレクトロニクスの複雑な配線情報も考慮した上で、PS boardからSLに送られる8,000 bitのヒット情報を完全に再現し、トリガーロジックのインプットとする。それをもとにTGC BW コインシデンスをフルチェーンで動作させ、実際にハードウェア上で計算されたトリガー出力を読み出す。また、ソフトウェアシミュレーターではパターンマッチング用のLUTは最終出力のテキストファイルではなく、もととなるrootファイルを利用する。本試験ではいくつかの処理を経て、最終的に出力された本番で使われるテキストファイルを利用するためLUTの最終検査も行うことができる。
+
+さらに、シングルボード試験を実現するには、LUTの書き込みやTTC信号の調整などのコントロールパスと、MPSoCから読み出すための読み出しパスも、トリガー回路と同期しながら精度よく動作する必要があり、SL FPGAの総合的な動作検証を行うことができる。
+
+加えて、実機試験システムはトリガー演算をFPGA上で行っているため、Vivado シミュレーターと比べて高速で動作する。これにより、大統計を活かした網羅的な検証も可能で、これまでVivado シミュレーターでは発見することができなかった局所的な不具合の発見も期待される。\footnote{Vivado シミュレーターはデジタル回路の全ての信号遷移をソフトウェア的に計算するため、回路規模が大きくなると動作が遅くなる。ファームウェア全体をシミュレーションすると、数10イベントに半日程度かかることがわかっており、高統計の試験はできなかった。}
+
+次節で開発した実機試験システムおよびテストパターン生成機構の詳細を説明する。
+
 
 \section{高輝度LHC-ATLAS実験におけるミューオントリガーロジック}
 \label{sec_Phase2TriggerLogic}
