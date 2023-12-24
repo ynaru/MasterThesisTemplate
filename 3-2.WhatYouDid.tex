@@ -2,8 +2,48 @@
 \label{chap_TriggerTest}
 
 \section{実機試験システム}
+\subsection{実機試験システムのコンセプト}
+高輝度LHC-ATLAS実験に向けたエンドキャップ部ミューオントリガー開発は、前章までにコンセプト設計、モジュールごとのHDL設計、トリガーロジックの全体ファームウェアへの統合が完了し、ハードウェア上で論理回路を動作させるための準備が整った。次の重要なステップはトリガー回路が統合ファームウェアの中で正常に動作していること、また期待したトリガー性能を実現できていることを検証することである。
 
-\subsection{実機試験システムの概要}
+しかし、一般に、ハードウェア上で動作する大規模トリガー回路を実験開始前の段階で試験するには工夫が必要となる。SLでもトリガー回路の入力はPS boardから受信する光信号、出力はFELIXに送信する光信号で、このままではPS boardやFELIX、さらに後段の読み出し回路が完成するまで、試験をするすべがない。
+
+そこで本研究では、SoCを活用した次世代的なシングルボード試験システムを開発した。図\ref{Concept_test}にそのコンセプトを示す。
+
+\begin{figure} 
+\centering
+\includegraphics[width=16cm]{fig/Test/Concept_test.png}
+\caption[実機試験システムのコンセプト]{実機試験システムのコンセプト。新しく開発する実機試験システムは統合したトリガーロジックに対する検証システムとして働くだけでなく、}
+\label{Concept_test}
+\end{figure}
+
+このシステムでは、モンテカルロシミュレーションデータや実データなど任意のデータセットをハードウェア上のロジックに投入し、実際のトリガー演算結果を自由に取り出すことができる。LUTの書き込みやTTC信号の分配、トリガー読み出しなどはSLの本番運用と同じものを利用するため、統合ファームウェア全体の動作検証にもつながる。さらに、トリガーロジック自体に対する検証としても、ソフトウェアシミュレーター、Vivado シミュレータのより、本番に即した試験を実現する。図\ref{Test_Flow}にこれまでの試験と、本システムで達成する試験フローの違いを示す。
+
+\begin{figure}
+    \begin{minipage}[b]{0.9\linewidth}
+    \centering
+    \includegraphics[height=4.8cm]{fig/Test/Flow_Wire.png}
+    \subcaption{Vivadoシミュレーターによる試験フロー : Wire Segment Reconstruction}
+    \end{minipage}\\
+    \begin{minipage}[b]{0.9\linewidth}
+        \centering
+        \includegraphics[height=4.8cm]{fig/Test/Flow_WS.png}
+        \subcaption{Vivadoシミュレーターによる試験フロー : Wire Strip Coincidence}
+    \end{minipage}\\
+        \begin{minipage}[b]{0.9\linewidth}
+            \centering
+            \includegraphics[height=4.8cm]{fig/Test/Flow_zikki.png}
+            \subcaption{実機試験システムによる試験フロー}
+        \end{minipage}\\
+    
+    \caption[試験フロー]{Vivado シミュレーター、ソフトウェアシミュレーターによる試験フローと実機試験フローの比較。}
+    \label{Test_Flow}
+\end{figure}
+
+これまではMCサンプルやソフトウェアシミュレーターから、各モジュールのインプットを生成し、モジュール単位でVivadoシミュレーションを回していた。本システムではTGCのヒット情報から、フロントエンドエレクトロニクスの複雑な配線情報も考慮した上で、PS boardからSLに送られる8,000 bitのヒット情報を完全に再現し、トリガーロジックのインプットとする。これによりChannnel Mapping、Station Coincidence、Segment Reconstruction、Wire Strip Coincidenceと接続されたトリガーモジュールをフルチェーンで試験することができる。また、ソフトウェアシミュレーターではパターンマッチング用のLUTは最終出力のテキストファイルではなく、もととなるrootファイルを利用する。本試験ではいくつかの処理を経て、最終的に出力された本番で使われるテキストファイルを利用するためLUTの最終検査も行うことができる。さらに実機試験システムはトリガー演算をFPGA上で行っているため、Vivado シミュレーターと比べて高速で動作する。これにより、大統計を活かした網羅的な検証が可能で、これまでVivado シミュレーターでは発見することができなかった局所的なHDLのバグの発見も期待される。\footnote{Vivado シミュレーターはデジタル回路の全ての信号遷移をソフトウェア的に計算するため、回路規模が大きくなると動作が遅くなる。ファームウェア全体をシミュレーションすると、数10イベントに半日程度かかることがわかっており、高統計の試験はできなかった。}
+
+次節に実機試験システムの全体像を説明する。
+
+\subsection{実機試験システムの全体像}
 \label{subsec_TestSystemOverview}
 図\ref{Test_system}に実機を用いた試験システムの全体像を示す。このシステムは主にテストパターン生成システム、実機試験システム、Bit-wiseシミュレーターで構成される。実機試験システムは本研究で開発を進めた。テストパターン生成システムおよびBitwiseシミュレーターは先行研究で開発された。以下にそれぞれの詳細を説明する。
 

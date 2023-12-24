@@ -410,231 +410,99 @@ Track SelectorはInner Coincidenceから出力される最大112個のミュー�
 \newpage
 \section{Inner Coincidenceの統合}
 \label{sec_TriggerIntegration}
+2章で述べたように、SL FPGAの中でトリガーロジックは図\ref{}のように統合される。
+PS board とのインターフェイスが実装されるSLR0・2・3には、TGC BW Coincidenceが実装される。トリガーセクターごとにSLRが分けられ、SLR0にEndcap $\phi\,0$、SLR2にEndcap $\phi\,1$、SLR3にForwardのロジックが配置される。磁場内部の検出器やMUCTPIとのインターフェイスはSLR1に実装され、ここにはInner Coincidence、Track Selectorが配置される。
+高輝度LHC-ATLAS実験に向けたトリガー開発は、これまでに各モジュールのHDL実装が完了し、Segment Reconstructionまでの統合が完了している。
 
-先行研究\cite{mt_mishima}にてSLファームウェアのフロアプランニングおよびSegment Reconstructionまでの統合が進められた。トリガーロジックのSLRレイアウトを図\ref{}に示す。トリガーロジックはTGC BW コインシデンスまでのロジックを、トリガーセクターごとにSLR0・２・３に、Inner CoincidenceおよびTrack SelectorをSLR1に実装する。これはSLとPS boardを繋ぐ光トランシーバーをSLR0・２・３に配置し、SLと磁場内部に位置する検出器・MDTTP・MUCTPIを繋ぐ光トランシーバーをSLR2に配置するためである。
+本研究では引き続きWire Strip Coincidence、Inner Coincidence、Track Selectorの統合を進め、一連のトリガーロジックの統合を完了させる。以下にそれぞれの実装について述べる。
 
-本研究では引き続きWire Strip Coincidence、Inner Coincidence、Track Selectorの統合を進めた。以下でそれぞれの実装について述べる。
-
-前節で述べたように、先行研究によりTGC BW coincidenceおよびTrack Selectorの実装が完了している。そこで本研究ではInner Coincidenceの統合を完了させ、トリガーチェーン全体を完成させる。
-と、目的とするロジックをFPGAのリソース内で実現可能か、またタイミング制約を満たしつつロジックの配置ができるかといったハードウェア上の問題が生じることが懸念される。SL FPGAではこれまでのところリソースやタイミング制約に問題は発生していないが、すべてのトリガーチェーンを通した時にこれらの問題が生じないか不安視されている。大幅なロジックの変更を余儀なくされることも視野に入れて、2029年までに十分ゆとりのある今、トリガーチェーンを完成させることの意義は大きい。
-そこで、本研究では先行研究で開発されたInner coincidenceを統合するため、モジュールに引き込む必要がある信号線を精査し、配線を行った。図\ref{Inner_integrate}にInner Coincidenceファームウェアの概要を示す。Inner Coincidenceは磁場内部検出器の情報と TGC BW の位置情報などをそれぞれのコインシデンスに用いるためにデコードし差分をとる “Decoder” 、それぞれの検出器とパターンマッチングをとりより精度の良い\pt を出力する”coincidence”、最終的にどの検出器とコインシデンスで得られたトリガー情報を出力するか選択する“Which-Inner”で構成される。DecoderにはTGC BWで再構成した飛跡候補の情報と、磁場内部の検出器から取得されるデータを入力する。NSW、EI、Tile、RPC coincidenceロジックは内部でLUTを用いたパターンマッチングを行なっている。そのためcoincidenceロジックにはBRAMやURAMをコンフィギュレーションするための信号を入力する。Inner Coincidenceと接続したモジュールと、各信号線のbit幅を表\ref{tab:Inner_integrate}に示す。
-TGC BW coincidenceの結果としてWire Strip Coincidenceの各regionから31 bitのtrack candidateを取得する。Endcap領域を処理するSLR0、SLR2からそれぞれ4,650 bit、FW領域を処理するSLR3から992 bit、合計10,292 bitのデータをSLRを跨いで接続した。またInner CoincidenceはNSW、EI、TIle、RPCからの位置情報や角度情報を入力として利用する。しかし、磁場内部の検出器とどのようなデータを交換するか詳細が決まっておらず、インターフェイスも実装されていないため、今回はMPSoCから書き込むことができるレジスタ(Register Interface)と接続した。RAMへのLUTの書き込みは、TGC BWのLUTと同様にMPSoCをマスターにRAM Controllerを介して行う。LUTはテキストファイルに記述され、図\ref{LUT_example}に示すように、SLR Number、RAM ID、address、dataで構成される。LUTはsegment reconstruction、Wire Strip Coincidence、Inner coincidenceの各サブユニットごとに1つ用意されるため、1つのSLには合計 hoge 個のRAMが設置される。各RAMを識別するために振られているのがRAM IDで、SLRとRAM IDを指定することで書き込み動作を行うRAMを一意に決めることができる。AddressとDataはそれぞれRAM内のaddressとdataを表している。LUTを書き込むには、MPSoC上でアプリケーションを走らせテキストファイルの内容を32 bitずつRAM Controllerへ伝える。RAM ControllerはSLR、RAM ID、Address、Dataが全て揃うまで各データをバッファーする。全データが揃ったらMPSoCからactivate信号を送り、addressで指定したRAMのアドレスへdataを書き込む。そのためRAM Controllerから出力される計97 bitの信号線を接続した。Inner Coincidenceは1飛跡候補につき128 bitの情報を出力する。合計112 cand x 128 bitの信号はTrack Selectorに接続した。
-
-\begin{figure} 
-\centering
-\includegraphics[width=16cm]{fig/SL/Inner_integrate.png}
-\caption[Inner coincidenceファームウェアの模式図]{Inner coincidenceファームウェアの模式図\cite{mt_kobayashi}}
-\label{Inner_integrate}
-\end{figure}
+\subsection{Wire Strip Coincidenceの統合}
+Wire Strip Coincidenceを統合ファームウェアに組み込むため、前段のWire Segment Reconstruction、Strip Segment Reconstructionの出力を配線した他、モジュール内に存在する2種類のLUTをコンフィギュレーションするパスを接続した。
+Wire Strip Coincidenceモジュールに接続した各信号線を表\ref{tab:WS_integrate}にまとめる。
 
 \begin{table}[]
     \centering
-    \caption{Inner Coincidenceと接続したモジュールと各信号線のbit幅}
+    \caption{Wire Strip Coincidenceにおける信号線}
+    \label{tab:WS_integrate}
+    \begin{tabular}{|c|c|}
+    \hline
+    接続するモジュール                               & 信号線 ( bit幅 )                                                                                                    \\ \hline
+    Wire Segment Reconstruction             & \begin{tabular}[c]{@{}c@{}}Wire Segment ( EC : 148 subunit x 20 bit, \\ FW : 64 subunit x 20 bit )\end{tabular} \\ \hline\hline
+    Strip Segment Reconstruction            & Strip Segment ( EC :  20 unit x 17bit, FW : 5 unit x 17 bit)                                                    \\ \hline
+    LUT Manager for \textbackslash{}pt LUT  & Address + Data  (EC : 35 region x 18 bit、FW : 8 unit x 18 bit )                                                 \\ \hline
+    LUT Manager for \textbackslash{}eta LUT & Address + Data (EC : 35 region x  17 bit、FW : 8 unit x 17 bit )                                                 \\ \hline
+    \end{tabular}
+\end{table}
+
+Wire Strip CoincidenceはWire Segment Reconstructionの1つのサブユニットから1つの飛跡情報を受け取る。1つの飛跡情報は20 bitで構成され、8 bitの$\Delta\theta$、10 bitのM3代表点ID、2 bitのマッチレイヤーの情報が含まれる。Endcap領域には合計148のサブユニットが存在するため、合計2960 bit、Foward領域では64のサブユニットが存在するため、合計1280 bitの信号線を接続した。
+Strip Segment Reconstructionからは1つのユニットから1つの飛跡情報を受け取る。1つの飛跡情報は17 bitで構成され、9 bitの$\Delta\phi$、6 bitのM3代表点ID、2 bitのマッチレイヤー情報が含まれる。Endcap領域には計20のユニットが存在するため、合計340 bit、Foward領域では5つのニットが存在するため、合計 85 bitの信号線を接続した。
+
+Wire Strip Coincidence モジュール内に配置されている\pt 出力用のBRAMと$\eta$ 出力用のBRAMのコンフィギュレーションはMPSoCから行う。MPSoCからの書き込みを仲介するためのモジュールとしてWire Strip Coincidence用のLUT Managerを実装した。MPSoC から各モジュールのLUT ManagerまではRAM ID、Data、address、Write enableという共通の信号線を接続する。LUT ManagerはRAM IDをモニターし、担当するモジュールに該当するRAM IDが指定されたときのみ、addressとData信号をラッチしてRAMに書き込み動作を行う。これによりMPSoCから各RAMに個別の配線を用意する必要がなく、統一的に書き込み動作を実行することができる。また、モジュール内のBRAMはLHCバンチ交差クロックを逓倍した160 MHzクロックで動作するが、LUTの書き込みはMPSoCからのスローなコントロールに使用される50 MHzクロックで行う。この二つはソースが異なるクロックであるため、ここにはクロックドメインをまたぐための仕掛けもに実装してある。
+
+\subsection{Inner Coincidenceの統合}
+Inner Coincidenceを実機上で稼働させるために、Wire Strip Coincidenceの出力、磁場内部の検出器からの飛跡情報、LUTのコンフィギュレーションパスを実装した。Inner Coincidence モジュールに接続した各信号線を表\ref{tab:Inner_integrate}にまとめる。
+
+\begin{table}[]
+    \centering
+    \caption{Inner Coincidenceにおける信号線}
     \label{tab:Inner_integrate}
-    \begin{tabular}{|l|l|}
+
+    \begin{tabular}{|c|c|}
     \hline
-    接続するモジュール                   & 信号線 (bit幅)                                                                       \\ \hline\hline
-    Wire Strip Coincidence SLR0 & 8 region segment (31 bit x 22 regions) + 32 region segment (124 bit x 13 regions) \\ \hline
-    Wire Strip Coincidence SLR2 & 8 region segment (31 bit x 22 regions) + 32 region segment (124 bit x 13 regions) \\ \hline
-    Wire Strip Coincidence SLR3 & 32 region segment (124 bit x 8 regions)                                           \\ \hline
-    Register Interface          & Tile data ( 64 )                                                                  \\ \hline
-    Register Interface          & EI data ( 88 )                                                                    \\ \hline
-    Register Interface          & RPC ( 96 )                                                                        \\ \hline
-    Register Interface          & NSW (304 )                                                                        \\ \hline
-    RAM Controller              & RAM ID (32) / wr\_addr(32) / wr\_data(32) / wr\_activate(1)                       \\ \hline
+    接続するモジュール                                & 信号線 ( bit幅 )                                                                                                                   \\ \hline\hline
+    Wire Strip Coincidence SLR0              & \begin{tabular}[c]{@{}c@{}}8 region (31 bit x 1 cand x 22 regions) \\ + 32 region (31 bit x 4 cand x 13 regions )\end{tabular} \\ \hline
+    Wire Strip Coincidence SLR2              & \begin{tabular}[c]{@{}c@{}}8 region (31 bit x 1 cand x 22 regions) \\ + 32 region (31 bit x 4 cand x 13 regions )\end{tabular} \\ \hline
+    Wire Strip Coincidence SLR3              & 32 region (31 bit x 4 cand x 8 regions )                                                                                       \\ \hline
+    LUT Manager for \textbackslash{}pt NSW   & Address + Data  (86 bit x 78 region )                                                                                          \\ \hline
+    LUT Manager for \textbackslash{}eta RPC  & Address + Data (21 bit x 46 region )                                                                                           \\ \hline
+    LUT Manager for \textbackslash{}pt EI    & Address + Data (15 bit x 46 region )                                                                                           \\ \hline
+    LUT Manager for \textbackslash{}eta TIle & Address + Data (18 bit x 46 region )                                                                                           \\ \hline
+    Test Register for NSW                    & 19 bit x 16 cand                                                                                                               \\ \hline
+    Test Register for RPC                    & 24 bit x 4 cand                                                                                                                \\ \hline
+    Test Register for EI                     & 22 bit x 4 cand                                                                                                                \\ \hline
+    Test Register for Tile                   & 16 bit x 4 cand                                                                                                                \\ \hline
     \end{tabular}
 \end{table}
 
-\begin{figure} 
-\centering
-\includegraphics[width=16cm]{fig/SL/LUT_example.png}
-\caption[LUTの例]{LUTの例。テキストファイルに格納され、SLR、RAM ID、Address、Dataで構成される}
-\label{LUT_example}
-\end{figure}
+Inner CoincidenceはWire Strip Coincidenceの8 Regionから1つ、32 Regionから4つの飛跡情報を受け取る。1つの飛跡情報は31 bitで構成され、1 bitのvalid信号、4 bitの\pt 閾値、8 bitの$\eta$ positionに加え、計17にリダクションしたWire SegmentおよびStrip Segmentが含まれる。そのため、Endcap領域を処理するSLR0、SLR2からそれぞれ4,650 bit、FW領域を処理するSLR3から992 bitの信号線をSLRを跨いで接続した。
 
-Inner Coincidenceを統合した後のデバイスのリソース使用状況を表\ref{tab:Resource_before}に示す。表中の値は、1つのSLR中のリソースに対する使用量の割合を百分率で表したものである。Totalにはトリガーロジックだけでなく、コントロール、リードアウトのロジックも含めたリソース使用状況を示している。
-BRAMやURAMなどのメモリーデバイスには余裕を持って実装できている一方で、Inner Coincidenceを統合したSLR1ではConfigurable Logic Block (CLB) の使用率が100 \%に達しており、リソースが逼迫している。SLのファームウェアはまだ開発段階であり、機能が増築されていくことを考えるとリソースの削減が必要不可欠であることが判明した。
-\begin{table}[]
-    \centering
-    \caption{Inner Coincidenceを統合した後のデバイスのリソース使用状況}
-    \label{tab:Resource_before}
-    \begin{tabular}{|c|c|c|c|c|c|c|c|}
-    \hline
-    Name                                                                        & Block                        & \begin{tabular}[c]{@{}c@{}}LUT \\ (17280000)\end{tabular} & \begin{tabular}[c]{@{}c@{}}REG \\ (34560000)\end{tabular} & \begin{tabular}[c]{@{}c@{}}CLB \\ (2160000)\end{tabular} & \begin{tabular}[c]{@{}c@{}}LUT as Memory \\ (791040)\end{tabular} & \begin{tabular}[c]{@{}c@{}}BRAM \\ (2688)\end{tabular} & \begin{tabular}[c]{@{}c@{}}URAM\\  (1280)\end{tabular} \\ \hline\hline
-    \multirow{6}{*}{\begin{tabular}[c]{@{}c@{}}SLR0 \\ EC $\phi$1\end{tabular}} & Wire Station Coincidence     & 7.4                                                       & 1.48                                                      & 22.2                                                     & 0                                                                 & 0                                                      & 0                                                      \\ \cline{2-8} 
-                                                                                & Strip Station Coincidence    & 0                                                         & 0.2                                                       & 0.96                                                     & 0                                                                 & 0                                                      & 0                                                      \\ \cline{2-8} 
-                                                                                & Wire Segment Reconstruction  & 16.28                                                     & 2.96                                                      & 28.12                                                    & 0                                                                 & 0                                                      & 45.88                                                  \\ \cline{2-8} 
-                                                                                & Strip Segment Reconstruction & 6.24                                                      & 3.08                                                      & 11.04                                                    & 0.08                                                              & 0                                                      & 2.43                                                   \\ \cline{2-8} 
-                                                                                & Wire Strip Coincidence       & 3.56                                                      & 3.76                                                      & 14.56                                                    & 0                                                                 & 37.52                                                  & 0                                                      \\ \cline{2-8} 
-                                                                                & Total                        & 58.24                                                     & 31.04                                                     & 95.28                                                    & 1.08                                                              & 73.68                                                  & 51.56                                                  \\ \hline\hline
-    \multirow{3}{*}{SLR1}                                                       & Inner Coincidence            & 67.8                                                      & 19                                                        & 83.64                                                    & 3                                                                 & 28.88                                                  & 50                                                     \\ \cline{2-8} 
-                                                                                & Track Selector               & 15.4                                                      & 1.76                                                      & 17.72                                                    & 0                                                                 & 0                                                      & 0                                                      \\ \cline{2-8} 
-                                                                                & Total                        & 87.16                                                     & 45.24                                                     & 100                                                      & 3                                                                 & 28.88                                                  & 50                                                     \\ \hline\hline
-    \multirow{6}{*}{\begin{tabular}[c]{@{}c@{}}SLR2 \\ EC $\phi$1\end{tabular}} & Wire Station Coincidence     & 7.4                                                       & 1.48                                                      & 22.2                                                     & 0                                                                 & 0                                                      & 0                                                      \\ \cline{2-8} 
-                                                                                & Strip Station Coincidence    & 0                                                         & 0.2                                                       & 0.96                                                     & 0                                                                 & 0                                                      & 0                                                      \\ \cline{2-8} 
-                                                                                & Wire Segment Reconstruction  & 16.28                                                     & 2.96                                                      & 28.12                                                    & 0                                                                 & 0                                                      & 45.88                                                  \\ \cline{2-8} 
-                                                                                & Strip Segment Reconstruction & 6.24                                                      & 3.08                                                      & 11.04                                                    & 0.08                                                              & 0                                                      & 2.43                                                   \\ \cline{2-8} 
-                                                                                & Wire Strip Coincidence       & 3.56                                                      & 3.76                                                      & 14.56                                                    & 0                                                                 & 37.52                                                  & 0                                                      \\ \cline{2-8} 
-                                                                                & Total                        & 58.24                                                     & 31.04                                                     & 95.28                                                    & 1.08                                                              & 73.68                                                  & 51.56                                                  \\ \hline\hline
-    \multirow{6}{*}{\begin{tabular}[c]{@{}c@{}}SLR3 \\ FW\end{tabular}}         & Wire Station Coincidence     & 3.84                                                      & 0.64                                                      & 8.96                                                     & 0                                                                 & 0                                                      & 0                                                      \\ \cline{2-8} 
-                                                                                & Strip Station Coincidence    & 0                                                         & 0.04                                                      & 0.16                                                     & 0                                                                 & 0                                                      & 0                                                      \\ \cline{2-8} 
-                                                                                & Wire Segment Reconstruction  & 6.4                                                       & 1.28                                                      & 9.6                                                      & 0                                                                 & 0                                                      & 19.84                                                  \\ \cline{2-8} 
-                                                                                & Strip Segment Reconstruction & 1.24                                                      & 0.6                                                       & 2.52                                                     & 0.04                                                              & 0                                                      & 1.24                                                   \\ \cline{2-8} 
-                                                                                & Wire Strip Coincidence       & 1.52                                                      & 1.6                                                       & 5.36                                                     & 0                                                                 & 14.28                                                  & 0                                                      \\ \cline{2-8} 
-                                                                                & Total                        & 25.84                                                     & 15.88                                                     & 52.04                                                    & 0.48                                                              & 32.52                                                  & 20.32                                                  \\ \hline
-    \end{tabular}
-\end{table}
+Inner CoincidenceはNSW、EI、TIle、RPCからの位置情報や角度情報を入力として利用する。しかし、磁場内部の検出器から送られるデータの詳細が決まっておらず、それを受け取るためのインターフェイスも実装されていない。そこで、今回はMPSoCから書き込むことができる試験用のレジスタと接続した。各種へのコンフィギュレーションのため、Inner Coincidence用のLUT Managerを実装し、同様に配線した。
 
-タイミングの解析の結果を表\ref{tab:timing_before}に示す。
-Setup解析、Hold解析どちらにおいてもタイミング違反 (タイミングバイオレーション) が発生した。本研究では特に、Total Negative Slack (TNS) をタイミング違反の定量化に利用する。TNSとは、FPGA内に含まれる全てのフリップフロップパス間のネガティブスラックを足し上げたもので、どれだけタイミング深刻なタイミング違反かということと (Worst Negative Slack , WNS) と、どれだけ広範囲にタイミング違反が生じているか ( Number of Failing EndPoints )どちらにも相関を持つ値となっている。タイミング違反が発生した場合には負の値をとる。タイミングバイオレーションが生じている場合、ファームウェアの正常動作は保証されないため、これに関しても改善が必要である。
-\begin{table}[]
-    \centering
-    \caption{Inner Coincidence統合後のタイミング解析の結果}
-    \label{tab:timing_before}
-    \begin{tabular}{|c|c|c|}
-    \hline
-    Name                                                    & Setup         & Hold        \\ \hline\hline
-    Worst Negative Slack (WNS) / Worst Hold Slack (WHS)     & -8.616 ns     & -0.256 ns   \\ \hline
-    Number of Failing Endpoints / Total Number of Endpoints & 59 K / 1911 K & 9K / 1911 K \\ \hline
-    Total Negative Slack (TNS) / Total Hold slack           & -126, 297 ns  & -388 ns     \\ \hline
-    \end{tabular}
-\end{table}
+Inner Coincidenceは112このミューオン飛跡候補を出力し、1飛跡候補につき128 bitの情報を出力する。合計112 候補 x 128 bitの信号はTrack Selectorに接続した。Track Selectorから出力される6候補 x 128 bitの信号は、 MDTTPやMUCTPIへのインターフェイスは実装中であるため、MPSoCから読み出せる試験用のレジスタと配線した。
 
-\section{タイミングバイオレーションへの対処}
-本節ではInner Coincidenceを統合したことにより生じたタイミングバイオレーションを解決するために行った2つの最適化について説明する。いずれも、FPGAで実現される論理自体に変更を加えることなく、リソースの使い方を最適化したものであり、トリガーロジックの性能に影響を与えるものではない。
+\subsection{トリガーロジック統合後のリソース使用量}
 
-\subsection{シフトレジスタ実装方法の最適化}
-タイミングバイオレーション問題の解決に向けて、まずシフトレジスターの実装方法を検討した。
-一般に、FPGAでタイミング違反が生じた場合、2つのフリップフロップ間にシフトレジスターを挟む処理が行われる。これは、回路の大規模化に伴ってフリップフロップが離れた位置に配置された場合でも、シフトレジスたを挟むことで、フリップフロップ間の距離が短くなりタイミング制約を緩和することができるからである。この目的で挿入されるシフトレジスタをパイプラインレジスタと呼ぶ。SL FPGAでもこれまでタイミング違反が生じた場合に、この処置がとられて来た。たとえば、Wire Station CoincidenceとWire Segment Reconstructionの間で2段、Wire Segment ReconstructionとWire Strip Coincidenceの間で2段のパイプラインレジスタが挿入されている。
-
-ところで、UltraScale+ FPGAではシフトレジスタを実装するのに2種類のプリミティブ\footnote{FPGAの最小構成要素。FPGAの論理回路はプリミティブの組み合わせで構成される。代表的にはLUT、Flip Flop、RAMなどがある。目的の論理回路を実現するのにどのプリミティブを利用し、FPGA内のどこに配置するかは”Vivado”ソフトウェアで自動で行われる。}が用意されている。それぞれの概要を図\ref{SL_ShiftRegister}に示す。1つ目はD Flip-Flop with Clock Enable and Synchronous Reset (FDRE)と呼ばれる基本的なフリップフロップである。1つのFDREは1 bitのデータを保持するため、width n, depth mのシフトレジスタを実装するにはn x m個のFDREが必要となる。2つ目はShift Register LUT (SRL)と呼ばれる、メモリー用のLUTである。最大のdepthが16のもの(SRL16E) と32 (SRLC32E)のものが存在し、同様のシフトレジスターをSRLC32Eで実現しようとすると n x (m/32)個プリミティブを使用する。
-
-\begin{figure}
-\begin{minipage}[b]{.5\linewidth}
-\centering
-\includegraphics[height=5cm]{fig/SL/FDRE.pdf}
-\subcaption{FERE Primitiveのロジックブロック}
-\end{minipage}%
-\begin{minipage}[b]{.5\linewidth}
-\centering
-\includegraphics[height=5cm]{fig/SL/SRLC32E.pdf}
-\subcaption{SRLC32E Primitiveのロジックブロック}
-\end{minipage}%
-\caption[シフトレジスタを構成するプリミティブ]{異シフトレジスタを構成するプリミティブ\cite{UltraScale_Architecture}}
-\label{SL_ShiftRegister}
-\end{figure}
-
-これまでSL FPGAではパイプラインレジスタを実現するのにFDREのみを利用していた。これは一連のシフトレジスタがが1つのSRLタイルに配置されると、ロジックとロジックを繋ぐ中継点の役割を果たさず、タイミング制約を緩和するという本来の役割を果たさなくなると考えられていたからである。しかし、ロジックが大規模になり、基本的なプリミティブであるFDREの使用量が増えてくるとFPGA内に密集が発生し、逆に適切な位置にパイプラインレジスタを配置できなくなることも考えられる。そこで、本研究ではFDREに加えてSRLも利用してimplemetationを行い、どちらの方がタイミング制約の緩和に有効な実装方法か調査した。
-
-図\ref{SRL_FDRE}にSLR0のプリミティブ使用状況を示す。図の黄色のcellがSLR0内のパイプラインレジスタの実装に利用されているプリミティブである。FDREのみを利用した場合、パイプラインレジスタはFDRE 50 K個を用いて実装されている。一方SRLも利用した場合、パイプラインレジスタはSRL 6K、FDRE 6K個を利用して実装される。
-図\ref{}に変更前後におけるファームウェア全体でのネガティブスラック発生状況、表\ref{}にタイミング解析の結果を示す。SRLを利用することで、TNSは-126297.769 ns から -7903.744 nsに約1/16に削減された。この結果は、SRLを使うと、フリップフロップ間の距離が遠いところには適切にパイプラインを設置し、逆に近いところでは数段のパイプラインをまとめてSRLに実装するなど、より柔軟なロジックの配置が実現したことによるものと考えられる。
-しかし依然としてタイミングバイオレーションは解決しておらず、さらなる改善が求められる。
-
-\begin{figure} 
-\centering
-\includegraphics[width=16cm]{fig/SL/SRL_FERE.png}
-\caption[SRLを利用する場合と利用しない場合におけるリソース使用状況の比較]{SRLを利用する場合と利用しない場合におけるリソース使用状況の比較}
-\label{SRL_FDRE}
-\end{figure}
-
-
-\subsection{Track Selectorの最適化}
-モジュールごとのネガティブスラックの量をみると、全体の50 \%以上がTrack Selectorで発生しており、トリガーチェーンをタイミング制約を満たして完成させるにはこれの最適化が必要である。そこで本研究ではTrack Selectorにかけるレイテンシーを160 MHz 1チック分増やす代わりに、ソーティングロジックの簡略化を行い、タイミング制約の緩和を図った。
-従来のロジックと変更後のロジックの概念図を図\ref{}に示す。Track SelectorはInner Coincidenceから出力された最大128個のミューオン飛跡候補から、\pt の大きいものを8個選び出すものである。1つのミューオン候補に対して124 bitの情報が用意される。128個の飛跡候補は160 MHzの1チックごとに1 vs 1で\pt 比較が行われ、合計4チックで8候補まで絞り込まれる。従来のロジックではこのソーティングのロジックにおいて124 bit $\times$ 128 候補のデータを並列に並べた上で、124 bitのデータ同士を並び替えていた。これに対し、変更後のロジックではInner Coincidenceから出力される1候補あたり124 bitのデータのうち、ソーティングに利用する\pt 5 bitの情報だけを取り出し並び替えを行い、そのほかのデータは128個の飛跡候補を識別する 7 bit のIDと共にBRAMに格納しておく。ソーティングが完了し8個の飛跡候補が選ばれたら、そのIDを用いてBRAMからデータを取り出す。
-この方法では、ソーティングの後BRAMからデータを取り出すのに160 MHz 1チック分レイテンシーが余計にかかってしまうが、ソーティング必要なデータ量を124 bit $\times$ 128 候補から5 bit $\times$ 128 候補に削減することができる。これにより、FPGAで配線する必要のあるプリミティブを大幅に減らすことができ、タイミング制約の緩和が期待される。
-
-図\ref{SL_Metrics}および表\ref{tab:timing_before_after}に最適化前後のタイミング解析の結果をまとめる。シフトレジスタの最適化後にあった-7903.744 nsのTNSは0になっており、タイミングバイオレーションを解決することができた。
-
-
-\begin{table}[]
-    \centering
-    \caption{Track Selectorの最適化前後のタイミング解析の結果}
-    \label{tab:timing_before_after}
-    \begin{tabular}{|c||cc||cc||cc|}
-    \hline
-    \multirow{2}{*}{Name}                                                                              & \multicolumn{2}{c||}{最適化前}                        & \multicolumn{2}{c||}{シフトレジスタ最適化}                 & \multicolumn{2}{c||}{Track Selector最適化}      \\ \cline{2-7}
-                                                                                                       & \multicolumn{1}{c|}{Setup}         & Hold        & \multicolumn{1}{c|}{Setup}         & Hold       & \multicolumn{1}{c|}{Setup}      & Hold      \\ \hline
-    Worst  Slack                                                                                       & \multicolumn{1}{c|}{-8.616 ns}     & -0.256 ns   & \multicolumn{1}{c|}{- 1.164 ns}    & 0          & \multicolumn{1}{c|}{0}          & 0         \\ \hline
-    \begin{tabular}[c]{@{}c@{}}Number of Failing Endpoints / \\ Total Number of Endpoints\end{tabular} & \multicolumn{1}{c|}{59 K / 1911 K} & 9K / 1911 K & \multicolumn{1}{c|}{14 K / 1643 K} & 0 / 1643 K & \multicolumn{1}{c|}{0 / 1716 K} & 0 /1716 K \\ \hline
-    Total Slack                                                                                        & \multicolumn{1}{c|}{-126, 297 ns}  & -388 ns     & \multicolumn{1}{c|}{- 7903.744}    & 0          & \multicolumn{1}{c|}{0}          & 0         \\ \hline
-    \end{tabular}
-\end{table}
-
-\begin{figure}
-\begin{minipage}[b]{.33\linewidth}
-\centering
-\includegraphics[height=12cm]{fig/SL/Metrics_before.png}
-\subcaption{最適化前}
-\end{minipage}%
-\begin{minipage}[b]{.33\linewidth}
-\centering
-\includegraphics[height=12cm]{fig/SL/Metrics_shiftreg.png}
-\subcaption{シフトレジスタ最適化後}
-\end{minipage}%
-\begin{minipage}[b]{.33\linewidth}
-\centering
-\includegraphics[height=12cm]{fig/SL/Metrics_trackselector.png}
-\subcaption{Track Selector最適化後}
-\end{minipage}%
-\caption[]{最適化前後のネガティブスラック発生状況。赤色のセルがネガティブスラックが発生している領域を示す。オレンジ、黄色、白色の順に正のスラックが大きい。シフトレジスタの最適化とTrack Selectorの最適化を経て、タイミングバイオレーションを解決することができた。}
-\label{SL_Metrics}
-\end{figure}
-
-また、最適化後のリソース使用状況を図\ref{tab:Resource_after}に示す。
+本研究により、トリガーロジックのすべてのモジュールがSL FPGAへ統合され、フルチェーンでのリソース使用量を見積もることができるようになった。
+Inner Coincidenceを統合した後のデバイスのリソース使用状況を表\ref{tab:Resource_after1}に示す。表中の値は、1つのSLR中のリソースに対する使用量の割合を百分率で表したものである。Totalにはトリガーロジックだけでなく、コントロール、リードアウトのロジックも含めたリソース使用状況を示している。
+また、現状、トリガーロジックはタイミング違反を起こすことなく実装を完了しているが、そのために幾つかの最適化を行った。この詳細はAppendix\ref{}で説明する。
 
 \begin{table}[]
     \centering
     \caption{最適化後のデバイスのリソース使用状況}
-    \label{tab:Resource_after}
+    \label{tab:Resource_after1}
     \begin{tabular}{|c|c|c|c|c|c|c|c|}
     \hline
-    Name                                                                        & Block                        & \begin{tabular}[c]{@{}c@{}}LUT \\ (17280000)\end{tabular} & \begin{tabular}[c]{@{}c@{}}REG \\ (34560000)\end{tabular} & \begin{tabular}[c]{@{}c@{}}CLB \\ (2160000)\end{tabular} & \begin{tabular}[c]{@{}c@{}}LUT as Memory \\ (791040)\end{tabular} & \begin{tabular}[c]{@{}c@{}}BRAM \\ (2688)\end{tabular} & \begin{tabular}[c]{@{}c@{}}URAM\\  (1280)\end{tabular} \\ \hline\hline
+    Name                                                                        & Block                        & \begin{tabular}[c]{@{}c@{}}LUT \\ (17280000)\end{tabular} & \begin{tabular}[c]{@{}c@{}}REG \\ (34560000)\end{tabular} & \begin{tabular}[c]{@{}c@{}}CLB \\ (2160000)\end{tabular} & \begin{tabular}[c]{@{}c@{}}LUT \\as Memory \\ (791040)\end{tabular} & \begin{tabular}[c]{@{}c@{}}BRAM \\ (2688)\end{tabular} & \begin{tabular}[c]{@{}c@{}}URAM\\  (1280)\end{tabular} \\ \hline\hline
     \multirow{6}{*}{\begin{tabular}[c]{@{}c@{}}SLR0 \\ EC $\phi$1\end{tabular}} & Wire Station Coincidence     & 7.4                                                       & 1.48                                                      & 22.2                                                     & 0                                                                 & 0                                                      & 0                                                      \\ \cline{2-8} 
-                                                                                & Strip Station Coincidence    & 0                                                         & 0.2                                                       & 0.96                                                     & 0                                                                 & 0                                                      & 0                                                      \\ \cline{2-8} 
-                                                                                & Wire Segment Reconstruction  & 16.28                                                     & 2.96                                                      & 28.12                                                    & 0                                                                 & 0                                                      & 45.88                                                  \\ \cline{2-8} 
-                                                                                & Strip Segment Reconstruction & 6.24                                                      & 3.08                                                      & 11.04                                                    & 0.08                                                              & 0                                                      & 2.43                                                   \\ \cline{2-8} 
-                                                                                & Wire Strip Coincidence       & 3.56                                                      & 3.76                                                      & 14.56                                                    & 0                                                                 & 37.52                                                  & 0                                                      \\ \cline{2-8} 
-                                                                                & Total                        & 58.24                                                     & 31.04                                                     & 95.28                                                    & 1.08                                                              & 73.68                                                  & 51.56                                                  \\ \hline\hline
-    \multirow{3}{*}{SLR1}                                                       & Inner Coincidence            & 67.8                                                      & 19                                                        & 83.64                                                    & 3                                                                 & 28.88                                                  & 50                                                     \\ \cline{2-8} 
-                                                                                & Track Selector               & 15.4                                                      & 1.76                                                      & 17.72                                                    & 0                                                                 & 0                                                      & 0                                                      \\ \cline{2-8} 
-                                                                                & Total                        & 87.16                                                     & 45.24                                                     & 100                                                      & 3                                                                 & 28.88                                                  & 50                                                     \\ \hline\hline
-    \multirow{6}{*}{\begin{tabular}[c]{@{}c@{}}SLR2 \\ EC $\phi$1\end{tabular}} & Wire Station Coincidence     & 7.4                                                       & 1.48                                                      & 22.2                                                     & 0                                                                 & 0                                                      & 0                                                      \\ \cline{2-8} 
-                                                                                & Strip Station Coincidence    & 0                                                         & 0.2                                                       & 0.96                                                     & 0                                                                 & 0                                                      & 0                                                      \\ \cline{2-8} 
-                                                                                & Wire Segment Reconstruction  & 16.28                                                     & 2.96                                                      & 28.12                                                    & 0                                                                 & 0                                                      & 45.88                                                  \\ \cline{2-8} 
-                                                                                & Strip Segment Reconstruction & 6.24                                                      & 3.08                                                      & 11.04                                                    & 0.08                                                              & 0                                                      & 2.43                                                   \\ \cline{2-8} 
-                                                                                & Wire Strip Coincidence       & 3.56                                                      & 3.76                                                      & 14.56                                                    & 0                                                                 & 37.52                                                  & 0                                                      \\ \cline{2-8} 
-                                                                                & Total                        & 58.24                                                     & 31.04                                                     & 95.28                                                    & 1.08                                                              & 73.68                                                  & 51.56                                                  \\ \hline\hline
-    \multirow{6}{*}{\begin{tabular}[c]{@{}c@{}}SLR3 \\ FW\end{tabular}}         & Wire Station Coincidence     & 3.84                                                      & 0.64                                                      & 8.96                                                     & 0                                                                 & 0                                                      & 0                                                      \\ \cline{2-8} 
-                                                                                & Strip Station Coincidence    & 0                                                         & 0.04                                                      & 0.16                                                     & 0                                                                 & 0                                                      & 0                                                      \\ \cline{2-8} 
-                                                                                & Wire Segment Reconstruction  & 6.4                                                       & 1.28                                                      & 9.6                                                      & 0                                                                 & 0                                                      & 19.84                                                  \\ \cline{2-8} 
-                                                                                & Strip Segment Reconstruction & 1.24                                                      & 0.6                                                       & 2.52                                                     & 0.04                                                              & 0                                                      & 1.24                                                   \\ \cline{2-8} 
-                                                                                & Wire Strip Coincidence       & 1.52                                                      & 1.6                                                       & 5.36                                                     & 0                                                                 & 14.28                                                  & 0                                                      \\ \cline{2-8} 
-                                                                                & Total                        & 25.84                                                     & 15.88                                                     & 52.04                                                    & 0.48                                                              & 32.52                                                  & 20.32                                                  \\ \hline
+                                                                                & Strip Station Coincidence    & 0                                                         & 0.2                                                       & 0.84                                                     & 0                                                                 & 0                                                      & 0                                                      \\ \cline{2-8} 
+                                                                                & Wire Segment Reconstruction  & 16.28                                                     & 4.44                                                      & 26.64                                                    & 0                                                                 & 0                                                      & 45.88                                                  \\ \cline{2-8} 
+                                                                                & Strip Segment Reconstruction & 6.24                                                      & 3.08                                                      & 13.44                                                    & 0.08                                                              & 0                                                      & 2.43                                                   \\ \cline{2-8} 
+                                                                                & Wire Strip Coincidence       & 2.4                                                       & 2.92                                                      & 10.68                                                    & 0                                                                 & 37.52                                                  & 0                                                      \\ \cline{2-8} 
+                                                                                & Total                        & 57.2                                                      & 25.68                                                     & 91.76                                                    & 3.6                                                               & 74.4                                                   & 51.56                                                  \\ \hline\hline
+    \multirow{3}{*}{SLR1}                                                       & Inner Coincidence            & 66.92                                                     & 18.88                                                     & 87                                                       & 3                                                                 & 28.88                                                  & 50                                                     \\ \cline{2-8} 
+                                                                                & Track Selector               & 7.56                                                      & 2.8                                                       & 17.56                                                    & 0                                                                 & 0                                                      & 0                                                      \\ \cline{2-8} 
+                                                                                & Total                        & 79.16                                                     & 26.52                                                     & 99.24                                                    & 4.88                                                              & 28.88                                                  & 50                                                     \\ \hline\hline
+    \multirow{6}{*}{\begin{tabular}[c]{@{}c@{}}SLR2 \\ EC $\phi$1\end{tabular}} & Wire Station Coincidence     & 8.88                                                      & 1.48                                                      & 22.2                                                     & 0                                                                 & 0                                                      & 0                                                      \\ \cline{2-8} 
+                                                                                & Strip Station Coincidence    & 0                                                         & 0.2                                                       & 0.92                                                     & 0                                                                 & 0                                                      & 0                                                      \\ \cline{2-8} 
+                                                                                & Wire Segment Reconstruction  & 14.8                                                      & 4.44                                                      & 29.6                                                     & 0                                                                 & 0                                                      & 45.88                                                  \\ \cline{2-8} 
+                                                                                & Strip Segment Reconstruction & 6.24                                                      & 3.08                                                      & 13.6                                                     & 0.08                                                              & 0                                                      & 2.43                                                   \\ \cline{2-8} 
+                                                                                & Wire Strip Coincidence       & 2.44                                                      & 2.92                                                      & 11.28                                                    & 0                                                                 & 37.52                                                  & 0                                                      \\ \cline{2-8} 
+                                                                                & Total                        & 58.64                                                     & 27.04                                                     & 93.25                                                    & 3.96                                                              & 80.2                                                   & 51.56                                                  \\ \hline\hline
+    \multirow{6}{*}{\begin{tabular}[c]{@{}c@{}}SLR3 \\ FW\end{tabular}}         & Wire Station Coincidence     & 1.44                                                      & 0.64                                                      & 3.36                                                     & 0                                                                 & 0                                                      & 0                                                      \\ \cline{2-8} 
+                                                                                & Strip Station Coincidence    & 0                                                         & 0.04                                                      & 0.12                                                     & 0                                                                 & 0                                                      & 0                                                      \\ \cline{2-8} 
+                                                                                & Wire Segment Reconstruction  & 6.4                                                       & 1.28                                                      & 10.88                                                    & 0                                                                 & 0                                                      & 19.84                                                  \\ \cline{2-8} 
+                                                                                & Strip Segment Reconstruction & 1.24                                                      & 0.6                                                       & 2.64                                                     & 0.04                                                              & 0                                                      & 1.24                                                   \\ \cline{2-8} 
+                                                                                & Wire Strip Coincidence       & 1.48                                                      & 1.4                                                       & 4.4                                                      & 0                                                                 & 14.28                                                  & 0                                                      \\ \cline{2-8} 
+                                                                                & Total                        & 25.36                                                     & 13.36                                                     & 50.12                                                    & 1.84                                                              & 33.24                                                  & 20.32                                                  \\ \hline
     \end{tabular}
 \end{table}
-
-\subsection{今後に向けて : TGC BW コインシデンスの飛跡候補数削減}
-本研究の最適化の結果、SL FPGAにおけるタイミングバイオレーションは解決した。しかし、リソース使用量やタイミング制約は依然、逼迫している。特にInner CoincidenceやTrack Selectorが実装されているSLR1のリソース使用量には余裕がなく、タイミング違反もここで生じるものが多かった。また、SLファームウェアは今後拡張が進められていく予定で、Inner Coincidenceに関してだけでも、磁場内部飛跡検出器とのインターフェイスや、テストパターンを打ち込む機構など追加実装される。そこで、今後はより抜本的なロジック最適化が必要になると考える。本節では、今後の最適化の方向性について述べる。
-
-今後の最適化において重要なコンセプトは、余裕のあるレイテンシーを活用してミューオン候補を選別するロジックを導入することで、SLR1に実装されるロジックおよびSLRをまたぐ信号線を削減することである。
-現状のロジックではWire Strip Coincidenceで選ばれるミューオン候補は180個におよびそのすべてがSLRを跨いでInner Coincidenceに入力される。また、180個の候補を処理するためにInner Coincidenceでは78個の独立したロジックが走っている。しかし、1枚のSLが処理する1/24セクターの1BCの間に、物理的に意味のあるミューオンが大量に入射することは極めて稀である。現状の180個ミューオンが同時に入ってきても処理できるようなシステムは合理的でないと考えられる。図\ref{SL_Trigger_Compare}にRun3と高輝度LHC実験のトリガーロジックをミューオン飛跡候補数の観点でまとめた。どちらもEndcap Phi0の1 トリガーセクターに関するもので、Station間コインシデンスまではWireのロジックにおけるミューオン候補数を示している。Run3のロジックではHPTにおけるステーション間コインシデンスで1 トリガーセクターあたりミューオンの候補数を 7個まで絞り込む。Wire Strip CoincidenceからInner Coincidenceまでも高々 19個のミューオン候補しか渡されない。一方、高輝度LHC実験ではステーション間コインシデンスで最大 148個、Wire Strip CoincindenceからInner Coincidenceで 74個のミューオン候補が渡される。Run3のロジックでも95 \%前後のトリガー効率を達成できていたことを考えると、トリガー効率を損ねることなくミューオン候補数を削減することは可能であると考えられる。
-
-\begin{figure} 
-\centering
-\includegraphics[width=16cm]{fig/SL/Trigger_Compare.png}
-\caption[Run3と高輝度LHCのミューオン候補数の比較]{Run3と高輝度LHCのミューオン候補数の比較}
-\label{SL_Trigger_Compare}
-\end{figure}
-
-また、L0 trigger latencyも2.5 $\mu$sから10 $\mu$sに拡張されたことにより、トリガー判定に使える時間にはまだ十分な余裕がある。図\ref{Trigger_latency_memo}に現状のトリガーロジックのトリガーレイテンシーを示す。陽子バンチ交差を時間の原点にとると、1120 ns後にはWire Strip Coincidenceは完了する。一方、NSWやTile カロリメーターからのトリガー情報がSLに到着するのは1425 ns後であり、この間の300 nsは現状有効活用されていない。
-
-\begin{figure} 
-\centering
-\includegraphics[width=16cm]{fig/SL/Trigger_latency_memo.png}
-\caption[トリガーロジックのレイテンシー]{Cトリガーロジックのレイテンシー}
-\label{Trigger_latency_memo}
-\end{figure}
-
-この2つのことから、Wire Strip Coincidence直後にInner Coincidenceに渡すミューオン候補を絞り込むロジックを挟む最適化を行うことで、トリガー性能を維持したまま、タイミング制約を大幅に緩和できると考えられる。仮にWire Strip Coincidenceから出力されるミューオン候補数を74 個から10個に絞りこんだとすると、SLRをまたぐ信号線は約85 \%程度削減することができる。またInner Coincidenceに並列に実装するロジックの数もこれに合わせて削減することができる。さらに、これに付随してInner Coincidenceから出力されるミューオン候補も自動的に削減されるため、Track Selectorの規模縮小にもつながる。
-
-今後、Inner Coincidenceまでにミューオン候補をどれだけ削減するか、や何を基準に選択するか、などの詳細を決定するためのシミュレーション研究を専攻して進めていく予定である。
