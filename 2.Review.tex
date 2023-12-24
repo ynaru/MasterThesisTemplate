@@ -366,7 +366,7 @@ L0 TriggerはL0 Calo、L0 Muon、Global Trigger、CTPで構成される。L0 Muo
     \end{figure}
 
         \subsection*{Sector Logic  (SL) }
-PS board FPGAでまとめられた256チャンネル分のヒットデータはSLに集められる。SLはVirtex UltraScale+ FPGAという大規模FPGAとZynq UltraScale+ MPSoCという2つの集積回路を搭載している。Virtex UltraScale+ FPGAはSL FPGAと呼ばれ、PS boardから受信したヒットデータを用いてトリガー演算を行う。また、SL FPGAはCTPからL0Aが発行されるまでのデータバッファリングおよび後段への読み出しも担当する。Zynq UltraScale+ MPSoCはVirtex UltraScale+ FPGAやPS boardのコントロールマスターとして機能する。
+PS board FPGAでまとめられた256チャンネル分のヒットデータはSLに集められる。SLはVirtex UltraScale+ FPGAという大規模FPGAとZynq UltraScale+ MPSoCという2つの集積回路を搭載している。Virtex UltraScale+ FPGAのデバイスはSL FPGAと呼ばれ、PS boardから受信したヒットデータを用いてトリガー演算を行う。また、SL FPGAはCTPからL0Aが発行されるまでのデータバッファリングおよび後段への読み出しも担当する。Zynq UltraScale+ MPSoCはVirtex UltraScale+ FPGAやPS boardのコントロールマスターとして機能する。
 
 \begin{figure} 
     \centering
@@ -390,11 +390,36 @@ SL FPGAに実装するファームウェアの概要を図\ref{SL_FW_overview}�
 \label{SL_FW_overview}
 \end{figure}
 
-トリガー回路は、PS boardから送られるBW 7層分のヒットデータを用いて\pt 判定を行なった後、エンドキャップトロイド磁石より内側にあるNSW、RPC BIS78、TIleカロリメーターからの情報も用いて、より精度の高い\pt の概算を行う。実装されたトリガーロジックの詳細は次節で述べる。トリガー回路の出力情報はMUCTPIへ転送されるとともに、モニタリングのためトリガー読み出し回路にも送られる。
+トリガー回路は、PS boardから送られるBW 7層分のヒットデータを用いて\pt 判定を行なった後、エンドキャップトロイド磁石より内側にあるNSW、RPC BIS78、TIleカロリメーターからの情報も用いて、より精度の高い\pt の概算を行う。
+トリガー回路の出力は、L0 TriggerのためにMUCTPIへ転送される。またトリガーラインの正常動作を確かめるため、モニター用のデータがFELIXに転送される。
+トリガー回路はこれまでにATLAS TGC JAPAN グループの共同研究として開発が進められてきた。本研究では開発されたモジュールの全体ファームウェアへのの統合および試験システムの開発を行った。これについては\ref{chap_TriggerIntegration}章、\ref{chap_TriggerTest}章で説明する。
 
 読み出し回路は、PS board から送られてきたヒットデータとそのイベントに対応するトリガーデータをバッファーしておき、L0A が発行されたイベントのデータを選択的に後段へ転送する役割を担う。読み出されるデータにはゼロサプレスという圧縮処理が行われ、すべてのPS boardからのデータをイベントごとにパッキング  (Event Building) してから、FELIXに送信する。
 
 コントロールパスは、SL FPGA内の設定やパラメーターの制御など、LHC バンチ交差クロックと同期する必要のないスローな制御を担当する。コントロールマスターのMPSoCからSL FPGA内のレジスタを操作することで、SLのトリガー・読み出しに関連するパラメーターの設定や、PS boardの制御を行う。
+
+SL FPGAは4つのシリコンダイ (Super Logic Region, SLR) から構成される大規模FPGAである。図\ref{ISEE_abstract}に示すように、隣接するSLRはSuper Long Line (SLL) と呼ばれる専用のワイヤーで接続されていて、これを介して信号の送受信を行う。
+
+\begin{figure} 
+\centering
+\includegraphics[width=16cm]{fig/Intro/ISEE_abstract.pdf}
+\caption[SLRの概略図]{SLRの概略図}
+\label{ISEE_abstract}
+\end{figure}
+
+ただ、SLLを介した信号の伝搬は通常よりも大きなレイテンシーがかかる。また、SLLの位置はSLR内で物理的に決まっているため、SLLが不要に多い設計ではタイミング制約を満たすのが厳しくなる。ファームウェア全体をタイミング制約やリソース使用量などの物理制約を満たして1枚のFPGAに実装しきるためには、どのSLRにI/Oや各ロジックを配置するか決めるフロアマッピングが重要となる。
+
+図\ref{SL_floor}に設計されたSL FGPAのフロアマッピングを示す。PS boardからのヒット信号はSLR0・2・3で受信し、磁場内部の検出器からの信号はSLR1で受信する。そのため、TGCのヒット信号のみを用いるトリガーロジック ( TGC BW コインシデンス ) はそれぞれのSLRに配置し、データ量を削減した後、SLR1で磁場内部の検出器とのコインシデンスをとる。トリガーロジックはSLRごとにトリガーセクターを分けて配置しており、SLR0がエンドキャップ$\phi\,0$、SLR2がエンドキャップ$\phi\,1$、SLR3がフォワード領域を担当する。MUCTPIやMDTTPなどトリガー出力を送信するリンクはそのままSLR1に配置する。SLからFELIXにヒットデータを送信するリンクはSLR3に配置する。SLRを超える信号をできるだけ小さくするため、読み出し回路はZero Suppressなどのデータ圧縮作業はそれぞれのSLR内で行い、SLR3でイベントごとにパッキングして送信する。
+MPSoCとSL FPGAのチップ間通信のためのリンクもSLR3に実装する。各SLRのレジスタ操作はSLR3を中継に行う。
+
+\begin{figure} 
+\centering
+\includegraphics[width=16cm]{fig/Intro/SL_floor.png}
+\caption[SL FPGA全体像]{SL FPGAの全体像}
+\label{SL_floor}
+\end{figure}
+
+
 
     \subsubsection*{Zynq MPSoC}
 Zynq MPSoCはSL FPGAおよびPS boardのコントロールマスターとして動作する。加えてATLASのTDAQシステムやDetector Control System (DCS)とのインターフェイスとしての役割も果たす。
