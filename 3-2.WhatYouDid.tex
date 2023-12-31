@@ -4,15 +4,13 @@
 \section{実機試験システムの概要}
 \subsection{実機試験システムのコンセプト}
 高輝度LHC-ATLAS実験に向けたエンドキャップ部ミューオントリガー開発は、前章までにコンセプト設計、モジュールごとのHDL設計、トリガーロジックの全体ファームウェアへの統合が完了し、ハードウェア上で論理回路を動作させるための準備が整った。次の重要なステップはトリガー回路が統合ファームウェアの中で正常に動作していること、また期待したトリガー性能を実現できていることを検証することである。
-
 しかし、一般に、ハードウェア上で動作する大規模トリガー回路を実験開始前の段階で試験するには工夫が必要となる。SLでもトリガー回路の入力はPS boardから受信する光信号、出力はFELIXに送信する光信号で、このままではPS boardやFELIX、さらに後段の読み出し回路が完成するまで、試験をするすべがない。
-
 そこで本研究では、SoCを活用した次世代的なシングルボード試験システムを開発した。図\ref{Concept_test}にそのコンセプトを示す。
 
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/Test/Concept_test.png}
-\caption[実機試験システムのコンセプト]{実機試験システムのコンセプト。新しく開発する実機試験システムは統合したトリガーロジックに対する検証システムとして働くだけでなく、}
+\caption[実機試験システムのコンセプト]{実機試験システムのコンセプト。統合ファームウェアに対する試験システムとして新たに、実機試験システムを開発した。このシステムでは、全体ファームウェアに組み込んだ実機上で動作するトリガー回路に、テストパターンを入力することで試験を行う。この試験により、ファームウェアやLUTの改善点を発見し、フィードバックをかけていく。}
 \label{Concept_test}
 \end{figure}
 
@@ -21,21 +19,21 @@
 \begin{figure}
     \begin{minipage}[b]{0.9\linewidth}
     \centering
-    \includegraphics[height=4.8cm]{fig/Test/Flow_Wire.png}
+    \includegraphics[height=4.8cm]{fig/Test/Flow_Wire.pdf}
     \subcaption{Vivadoシミュレーターによる試験フロー : Wire Segment Reconstruction}
     \end{minipage}\\
     \begin{minipage}[b]{0.9\linewidth}
         \centering
-        \includegraphics[height=4.8cm]{fig/Test/Flow_WS.png}
+        \includegraphics[height=4.8cm]{fig/Test/Flow_WS.pdf}
         \subcaption{Vivadoシミュレーターによる試験フロー : Wire Strip Coincidence}
     \end{minipage}\\
         \begin{minipage}[b]{0.9\linewidth}
             \centering
-            \includegraphics[height=4.8cm]{fig/Test/Flow_zikki.png}
+            \includegraphics[height=4.8cm]{fig/Test/Flow_zikki.pdf}
             \subcaption{実機試験システムによる試験フロー}
         \end{minipage}\\
     
-    \caption[試験フロー]{Vivado シミュレーター、ソフトウェアシミュレーターによる試験フローと実機試験フローの比較。}
+    \caption[試験フロー]{Vivado シミュレーター、ソフトウェアシミュレーターによる試験フローと実機試験フローの比較。(a)、(b)に示すように、これまでのVivadoシミュレーターを用いた試験では、MCデータのTGCヒット情報から、直接トリガーモジュールの入力を生成してしていた。(c)に示す実機試験システムでは、TGCのヒット情報から、フロントエンドエレクトロニクスの複雑な配線情報も考慮した上で、PS boardからSLに送信されるヒットビットマップを再現し、それをトリガーの入力とする。そのため、Channel MappingからWire Segment Reconstructionまで網羅的に試験することが可能である。}
     \label{Test_Flow}
 \end{figure}
 
@@ -50,7 +48,7 @@
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/Test/Test_system.png}
-\caption[実機試験システムの概要]{実機試験システムの概要}
+\caption[実機試験システムの概要]{実機試験システムの概要。テストパターン生成機構、SL実機試験システム。Bitwiseシミュレーターで構成される。テストパターン生成機構はMCデータ、実データ、無限運動量飛跡などをもとに、実機試験システムとBitwiseシミュレーターに共通するテストパターンを生成する。実機試験システムはこれを入力として、実機上で動作するトリガー回路の演算結果を出力する。Bitwiseシミュレーターもこれを入力として、トリガー演算をBitレベルで再現したソフトウェアエミュレーターの演算結果を出力とする。この2つの出力を相互に比較・検証することで、盤石に試験を進める。}
 \label{Test_system}
 \end{figure}
 
@@ -66,7 +64,7 @@
 
 \paragraph{Bitwiseシミュレーター}　　
 \par
-BitwiseシミュレーターはSLトリガーロジックをビットレベルで再現したC++ベースのシミュレーターである。このシミュレーターはテストパターンを入力とし、LUTもテキストファイルとしてダンプされた最終生成物を使用するため、実機システムと完全に同じ道具を利用してシミュレーションを行う。そのため、実機システムとの比較・検証用に極めて有用である。また、各モジュールのロジックや入出力もファームウェアと完全に一致するように設計されているため、途中出力同士の比較や、実機出力では出せない内部の信号線の調査にも利用することができ、HDLの精密なデバッグが可能である。\footnote{前述のソフトウェアシミュレーターは実現しているロジックはファームウェアと完全に等価であるが、入力データやLUTは実機システムとは異なるため、最終的な動作確認には不向きである。また内部でビットレベルの演算を行なっている訳ではないので、途中出力をファームウェアと比較することもできない。}
+BitwiseシミュレーターはSLトリガーロジックをビットレベルで再現したC++ベースのシミュレーターである。このシミュレーターはテストパターンを入力とし、LUTもテキストファイルとしてダンプされた最終生成物を使用するため、実機システムと完全に同じ道具を利用してシミュレーションを行う。そのため、実機システムとの比較・検証用に極めて有用である。また、各モジュールのロジックや入出力もファームウェアと完全に一致するように設計されているため、途中出力同士の比較や、実機出力では出せない内部の信号線の調査にも利用することができ、HDLの精密なデバッグが可能である。\footnote{前述のソフトウェアシミュレーターは実現しているロジックはファームウェアと完全に等価であるが、入力データやLUTは実機システムとは異なるため、最終的な動作確認には不向きである。また内部でビットレベルの演算を行なっている訳ではないので、途中出力をファームウェアと比較することもできない。}5
 
 \section{実機試験システムの開発}
 \subsection*{ファームウェアの概要}
@@ -75,8 +73,8 @@ BitwiseシミュレーターはSLトリガーロジックをビットレベル�
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{fig/Test/TestSystem_overview.png}
-\caption[トリガー試験ファームウェアの概要]{トリガー試験ファームウェアの概要}
+\includegraphics[width=16cm]{fig/Test/TestSystem_overview.pdf}
+\caption[トリガー試験ファームウェアの概要]{トリガー試験ファームウェアの概要。MPSoC上のCPU領域に起動したLinuxを起点に、試験システムのコントロール、データ読み出しを行う。システムはSL上の水晶発振器で生成した40.079 MHzクロックをLHC陽子バンチ交差クロックの代わりに利用する。FELIXから分配されるTPT、L0A、BCRなどのTTC信号はSL内部のTTC emulatorで生成する。トリガーロジックへのヒットビットマップの入力はTest Pattern Generatorから行う。トリガーロジックの出力は読み出し回路を通じてMPSoC上のBRAMにダンプし、それをLinuxから読み出すことでトリガー演算結果を取得する。}
 \label{TestSystem_Overview}
 \end{figure}
 
@@ -147,8 +145,8 @@ Test Pattern Generator は幅 128 bit、深さ 64 のBRAMで、1つのBRAMがPS 
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{fig/Test/Readout_Circuite.png}
-\caption[トリガー読み出し回路の概要]{トリガー読み出し回路の概要}
+\includegraphics[width=16cm]{fig/Test/Readout_Circuite.pdf}
+\caption[トリガー読み出し回路の概要]{トリガー読み出し回路の概要。トリガーロジックからの出力はL0 Bufferに格納され、L0Aが出されたイベントのみDerandomizerに送信される。トリガーモジュールからの出力は、すべてのユニットからの出力を並列に並べてあるが、Candidate Selectorはこの中から飛跡を再構成できたユニットからの出力のみを抜き出して、Event Builderに送信する。Event Builderでは複数のモジュールからの出力を1つのパケットにまとめて、MPSoCへと送る。}
 \label{Readout_Circuite}
 \end{figure}
 
@@ -174,6 +172,7 @@ Test Pattern Generator は幅 128 bit、深さ 64 のBRAMで、1つのBRAMがPS 
         \centering
         \caption[パケットのフォーマット]{SerializerからEvent Builderに送られるパケットのフォーマット}
         \label{tab:packet_format}
+        \footnotesize
         \begin{tabular}{|c|cccccccccccccccccccccccccccccccc|}
         \hline
                 & \multicolumn{1}{c|}{31} & \multicolumn{1}{c|}{30} & \multicolumn{1}{c|}{29} & \multicolumn{1}{c|}{28} & \multicolumn{1}{c|}{27} & \multicolumn{1}{c|}{26} & \multicolumn{1}{c|}{25} & \multicolumn{1}{c|}{24} & \multicolumn{1}{c|}{23} & \multicolumn{1}{c|}{22} & \multicolumn{1}{c|}{21} & \multicolumn{1}{c|}{20} & \multicolumn{1}{c|}{19} & \multicolumn{1}{c|}{18} & \multicolumn{1}{c|}{17} & \multicolumn{1}{c|}{16} & \multicolumn{1}{c|}{15} & \multicolumn{1}{c|}{14} & \multicolumn{1}{c|}{13} & \multicolumn{1}{c|}{12} & \multicolumn{1}{c|}{11} & \multicolumn{1}{c|}{10} & \multicolumn{1}{c|}{9} & \multicolumn{1}{c|}{8} & \multicolumn{1}{c|}{7} & \multicolumn{1}{c|}{6} & \multicolumn{1}{c|}{5} & \multicolumn{1}{c|}{4} & \multicolumn{1}{c|}{3} & \multicolumn{1}{c|}{2} & \multicolumn{1}{c|}{1} & 0 \\ \hline
@@ -202,8 +201,8 @@ Test Pattern Generator は幅 128 bit、深さ 64 のBRAMで、1つのBRAMがPS 
 SL FPGAで整形されたデータはMPSoC PL領域内のBRAMに格納されたのち、PSから読み出される。SL FPGAからMPSoCへのデータ転送は、高速シリアル通信を利用する。図\ref{C2C}にチップ間通信の概要を示す。
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{fig/Test/C2C.png}
-\caption[SL FPGAからMPSoCへのチップ間通信]{SL FPGAからMPSoCへのチップ間通信}
+\includegraphics[width=16cm]{fig/Test/C2C.pdf}
+\caption[SL FPGAからMPSoCへのチップ間通信]{SL FPGAからMPSoCへのチップ間通信。トリガー回路からの出力はAXI sender からAXI プロトコルに乗せられ、Aurora64B66Vでシリアル通信のデータにエンコードされ、MPSoCへ送られる。そのデータはMPSoCで再びAXIに載せ替えられ、BRAMにダンプされる。}
 \label{C2C}
 \end{figure}
 
@@ -219,8 +218,8 @@ Aurora 64 B/66B MasterはAXI Stream形式のデータをシリアル通信のデ
 
 \begin{figure} 
 \centering
-\includegraphics[width=10cm]{fig/Test/Flowchart.png}
-\caption[アプケーションのフローチャート]{アプリケーションのフローチャート}
+\includegraphics[width=10cm]{fig/Test/Flowchart.pdf}
+\caption[アプケーションのフローチャート]{アプリケーションのフローチャート。Test Pattern GeneratorのBRAMの容量に合わせて、60イベントを1セットに試験を行う。1イベントのループでは、テストパルス信号の発行、データ読み出し、データのデコード、テキストファイルへのダンプを行う。}
 \label{Flowchart}
 \end{figure}
 
@@ -256,72 +255,12 @@ Aurora 64 B/66B MasterはAXI Stream形式のデータをシリアル通信のデ
 
 \begin{figure} 
 \centering
-\includegraphics[width=10cm]{fig/Test/InfMomentum.png}
-\caption[用意した無限運動量飛跡のデータセット]{用意した無限運動量飛跡のデータセット。FW、EC領域に存在する全2次元格子点に対して網羅的にテストパターンを用意。1枚のSLが担当するすべての領域でトリガーロジックが期待通り動作していることを調べる。}
+\includegraphics[width=10cm]{fig/Test/InfMomentum.pdf}
+\caption[用意した無限運動量飛跡のデータセット]{用意した無限運動量飛跡のデータセット。FW、EC領域に存在する全2次元格子点に対して網羅的にテストパターンを用意。EC $\phi\,0$、$\phi\,1$領域はWireが579 ch、Stripが63 chあるため合計15,309の格子点が存在する。FW領域はWireが243 ch、Stripが63 chあるため合計36,477の格子点が存在する。}
 \label{InfMomentum}
 \end{figure}
 
 図\ref{Inf_A_Strip}$\sim$図\ref{Inf_A_WS}に各モジュールごとの結果を示す。横軸にStripのスタッガードID、縦軸にWireのスタッガードIDをとり、飛跡再構成に失敗した格子点を黒で塗りつぶしている。飛跡再構成に成功したイベントの割合を表\ref{tab:InfMomentum}にまとめる。
-
-\begin{figure}
-\begin{minipage}[b]{.5\linewidth}
-    \centering
-    \includegraphics[height=6cm]{fig/Test/A_InfEC0_strip.pdf}
-    \subcaption{エンドキャップ$\phi\,$0領域の結果}
-\end{minipage}
-\begin{minipage}[b]{.5\linewidth}
-    \centering
-    \includegraphics[height=6cm]{fig/Test/A_InfEC1_strip.pdf}
-    \subcaption{エンドキャップ$\phi\,$1領域の結果}
-\end{minipage}\\
-\begin{minipage}[b]{\linewidth}
-    \centering
-    \includegraphics[height=6cm]{fig/Test/A_InfFW_strip.pdf}
-    \subcaption{フォワード領域の結果}
-\end{minipage}
-\caption[異なる画像形式の比較]{無限運動量飛跡に対する、Strip Segment Reconstructionの応答。}
-\label{Inf_A_Strip}
-\end{figure}
-
-\begin{figure}
-    \begin{minipage}[b]{.5\linewidth}
-        \centering
-        \includegraphics[height=6cm]{fig/Test/A_InfEC0_wire.pdf}
-        \subcaption{エンドキャップ$\phi\,$0領域の結果}
-    \end{minipage}
-    \begin{minipage}[b]{.5\linewidth}
-        \centering
-        \includegraphics[height=6cm]{fig/Test/A_InfEC1_wire.pdf}
-        \subcaption{エンドキャップ$\phi\,$1領域の結果}
-    \end{minipage}\\
-    \begin{minipage}[b]{\linewidth}
-        \centering
-        \includegraphics[height=6cm]{fig/Test/A_InfFW_wire.pdf}
-        \subcaption{フォワード領域の結果}
-    \end{minipage}
-    \caption[異なる画像形式の比較]{無限運動量飛跡に対する、Wire Segment Reconstructionの応答。}
-    \label{Inf_A_Wire}
-\end{figure}
-
-\begin{figure}
-    \begin{minipage}[b]{.5\linewidth}
-        \centering
-        \includegraphics[height=6cm]{fig/Test/A_InfEC0_WS.pdf}
-        \subcaption{エンドキャップ$\phi\,$0領域の結果}
-    \end{minipage}
-    \begin{minipage}[b]{.5\linewidth}
-        \centering
-        \includegraphics[height=6cm]{fig/Test/A_InfEC1_WS.pdf}
-        \subcaption{エンドキャップ$\phi\,$1領域の結果}
-    \end{minipage}\\
-    \begin{minipage}[b]{\linewidth}
-        \centering
-        \includegraphics[height=6cm]{fig/Test/A_InfFW_WS.pdf}
-        \subcaption{フォワード領域の結果}
-    \end{minipage}
-    \caption[異なる画像形式の比較]{無限運動量飛跡に対する、Wire Strip Coincidenceの応答。}
-    \label{Inf_A_WS}
-\end{figure}
 
 \begin{table}[]
     \centering
@@ -340,15 +279,55 @@ Aurora 64 B/66B MasterはAXI Stream形式のデータをシリアル通信のデ
 \par 
 Strip Segment Reconstructionではフォワード領域とエンドキャップ領域の全領域で飛跡再構成に成功した。この結果はChannel Mapping、Strip Station Coincidence、Strip Segment Reconstruction、のHDL実装がミスなく行われたこと、作成されたLUTが抜けなく実装されていること、そしてLUTの書き込みパスなどトリガーを稼働させるのに必要なコントロール機能が正確に動作していることを示している。さらに、この結果は実機試験システム自体が正確に動作していることも示唆している。MPSoCからのテストパターンを書き込むパスとトリガーロジックの読み出しパスは安定して動作しており、TTC emulator、トリガーロジック、読み出しパスが固定レイテンシーで制御されていることが保証される。これらのコントロールおよび読み出しパスは実験本番でも使われるシステムであり、SL統合ファームウェア全体が精度良く動作していることを示すしている。この結果を得られるまでの過程でStrip LUTのミスを発見し、修正を行った。デバッグの過程はAppendix\ref{sec:appendix:infinite-momentum-tracks}に詳述する
 
+\begin{figure}
+    \begin{minipage}[b]{.5\linewidth}
+        \centering
+        \includegraphics[height=5.6cm]{fig/Test/A_InfEC0_strip.pdf}
+        \subcaption{エンドキャップ$\phi\,$0領域の結果}
+    \end{minipage}
+    \begin{minipage}[b]{.5\linewidth}
+        \centering
+        \includegraphics[height=5.6cm]{fig/Test/A_InfEC1_strip.pdf}
+        \subcaption{エンドキャップ$\phi\,$1領域の結果}
+    \end{minipage}\\
+    \begin{minipage}[b]{\linewidth}
+        \centering
+        \includegraphics[height=5.6cm]{fig/Test/A_InfFW_strip.pdf}
+        \subcaption{フォワード領域の結果}
+    \end{minipage}
+    \caption[異なる画像形式の比較]{無限運動量飛跡に対する、Strip Segment Reconstructionの応答。1つのSLが担当する1/24セクターすべての領域で、無限運動量飛跡の再構成に成功した。}
+    \label{Inf_A_Strip}
+\end{figure}
+
 \paragraph{Wire Segment Reconstruction}　　
 \par
-Wire Segment Reconstructionでは、フォワード領域で99.9 \% ( 15,287 / 15,309 )、エンドキャップ$\phi\,$0領域で99.7 \%(35,370 / 36,477)、エンドキャップ$\phi\,$1領域で99.9 ( 36.181 / 36.477 )の飛跡再構成に成功した。しかし、エンドキャップ$\phi\,$1領域のはWire スタッガード ID $0 \sim 2$ の範囲では、全てのイベントで飛跡再構成に失敗している。また、全領域においてで特定の構造を持たない$\mathcal{O}(0.1\,\%)$のInefficiencyが観測された。
+Wire Segment Reconstructionでは、フォワード領域で99.9 \% ( 15,287 / 15,309 )、エンドキャップ$\phi\,$0領域で99.7 \%(35,370 / 36,477)、エンドキャップ$\phi\,$1領域で99.9 ( 36.181 / 36.477 )の飛跡再構成に成功した。しかし、エンドキャップ$\phi\,$1領域のWire スタッガード ID $0 \sim 2$ の範囲では、全てのイベントで飛跡再構成に失敗している。また、全領域においてで特定の構造を持たない$\mathcal{O}(0.1\,\%)$のInefficiencyが観測された。
 
 前者のInefficiencyに関しては、Bitwiseシミュレーターでも確認されており、これはTGC検出器の特性によるものであると理解されている。$\phi1$領域の$\eta\sim$2.0付近の領域ではM3がM1よりも広い$\eta$範囲をカバーしているため、M3をピボットとして無限運動量飛跡を作成すると、M1では担当するチャンネルが存在せず、コインシデンスが取れない。
 
 後者のInefficiencyについては、Bitwiseシミュレーターでは確認されていないため、実機試験システムに固有の問題であると考えられる。調査により、飛跡再構成に失敗する格子点の位置には、データの取り直しに対して再現性がないことが明らかになった。失敗するイベントの割合は試験ごとに概ね一定で、Wireでは約0.1 \%である。現状、この問題がハードウェア上のトリガー回路自体の問題に起因するのか、あるいは読み出し回路の問題に起因するのかの区別がついておらず、問題の解決には至っていない\footnote{トリガー読み出し回路はモジュールごとに独立した回路になっており、読み出すデータの出力ビット幅の違いにより、Ineffficiencyが見れたり見られなかったりする可能性は排除できない}。次節以降の試験でもこのInefficiencyは存在すると考えられるが、本論文で議論するInefficiencyは $\mathcal{O}(10 \%)$ 程度のものであるため、このInefficiencyは実機システムに付随する避けられないものとして受け入れ、議論をすすめる。
 
 この結果を得られるまでの過程で無限運動量飛跡生成機構に問題を発見し、修正を行った。デバッグの過程はAppendix\ref{sec:appendix:infinite-momentum-tracks}に詳述する。
+
+\begin{figure}
+    \begin{minipage}[b]{.5\linewidth}
+        \centering
+        \includegraphics[height=5.6cm]{fig/Test/A_InfEC0_wire.pdf}
+        \subcaption{エンドキャップ$\phi\,$0領域の結果}
+    \end{minipage}
+    \begin{minipage}[b]{.5\linewidth}
+        \centering
+        \includegraphics[height=5.6cm]{fig/Test/A_InfEC1_wire.pdf}
+        \subcaption{エンドキャップ$\phi\,$1領域の結果}
+    \end{minipage}\\
+    \begin{minipage}[b]{\linewidth}
+        \centering
+        \includegraphics[height=5.6cm]{fig/Test/A_InfFW_wire.pdf}
+        \subcaption{フォワード領域の結果}
+    \end{minipage}
+    \caption[異なる画像形式の比較]{無限運動量飛跡に対する、Wire Segment Reconstructionの応答。エンドキャップ$\phi\,$1領域のWire スタッガード ID $0 \sim 2$ の範囲で飛跡再構成に失敗している。また、全領域に特定の構造を持たない$\mathcal{O}(0.1\,\%)$のInefficiencyが見られる。}
+    \label{Inf_A_Wire}
+\end{figure}
 
 
 \paragraph{Wire Strip Coincidence}　　
@@ -357,6 +336,25 @@ Wire Strip Coincidence では、フォワード領域で 99.6 \% ( 15,179 / 15,3
 
 この試験により、TGC BW Coincidence の 95 \% 以上の領域でトリガーロジックが正常に動作していることが確認できた。一方で、トリガーロジックのHDL実装中に発生したと思われる不具合も発見できた。このような数 \% の局所的なInefficiencyは、網羅的かつ詳細なイベントセットを利用した検証だからこそ見つけられたもので、従来のVivadoシミュレーターでは見つけることが困難な問題であった。任意の位置に入射するミューオン飛跡をエミュレートできる無限運動量飛跡生成機構と、ハードウェア上で実際に動作するトリガー回路を大統計量で試験できる実機システムの真価が発揮された例である。実験開始前にこれらの誤りを発見し、修正することは最大パフォーマンスのミューオントリガーを実現する上で非常に重要である。
 
+\begin{figure}
+    \begin{minipage}[b]{.5\linewidth}
+        \centering
+        \includegraphics[height=5.6cm]{fig/Test/A_InfEC0_WS.pdf}
+        \subcaption{エンドキャップ$\phi\,$0領域の結果}
+    \end{minipage}
+    \begin{minipage}[b]{.5\linewidth}
+        \centering
+        \includegraphics[height=5.6cm]{fig/Test/A_InfEC1_WS.pdf}
+        \subcaption{エンドキャップ$\phi\,$1領域の結果}
+    \end{minipage}\\
+    \begin{minipage}[b]{\linewidth}
+        \centering
+        \includegraphics[height=5.6cm]{fig/Test/A_InfFW_WS.pdf}
+        \subcaption{フォワード領域の結果}
+    \end{minipage}
+    \caption[異なる画像形式の比較]{無限運動量飛跡に対する、Wire Strip Coincidenceの応答。フォワード領域ではWire スタッガードID 190 番に該当する飛跡が全て再構成されないことが確認された。エンドキャップ領域では、Wire スタッガード ID 410 番以降の領域で、$\phi0$と$\phi1$のどちらにも規則的な構造を持ったInefficiencyが観測された。}
+    \label{Inf_A_WS}
+\end{figure}
 
 \section{モンテカルロデータを用いた性能評価}
 \label{sec_SingleMuon}
@@ -381,7 +379,7 @@ Wire Strip Coincidence では、フォワード領域で 99.6 \% ( 15,179 / 15,3
 \subsection{モジュールごとのEfficiency}
 \par
 \subsubsection*{Strip Segment Reconstruction}
-この試験では \pt  が十分に大きい事象に対するトリガー応答を確認することを目的とし、Truth \pt  20 GeV 以上のミューオンイベントに対する検出効率を評価する。Efficiencyは式\ref{eq:Strip_Efficiency}のように定義する。
+この試験では \pt  が十分に大きい事象に対するトリガー応答を確認することを目的とし、Truth \pt $\,$20 GeV 以上のミューオンイベントに対する検出効率を評価する。Efficiencyは式\ref{eq:Strip_Efficiency}のように定義する。
 
 \begin{equation}
     \mathrm {Efficiency} = \frac{\mathrm{Strip\,Segment \,Reconstruction\,で\Delta\phi\,を再構成できたイベント数}}{\mathrm{Truth\,pt \,20 \,GeV以上のイベント数}}
@@ -405,7 +403,7 @@ Strip Segment Reconstructionの検出効率の$\eta$および$\phi$依存性を�
 \includegraphics[height=10cm]{fig/Test/A_SM_strip_phi.pdf}
 \subcaption{Strip Segment Reconstructino 検出効率の$\phi$依存性}
 \end{minipage}%
-\caption[Strip Segment Reconstructionの検出効率]{Strip Segment Reconstructionの検出効率}
+\caption[Strip Segment Reconstructionの検出効率]{Strip Segment Reconstructionの検出効率。黒色のプロットが実機出力、赤色のプロットがBitwiseシミュレータの出力を表す。全領域のトリガー検出効率は97.4 \%であり、先行研究のソフトウェアシミュレーションと矛盾のない結果が得られた。トリガー効率の$\phi$依存性に着目すると、チェンバー境界領域で10 \%程度のInefficiencyが見られる。}
 \label{SM_A_strip}
 \end{figure}
 
@@ -436,7 +434,7 @@ Wire Segment Reconstructionの検出効率の$\eta$および$\phi$依存性を�
     \includegraphics[height=10cm]{fig/Test/A_SM_wire_phi.pdf}
     \subcaption{Wire Segment Reconstructino 検出効率の$\phi$依存性}
     \end{minipage}%
-    \caption[Wire Segment Reconstructionの検出効率]{Wire Segment Reconstructionの検出効率}
+    \caption[Wire Segment Reconstructionの検出効率]{Wire Segment Reconstructionの検出効率。黒色のプロットが実機出力、赤色のプロットがBitwiseシミュレータの出力を表す。全領域のトリガー検出効率は96.3 \%であり、先行研究のソフトウェアシミュレーションやVivadoシミュレーションと矛盾のない結果が得られた。トリガー効率の$\phi$依存性に着目すると、$\eta\sim1.4$付近で5 \%のInefficiencyが見られる。}
     \label{SM_A_Wire}
 \end{figure}
 
@@ -461,7 +459,7 @@ Wire Strip Coincidenceは無限運動量飛跡を用いた試験で既にエン�
     \includegraphics[height=10cm]{fig/Test/A_SM_ws_phi.pdf}
     \subcaption{Wire Strip Coincidence 検出効率の$\phi$依存性}
     \end{minipage}%
-    \caption[Wire Strip Coincidenceの検出効率]{Wire Strip Coincidenceの検出効率}
+    \caption[Wire Strip Coincidenceの検出効率]{フォワード領域におけるWire Strip Coincidenceの検出効率。黒色のプロットが実機出力、赤色のプロットがBitwiseシミュレータの出力を表す。フォワード領域のトリガー検出効率は93.5 \%であり、先行研究のソフトウェアシミュレーションと矛盾のない結果が得られた。トリガー効率の$\eta$依存性に着目すると、$\eta\sim1.95、2.2$付近で5 \%のInefficiencyが見られる。}
     \label{SM_A_WS}
 \end{figure}
 
@@ -472,8 +470,8 @@ Wire Strip Coincidenceは無限運動量飛跡を用いた試験で既にエン�
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{fig/Test/A_SM_ws_turnon.pdf}
-\caption[]{Wire Strip Coincidenceの$p_\mathrm{T}$ごとの検出効率}
+\includegraphics[width=16cm]{fig/Test/A_SM_ws_turn.pdf}   
+\caption[]{Wire Strip Coincidenceの$p_\mathrm{T}$ごとの検出効率。赤色、青色、緑色、ピンクの各プロットは、それぞれが $p_{\mathrm{T}}$ 閾値20 GeV、15 GeV、10 GeV、5 GeVと判断されたイベントの割合を示している。プラトー領域のefficiencyはいずれの$p_{\mathrm{T}}$閾値に対しても93.5 \%程度であり、ソフトウェアシミュレーションやVivado シミュレーションの結果と一致している。}
 \label{SM_A_WS_turnon}
 \end{figure}
 

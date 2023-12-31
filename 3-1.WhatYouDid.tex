@@ -10,58 +10,55 @@
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/SL/Trigger_flow.png}
-\caption[TGCトリガー開発の流れ]{TGCトリガー開発の流れ。}
+\caption[TGCトリガー開発の流れ]{トリガーロジック開発の流れ。トリガー開発はまず、検出器からのヒットデータを用いてどのようにコインシデンスロジックを組むか、など概念設計が行われる。次に、その設計をHDLとして実装し、デジタル回路の論理演算へと翻訳する。最後に実装されたトリガーモジュールを全体ファームウェアの中に統合し、システム全体として動作するようになる。概念設計の際にはソフトウェアシミュレーターが、HDL実装の際にはVivado シミュレーターが検証用に用いられる。}
 \label{Trigger_flow}
 \end{figure}
 
 \subsection*{トリガーロジックの概念設計}
-トリガーロジック開発の最初のステップは概念設計である。高輝度LHC-ATLAS実験ではL0 Trigger Systemが従来のものからアップグレードされ、トリガーレートは10倍に、トリガーレイテンシーは4倍に増強される。それに伴い、TGCエレクトロニクスシステムも刷新され、SL FPGAはヒットの有無に関わらず、TGC BWの全7層からのヒットビットマップをすべて受信する。
+トリガーロジック開発の最初のステップは概念設計である。高輝度LHC-ATLAS実験ではL0 Trigger Systemが従来のものからアップグレードされ、トリガーレートは10倍に、トリガーレイテンシーは4倍に増強される。それに伴い、TGCエレクトロニクスシステムも刷新され、SL FPGAはヒットの有無に関わらず、TGC BWの全7層からのヒットビットマップをすべて受信するようになる。
 
-概念設計の段階では、新しい入力データを利用して、どのようなロジックを構築すれば、L0トリガーシステムの要求 ( 具体的にはトリガー効率、再構成されたミューオンの\pt 分解能、トリガーレート、トリガーレイテンシーなど ) を満たすとともに、より高精度のトリガーを実現できるかを考案する。このプロセスでは、ロジックの全体的な設計 (例えば、M1、M2、M3のヒット情報からミューオンの飛跡と無限運動量飛跡がなす角度を算出し、それを利用して \pt を概算する、など) から、より具体的な仕様（例えば、複数の飛跡候補がある場合にどの基準で候補を絞り込むか）まで決定される。
+概念設計の段階では、新しい入力データを利用して、どのようなロジックを構築すれば、L0トリガーシステムの要求 ( 具体的にはトリガー効率、再構成されたミューオンの\pt 分解能、トリガーレート、トリガーレイテンシーなど ) を満たすとともに、より高精度のトリガーを実現できるかを考案する。このプロセスで、ロジックの全体的な設計 (例えば、M1、M2、M3のヒット情報からミューオンの飛跡と無限運動量飛跡がなす角度を算出し、それを利用して \pt を概算する、など) から、具体的な仕様（例えば、複数の飛跡候補がある場合にどの基準で候補を絞り込むか）まで決定する。
 
-設計されたロジックを、より具体的なデザインに落とし込む際にはソフトウェアシミュレーターが重要な役割を果たす。ソフトウェアは開発が容易であり、ロジックの実装→性能評価→修正→…という開発サイクルを迅速に進めることが可能である。そのため、グローバルなデザインを決めていく初期の開発では特に有効である。また、パターンマッチングに利用するLUTもロジックの設計と同時に開発される。
+設計したロジックを、より具体的なデザインに落とし込む際にはソフトウェアシミュレーターが重要な役割を果たす。ソフトウェアは開発が容易であり、ロジックの実装→性能評価→修正→…という開発サイクルを迅速に進めることが可能である。そのため、グローバルなデザインを決めていく初期の開発では特に有効である。また、パターンマッチングに利用するLUTもロジックの設計と同時に開発される。
 
 \subsection*{モジュールごとのHDL実装}
-トリガー開発の次のステップは各モジュールのHardware Description Language ( HDL ) 実装である。この段階では、概念設計で策定されたロジックがHDLを通じて、デジタル回路の論理演算へと翻訳される。またこの工程では、限られたハードウェアリソースの中で、どのように性能を維持したままロジックを実現するか、という物理制約を意識したロジック実装が重要となる。
-
-具体的には、パターンマッチングを行うための最小領域の設計などが行われた。パターンマッチングでは多くのチャンネルを入力とした方が、より多くの飛跡パターンをカバーすることができるため、トリガー効率は高くなる。一方、FPGA内で使用できるRAMリソースは限られているため、使用するLUTのサイズには物理的な制限がかかる。トリガー効率を維持したまま、1枚のFPGAでロジックを実現できるよう、コインデンスをとる領域が決定された。
+トリガー開発の次のステップは各モジュールのHardware Description Language ( HDL ) 実装である。この段階では、概念設計で策定したロジックをHDLを通じて、デジタル回路の論理演算へと翻訳する。この工程では、限られたハードウェアリソースの中で、どのように性能を維持したままロジックを実現するか、という物理制約を意識したロジック最適化が重要となる。例えば、パターンマッチングを行うための最小領域の設計などが行われた。パターンマッチングでは多くのチャンネルを入力とした方が、より多くの飛跡パターンをカバーすることができるため、トリガー効率は高くなる。一方、FPGA内で使用できるRAMリソースは限られているため、使用するLUTのサイズには物理的な制限がかかる。トリガー効率を維持したまま、1枚のFPGAでロジックを実現できるよう、最小領域の取り決めが行われた。
 
 実装されたHDLの動作検証および実装されたトリガー回路の性能評価には、Vivado シミュレーターが用いられる。Vivado シミュレーターとはHDLで記述されたデジタル回路の動作を逐次的にエミュレートするソフトウェアツールである。デジタル回路に含まれる全ての信号の遷移を厳密にシミュレーションし、任意の時間の任意の信号線をプローブすることができる。
 
 \subsection*{トリガーロジックの統合}
-トリガー開発の最後のステップはトリガーロジックの統合である。この段階では、開発されたトリガーモジュールをSLの全体ファームウェアへ適切に組み込む。
+トリガー開発の最後のステップはトリガーロジックの統合である。この段階では、開発したトリガーモジュールをSLの全体ファームウェアへと適切に組み込む。
 
-統合作業では、トリガー回路を信号入力機能、制御機能、読み出し機能と機能的に接続する。信号入力機能は、PS boardや磁場内部からの検出器からのヒット信号をトリガー入力に適した形に整形し、適切なタイミングでロジックへと投入する。制御機能は、トリガー動作に必要なLUT書き込みや各種パラメーターの設定を行う。読み出し機能はトリガーの演算結果を適切に処理し、後段のシステムへ伝達する。TGC トリガーは固定レイテンシーで動作するよう設計されているため、これらの周辺機能を適切に調整・配備して、システム全体を同期させる必要がある。
+統合作業では、トリガー回路をI/O、コントロール回路、読み出し回路と接続する。I/Oは、PS boardや磁場内部からの検出器からのヒット信号を受信するパートで、受信したデータをトリガー入力に適した形に整形し、適切なタイミングでロジックへと投入する。コントロール回路は、トリガー動作に必要なLUTの書き込みや、各種パラメーターの設定を行う。読み出し回路はトリガーの演算結果を適切に処理し、後段のシステムへ伝達する。TGC トリガーは固定レイテンシーで動作するよう設計しているため、これらの周辺機能を適切に調整・配備して、システム全体を同期して動かす。
 
 統合ファームウェアはVivadoによるインプリメンテーション\footnote{Vivadoのインプリメンテーションプロセスは、主に1. ロジック最適化、2.デザイン配置、3.配置後のデザインの物理最適化、4. デザインの配線、5. 配線後のデザインの物理最適化、6 ビットストリームの生成で構成される。}プロセスを経て、ハードウェア上で動作させる。このプロセスでは、ファームウェア全体を通じて、リソース使用量やタイミング制約などの物理制約を満たす必要がある。SLのような大規模論理回路では、ロジック間の信号伝達方法の最適化やシステム全体を俯瞰したリソースの割り振りなど、広い視点での最適化が求められる。
 
 \subsection*{本研究の立ち位置}
-これまでの先行研究でコンセプト設計、各モジュールのHDL実装、およびVivado シミュレーターを用いた性能検証が完了している。そこで本研究では、まずトリガーロジックの統合に取り組む。この詳細は\ref{sec_TriggerIntegration}節で述べる。また、本研究では統合ファームウェア内で動作しているトリガー回路を試験するための、シングルボード試験システムを開発した。これにより、実機上で動作するトリガー回路を詳細に調査することが可能となり、トリガーロジックの本番運用に向けた重要なインフラとなる。この詳細は\ref{chap_TriggerTest}章で述べる。
+これまでの先行研究でトリガーロジックの概念設計、各モジュールのHDL実装、ソフトウェアシミュレーターおよびVivado シミュレーターを用いた性能検証が完了している。そこで本研究では、トリガーロジックの統合を行い、トリガーロジックを全体ファームウェアの中に組み込んだ。この詳細は\ref{sec_TriggerIntegration}節で述べる。また、統合ファームウェア内で動作しているトリガー回路を試験するための、シングルボード試験システムを開発し、実機上で動作するトリガー回路の性能を詳細に調査することを可能にした。この詳細は\ref{chap_TriggerTest}章で述べる。
 
 \section{高輝度LHC-ATLAS実験におけるトリガーロジックのコンセプトとHDL実装}
 \label{sec_Phase2TriggerLogic}
-本節では高輝度LHC-ATLAS実験におけるトリガーロジックのコンセプト設計と、HDLでの実装方法について述べる。
-
-ミューオントリガー回路の全体像を図\ref{Trigger_over}に示す。前章で述べたように、高輝度LHC-ATLAS実験におけるSLは1/24セクター内のTGC BW 7層からのヒットビットマップを、トリガーをかけることなくすべて受信するようになる。そのため、Run3でSLBボード、HPTボード、SLで分割されていたトリガーロジックは、すべてSLのFPGA上に実装されるようになる。
+本節では高輝度LHC-ATLAS実験におけるトリガーロジックのコンセプトと、HDLでの実装方法について述べる。
+前章で述べたように、高輝度LHC-ATLAS実験におけるSLは1/24セクター内のTGC BW 7層からのヒットビットマップを、トリガーをかけることなくすべて受信するようになる。そのため、Run3でSLBボード、HPTボード、SLで分割されていたトリガーロジックは、すべてSLのFPGA上に実装されるようになる。
 
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/SL/Trigger_over.png}
-\caption[トリガー回路の全体像]{トリガー回路の全体像}
+\caption[トリガー回路の全体像]{トリガー回路の全体像。Channel Mapping、Station Coincidence、Segment Reconstruction、Wire Strip Coincidence、Inner Coincidence、Track Selctorの6つのモジュールがそれぞれパイプライン的に接続される。}
 \label{Trigger_over}
 \end{figure}
 
-SL FPGAに実装されるトリガーロジックはChannel Mapping、Station Coincidence、Segment Reconstruction、Wire Strip Coincidence、Inner Coincidence、Track Selectorという6つのモジュールをパイプライン的に接続することで実現される。
-PS board から受信するヒットビットマップはChannel Mapping でコインシデンスロジックの入力に適した形へと並び替えられる。入力されたヒットデータはStation CoincidenceおよびSegment reconstructionでワイヤー、ストリップそれぞれでコインシデンスがとられる。Segment Reconstruction ではTGCのヒットから再構成される飛跡と無限運動量飛跡のなす角d$\theta$、d$\phi$が計算される。Wire Strip coincidenceは、Wireで再構成されたd$\theta$とStripで再構成されたd$\phi$のコインシデンスを取ることで、横方向運動量閾値\pt を概算する。ここまでのコインシデンスロジックをまとめてTGC BW Coincidence とよぶ。TGC BW Coincidence で再構成されたミューオン飛跡候補はInner Coincidenceにて、磁場内部の検出機(NSW、BIS78、RPC、EIL4 TGC、Tile カロリメーター)とコインシデンスが取られ、フェイクトリガーの削減および \pt 精度の向上が実現される。Inner Coincidenceは最大112個の飛跡候補を出力する。Track selectorは、112個の飛跡候補から\pt の大きい順に最大6つの飛跡候補が選別する。そのうち3つはMDTTPに転送され、さらに高い精度でミューオンの運動量を計算された後、再度SLに送られる８。SLはMDTTPから受信した飛跡候補3つと、MDTTPへ転送しなかった飛跡候補3つ合わせて6つをMUCTPIに転送する。以下にそれぞれのロジックの詳細と、HDLへの実装方法を説明する。
+ミューオントリガー回路の全体像を図\ref{Trigger_over}に示す。SL FPGAに実装されるトリガーロジックはChannel Mapping、Station Coincidence、Segment Reconstruction、Wire Strip Coincidence、Inner Coincidence、Track Selectorという6つのモジュールをパイプライン的に接続することで実現される。
+PS board から受信するヒットビットマップはChannel Mapping でコインシデンスロジックの入力に適した形へと並び替えられる。入力されたヒットデータはStation CoincidenceおよびSegment reconstructionでワイヤー、ストリップそれぞれでコインシデンスがとられる。Segment Reconstruction ではTGCのヒットから再構成される飛跡と無限運動量飛跡のなす角d$\theta$、d$\phi$が計算される。Wire Strip coincidenceでは、Wireで再構成されたd$\theta$とStripで再構成されたd$\phi$のコインシデンスが取られ、横方向運動量閾値\pt が概算される。ここまでのコインシデンスロジックはTGC検出器からのヒットデータのみを利用するため、TGC BW Coincidence と呼ぶ。TGC BW Coincidence で再構成されたミューオン飛跡候補はInner Coincidenceにて、磁場内部の検出器(NSW、BIS78、RPC、EIL4 TGC、Tile カロリメーター)とコインシデンスが取られ、フェイクトリガーの削減および \pt 精度の向上が実現される。Inner Coincidenceからは最大180個の飛跡候補が出力される。Track selectorでは、180個の飛跡候補から\pt の大きい順に最大6つの飛跡候補が選ばれる。そのうち3つはMDTTPに転送され、さらに高い精度でミューオンの運動量を計算された後、再度SLに送られる。MDTTPから帰ってきた3つの飛跡候補と、MDTTPへ転送しなかった3つの飛跡候補は合わせてMUCTPIに転送される。以下にそれぞれのロジックの詳細と、HDLへの実装方法を説明する。
 
 \subsection{Channel Mapping}
 \subsubsection*{コンセプト}
-Channel MappingではPS board から受信するTGC BW 全チャンネルのヒット情報 (128 bit x 62 link)を、飛跡再構成に先んじてトリガー入力に適したフォーマットへとマッピングする。この工程ではただチャンネルを並び変えるだけでなく、TGC検出器のジオミトリに合わせて設計されたフロントエンドのチャンネル構造を、トリガーロジックとして取り扱いやすいものへと変換する。TGC BW のエンドキャップ領域は$\eta$方向にM1は4つ、M2、M3は5つのチェンバーで構成されており、それぞれ不完領域がないようにオーバーラップを持って設置されている。このオーバーラップ領域では一つのミューオンのヒットを重複してカウントする可能性があるため、トリガーに入力する際にはWired ORと呼ばれる統合処理を行う。また、ストリップのコインシデンスはチェンバーごとに行われるが、ミューオン飛跡が$\eta$方向に曲げられ、複数のチェンバーに跨ってヒットを残した場合には、コインシデンスをとることができない。これに対処するため、とあるM3チェンバーとのコインシデンスと担当するM1及びM2チェンバーでは図\ref{Channel_Mapping}のようにORを取った上で、コインシデンスが取られる。
+Channel MappingはPS board から受信するTGC BW 全チャンネルのヒット情報 (128 bit x 62 link)を、飛跡再構成に先んじてトリガー入力に適したフォーマットへとマッピングする。ここではただチャンネルを並び変えるだけでなく、TGC検出器のジオミトリに合わせて設計されたフロントエンドのチャンネル構造を、トリガーロジックとして取り扱いやすいものへと変換する。TGC BW のエンドキャップ領域は$\eta$方向にM1は4つ、M2、M3は5つのチェンバーで構成されており、それぞれ不完領域がないようにオーバーラップを持って設置されている。このオーバーラップ領域では、1つのミューオンのヒットを重複してカウントする可能性があるため、トリガーに入力する際にはWired ORと呼ばれる統合処理を行う。また、ストリップのコインシデンスはチェンバーごとに行われるが、ミューオン飛跡が$\eta$方向に曲げられ、複数のチェンバーに跨ってヒットを残した場合にはコインシデンスをとることができない。これに対処するため、とあるM3チェンバーとのコインシデンスを担当するM1及びM2チェンバーでは図\ref{Channel_Mapping}のようにORを取り、Station Coincidenceの入力とする。
 
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/SL/Channel_Mapping.pdf}
-\caption[]{ストリップにおけるチェンバー間のORの取り方。M3チェンバーとのコインシデンスと担当するM1及びM2チェンバーではORをとった情報を後段に流す。\cite{mt_kawamoto}}
+\caption[]{ストリップにおけるチェンバー間のORの取り方。M3チェンバーとのコインシデンスと担当するM1及びM2チェンバーでは、2つのチェンバー間でORをとった情報をStation Coincidenceの入力とする。\cite{mt_kawamoto}}
 \label{Channel_Mapping}
 \end{figure}
 
@@ -75,7 +72,7 @@ Channel Mappingモジュールは単純なワイヤーとOR回路で実装され
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/SL/Concept_station.pdf}
-\caption[Station コインシデンスの概要]{Station コインシデンスの概要\cite{mt_mino}。スタッガリング構造をとっている。}
+\caption[Station コインシデンスの概要]{Station Coincidence の概要\cite{mt_mino}。TGC検出器ではステーション内のワイヤーは$\eta$方向に、ストリップは$\phi$方向にずらして設置されており、各層のチャンネルが重複してカバーsる$\eta$領域を代表点として定義する。Station Coincidenceでは2層または3層でコインシデンスのとれた代表点を出力する。}
 \label{Concept_station}
 \end{figure}
 
@@ -87,8 +84,8 @@ Wire Station Coincidenceおよび\ref{subsec:segment_reco}節で説明するWire
 
 \begin{figure} 
     \centering
-    \includegraphics[width=16cm]{fig/SL/StationCoin_unit.pdf}
-    \caption[Wire Station Coincidence および Wire Segment Reconstruction におけるユニット]{Wire Station Coincidence および Wire Segment Reconstruction におけるユニット}
+    \includegraphics[width=12cm]{fig/SL/StationCoin_unit.pdf}
+    \caption[Wire Station Coincidence および Wire Segment Reconstruction におけるユニット。1つのユニットはM1の96代表点、M2の32代表点、M3の16代表点をカバーする。]{Wire Station Coincidence および Wire Segment Reconstruction におけるユニット。1つのユニットはM1の96代表点、M2の32代表点、M3の16代表点をカバーする。\cite{SLPDR}}
     \label{StationCoin_unit}
 \end{figure}
 
@@ -97,7 +94,7 @@ M1ステーションにおけるコインシデンスロジックの概要を図
 \begin{figure} 
     \centering
     \includegraphics[width=16cm]{fig/SL/StationCoin_wire.pdf}
-    \caption[M1 tripletにおけるコインシデンスロジック]{M1 tripletにおけるコインシデンスロジック}
+    \caption[M1 tripletにおけるコインシデンスロジック]{M1 tripletにおけるコインシデンスロジック\cite{SLPDR}。3層中3層にヒットがあった場合に代表点を出力する3/3コインシデンス、3層中2層の場合に代表点を出力する2/3コインシデンス、3層中1層の場合に代表点を出力する1/3コインシデンスが用意されている。}
     \label{StationCoin_wire}
 \end{figure}
 
@@ -106,7 +103,8 @@ M2、M3ステーションは2層で構成されているため、2/2コインシ
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/SL/StationCoin_doublet.pdf}
-\caption[M2・M3 ステーションにおけるコインシデンスロジック]{M2・M3 ステーションにおけるコインシデンスロジック}
+\caption[M2・M3 ステーションにおけるコインシデンスロジック]{M2、M3 ステーションにおけるコインシデンスロジック\cite{SLPDR}。2層中2層にヒットがあった場合に代表点を出力する2/2コインシデンス、2層中1層の場合に代表点
+を出力する1/2コインシデンスが用意されている。}
 \label{StationCoin_doublet}
 \end{figure}
 
@@ -118,8 +116,8 @@ M2、M3ステーションは2層で構成されているため、2/2コインシ
 
 \begin{figure} 
     \centering
-    \includegraphics[width=16cm]{fig/SL/StationCoin_unit_strip.pdf}
-    \caption[Strip Station Coincidence および Strip Segment Reconstruction におけるユニット]{Strip Station Coincidence および Strip Segment Reconstruction におけるユニット}
+    \includegraphics[width=12cm]{fig/SL/StationCoin_unit_strip.pdf}
+    \caption[Strip Station Coincidence および Strip Segment Reconstruction におけるユニット]{Strip Station Coincidence および Strip Segment Reconstruction におけるユニット\cite{SLPDR}。1つのユニットはM1の40代表点、M2の24代表点、M3の16代表点をカバーする。}
     \label{StationCoin_unit_strip}
 \end{figure}
 
@@ -135,7 +133,7 @@ Segment Reconstructionではステーションコインシデンスで取り出�
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/SL/Concept_segment.pdf}
-\caption[Segment Reconstructionのコンセプト]{$\eta$方向 (左) および$\phi$方向 (右) のパターンマッチングの概念図\cite{mt_mino}。黒い線が実際のミューオンの飛跡を表し、赤い線がTGCのヒットから再構成される飛跡を表す。黒い点線はM3ステーションの代表点と衝突点を結んだ、無限運動量飛跡を表し、再構成した飛跡と無限運動量飛跡との角度をパターンとして保存する。}
+\caption[Segment Reconstructionのコンセプト]{$\eta$方向 (左) および$\phi$方向 (右) のパターンマッチングの概念図\cite{mt_mino}。黒い線が実際のミューオンの飛跡を表し、赤い線がTGCのヒットから再構成される飛跡を表す。黒い点線はM3ステーションの代表点と衝突点を結んだ、無限運動量飛跡を表す。M1、M2、M3の代表点の組み合わせから、実際の飛跡と無限運動量飛跡とがなす角度$\Delta\theta$、$\Delta\phi$を再構成する。}
 \label{Concept_segment}
 \end{figure}
 
@@ -146,7 +144,7 @@ Wire Segment Reconstructionではサブユニットごとに1つLUTが用意さ�
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/SL/SegReco_wire.pdf}
-\caption[Wire Segment Reconstructionのブロックダイアグラム]{Wire Segment Reconstructionのブロックダイアグラム\cite{SLPDR}}
+\caption[Wire Segment Reconstructionのブロックダイアグラム]{Wire Segment Reconstructionのブロックダイアグラム\cite{SLPDR}。Wire Segment Reconstructionは、Station Coincidenceで得られた代表点の組み合わせから、LUTのアドレスを作成するAddress Specifier、LUTから対応するデータを取り出すSegment Extractor、Segment Extractorから得られる最大8つの飛跡候補から後段に送る1つを選別するSegment Selectorで構成される。}
 \label{SegReco_wire}
 \end{figure}
 
@@ -200,7 +198,7 @@ Strip Segment Reconstructionではサブユニットごとに1つLUTが用意さ
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/SL/SegReco_strip.pdf}
-\caption[Strip Segment Reconstruction のブロックダイアグラム]{Strip Segment Reconstruction のブロックダイアグラム}
+\caption[Strip Segment Reconstruction のブロックダイアグラム]{Strip Segment Reconstruction のブロックダイアグラム\cite{SLPDR}。Strip Segment Reconstructionは、Station Coincidenceで得られた代表点の組み合わせから、LUTのアドレスを作成するAddress Specifier、LUTから対応するデータを取り出すSegment Extractor、Segment Extractorから得られる最大6つの飛跡候補から後段に送る1つを選別するSegment Selectorで構成される。}
 \label{SegReco_strip}
 \end{figure}
 
@@ -252,7 +250,7 @@ Wire Strip CoincidenceではWire Segment Reconstructionで算出した$\Delta\et
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/SL/Concept_WS.pdf}
-\caption[Wire Strip CoincidenceにおけるCoincidence Windowの例]{Wire Strip CoincidenceにおけるCoincidence Windowの例\cite{SLPDR}。本番運用時には$p_\mathrm{T}$は4 bit、16段階で出力する予定であるが、現状はテストのため5 GeV、10 GeV、15 GeV、20 GeVの4段階で出力している。}
+\caption[Wire Strip CoincidenceにおけるCoincidence Windowの例]{Wire Strip CoincidenceにおけるCoincidence Windowの例\cite{SLPDR}。WireおよびStrip Segment Reconstructionで再構成された$\Delta\theta$、$\Delta\phi$から$p_\mathrm{T}$閾値を概算する。本番運用時には$p_\mathrm{T}$は4 bit、16段階で出力する予定であるが、現状は5 GeV、10 GeV、15 GeV、20 GeVの4段階で出力している。}
 \label{Concept_WS}
 \end{figure}
 
@@ -262,8 +260,9 @@ Wire Strip Coincidenceでは Region と呼ばれる単位領域を新たに設�
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{fig/SL/WS_region.pdf}
-\caption[Wire Strip Coincidence以降のRegionの分割]{Wire Strip Coincidence以降のRegionの分割\cite{mt_kawamoto}。Endcap 領域では 8 Unit Regionと32 Unit Regionという2種類の領域を用意する。}
+\includegraphics[width=12cm]{fig/SL/WS_region.pdf}
+\caption[Wire Strip Coincidence以降のRegionの分割]{Wire Strip CoincidenceのRegionの定義\cite{mt_kawamoto}。エンドキャップ領域は|$\eta$| < 1.3 領域では 8 Unit、1.3 < |$\eta$| 領域では32 Unit という異なる大きさの Regionを定義し、それぞれの領域を22分割、13分割する。フォワード領域は32 Unit Regionで8分割する。
+}
 \label{WS_region}
 \end{figure}
 
@@ -272,7 +271,7 @@ Wire Strip Coincidenceでは Region と呼ばれる単位領域を新たに設�
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/SL/WS_Concept.pdf}
-\caption[]{8 Unit Region、32 Unit Regionにおけるコインシデンスの概要\cite{mt_kawamoto}}
+\caption[]{8 Unit Region、32 Unit Regionにおけるコインシデンスの概要\cite{mt_kawamoto}。8 Unit Regionではストリップ4 Unitからのstrip segmentと ワイヤー2 Subunitからのwire segmentの組み合わせから、最大1つの飛跡候補を出力する。32 Unit Regionはストリップ 4 Unitからのstrip segmentと、ワイヤー 8 Subunitからのwire segmentの組み合わせから、最大4つの候補を出力する。}
 \label{WS_Concept}
 \end{figure}
 
@@ -281,7 +280,7 @@ Wire Strip Coincidenceの各Unit内でのロジックの概要を図\ref{WS_logi
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/SL/WS_logic.pdf}
-\caption[Wire Strip Coincidence ファームウェアの概要]{Wire Strip Coincidence ファームウェアの概要\cite{mt_kawamoto}}
+\caption[Wire Strip Coincidence ファームウェアの概要]{Wire Strip Coincidence ファームウェアの概要\cite{mt_kawamoto}。Wire segmentおよびStrip Segmentの情報をもとに、$p_\mathrm{T}$を計算する$p_\mathrm{T}$ Calculator、localな$\eta$情報を計算するWire Position Corrector、複数のミューオン飛跡候補から後段に送信するものを選択するBlock Selectorで構成される。}
 \label{WS_logic}
 \end{figure}
 
@@ -319,7 +318,7 @@ Inner CoincidenceではTGC BW コインシデンスで再構成された飛跡�
 \begin{figure} 
     \centering
     \includegraphics[width=16cm]{fig/Intro/SL_InnerCoin_covarage.pdf}
-    \caption[磁場内部の検出器でカバーされる$\eta$、$\phi$領域]{C磁場内部の検出器でカバーされる$\eta$、$\phi$領域\cite{mt_mino}}
+    \caption[磁場内部の検出器でカバーされる$\eta$、$\phi$領域]{各磁場内部の検出器がカバーする$\eta$、$\phi$領域\cite{mt_mino}。|$\eta$| < 1.3 領域はNSWがカバーする。1.3 < |$\eta$| 領域はTGC EI、RPC BIS 78、Tile カロリメーターがそれぞれ相補的にカバーしている。}
     \label{SL_InnerCoin_covarage}
 \end{figure}
 
@@ -330,7 +329,7 @@ Inner CoincidenceではTGC BW コインシデンスで再構成された飛跡�
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/SL/Concept_NSW.pdf}
-\caption[NSW を用いたコインシデンスロジックの概要]{NSW を用いたコインシデンスロジックの概要\cite{mt_akatsuka}}
+\caption[NSW を用いたコインシデンスロジックの概要]{NSW を用いたコインシデンスロジックの概要\cite{mt_akatsuka}。$p_\mathrm{T}$が小さいミューオンほど磁場領域で曲げられるため、基本的には$d\eta$を用いることで$p_\mathrm{T}$を判定することができる。しかし、青線で示すようにNSWに入射する前に多重散乱を受けた場合には、$d\eta$だけではHigh $p_\mathrm{T}$のミューオンとLow $p_\mathrm{T}$のミューオンを判別することができない。そこでNSWに入射した角度 ($\Delta\theta_{\mathrm{NSW}}$) を分別変数として追加することで、より正確に$p_\mathrm{T}$ を判定することができる。}
 \label{Concept_NSW}
 \end{figure}
 
@@ -350,7 +349,7 @@ Inner Coincidenceの各Unit 内でのロジックの概要を図\ref{Inner_logic
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/SL/Inner_integrate.png}
-\caption[Inner Coincidenceの概要]{Inner Coincidenceの概要\cite{mt_kobayashi}}
+\caption[Inner Coincidenceの概要]{Inner Coincidenceの概要\cite{mt_kobayashi}。Inner CoincidenceはNSWから受け取った飛跡候補のうち、コインシデンスに利用する候補を選ぶDecoder、各検出器とのコインシデンスロジック、どの検出器とのコインシデンス結果を採用するか選択するWhich Inner で構成される。}
 \label{Inner_logic}
 \end{figure}
 
@@ -394,13 +393,13 @@ Track SelectorはInner Coincidenceから出力される最大112個のミュー�
 
 \subsubsection*{Track SelectorのHDL実装}
 モジュールの駆動クロックはLHCクロックに同期した周波数160 MHzのクロックで、レイテンシ-は 5 クロックチック (31.25 ns) である。
-概要を図\ref{TrackSelector_overview}に示す。候補選別回路は4 bitの\pt が大きい順に候補を並び替えるソーティングロジックとして実装される。特にBatcherの奇遇マージソート法\cite{Batcher}という、高速かつ並列にソーティングを行うメソッドをデジタル回路として実現している。Track Selectorは16個の8-key sorting network、と15個の16-key merging networkで構成され、インプットが128、アウトプットが8のソーティングロジックとなっている。8-key soting networkおよび16-key merging networkの概要を図\ref{Sortiing_8key}、\ref{Sorting_16}に示す。これらの図の横線はワイヤーを示し、縦軸がコンパレーターを表す。左から右に1つの飛跡候補同士の比較が行われ、それの集合体としてロジックが実装される。
+概要を図\ref{TrackSelector_overview}に示す。候補選別回路は4 bitの\pt が大きい順に候補を並び替えるソーティングロジックとして実装される。特にBatcherの奇遇マージソート法\cite{Batcher}という、高速かつ並列にソーティングを行うメソッドをデジタル回路として実現している。Track Selectorは16個の8-key sorting network、と15個の16-key merging networkで構成され、インプットが128、アウトプットが8のソーティングロジックとなっている。8-key soting networkおよび16-key merging networkの概要を図\ref{Sortiing_8key}、\ref{Sorting_16}に示す。これらの図の横線はワイヤーを示し、縦線がコンパレーターを表す。左から右に1つの飛跡候補同士の比較が行われ、それの集合体としてロジックが実装される。
 
 
 \begin{figure} 
     \centering
     \includegraphics[width=16cm]{fig/SL/TrackSelector_overview.pdf}
-    \caption[Track Selector の概要]{Track Selector の概要}
+    \caption[Track Selector の概要]{Track Selector の概要。16個の8-key sorting network、と15個の16-key merging networkを用いて、128個のミューオン候補から$p_\mathrm{T}$が大きい順に8候補を選択する。このうち6個をMUCTPIに送信する。}
     \label{TrackSelector_overview}  
 \end{figure}
     
@@ -408,14 +407,14 @@ Track SelectorはInner Coincidenceから出力される最大112個のミュー�
 \begin{figure} 
 \centering
 \includegraphics[width=10cm]{fig/SL/Sortiing_8key.pdf}
-\caption[8-key sorting network の概要]{8-key sorting network の概要}
+\caption[8-key sorting network の概要]{8-key sorting network の概要。横線はワイヤーを表し、縦線はコンパレーターを表す。}
 \label{Sortiing_8key}
 \end{figure}
 
 \begin{figure} 
 \centering
 \includegraphics[width=10cm]{fig/SL/Sorting_16.pdf}
-\caption[16-key merging network の概要]{16-key merging network の概要}
+\caption[16-key merging network の概要]{16-key merging network の概要。横線はワイヤーを表し、縦線はコンパレーターを表す。}
 \label{Sorting_16}
 \end{figure}
 
@@ -431,7 +430,7 @@ Track SelectorはInner Coincidenceから出力される最大112個のミュー�
 \begin{figure} 
     \centering
     \includegraphics[width=16cm]{fig/Test/Soft_WS.pdf}
-    \caption[ソフトウェアシミュレーターで測定された、Wire Strip Coincidenceのトリガー効率]{ソフトウェアシミュレーターで測定された、Wire Strip Coincidenceのトリガー効率\cite{SLPDR}}
+    \caption[ソフトウェアシミュレーターで測定された、Wire Strip Coincidenceのトリガー効率]{ソフトウェアシミュレーターで測定された、Wire Strip Coincidenceのトリガー効率\cite{SLPDR}。20 < $p_\mathrm{T}$のプラトー領域でのefficiencyは94 \%程度である。}
     \label{Soft_WS}
 \end{figure}
 
@@ -449,7 +448,7 @@ Vivado シミュレーターで測定された、Single Muon  MC に対する Wi
     \includegraphics[height=6cm]{fig/Test/Vivado_Wire_phi.pdf}
     \subcaption{Efficiencyの$\phi$依存性}
     \end{minipage}%
-    \caption[Wire Segment Reconstructionの検出効率]{Wire Segment Reconstructionの検出効率\cite{mt_nabeyama}}
+    \caption[Wire Segment Reconstructionの検出効率]{Wire Segment Reconstructionの検出効率\cite{mt_nabeyama}。$\eta$、$\phi$全領域でトリガー効率は95 \%程度に達している。}
     \label{Vivado_Wire_Efficiency}
     \end{figure}
     
@@ -501,8 +500,8 @@ PS board とのインターフェイスが実装されるSLR0・2・3には、TG
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{fig/SL/Trigger_floor.png}
-\caption{SL FPGA内におけるトリガーロジックの配置}{SL FPGA内におけるトリガーロジックの配置}
+\includegraphics[width=16cm]{fig/SL/Trigger_floor.pdf}
+\caption[SL FPGA内におけるトリガーロジックの配置]{SL FPGA内におけるトリガーロジックの配置。PS board とのインターフェイスが実装されるSLR0・2・3には、TGC BW Coincidenceが実装される。トリガーセクターごとにSLRが分けられ、SLR0にEndcap $\phi\,0$、SLR2にEndcap $\phi\,1$、SLR3にForwardのロジックが配置される。磁場内部の検出器やMUCTPIとのインターフェイスはSLR1に実装され、ここにはInner Coincidence、Track Selectorが配置される。}
 \label{Trigger_floor}
 \end{figure}
 

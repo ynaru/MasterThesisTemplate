@@ -65,7 +65,7 @@ PS boardに搭載されている素子やそれらの間をつなぐ配線を精
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/PSBtestdesign.png}
-\caption[PS board QAQC試験セットアップの概念図]{PS board QAQC試験セットアップの概念図}
+\caption[PS board QAQC試験セットアップの概念図]{PS board QAQC試験セットアップの概念図。試験にはPS board 1台に対してJATHub 1台を利用する。JATHubとPS boardは2本のCat-6ケーブルと3本の光ファイバーで接続する。この試験ではSLが担うPS board 制御機能をJATHubに実装することで、SLを用いずにPS boardの機能を網羅的に検証する。}
 \label{PSBtestdesign}
 \end{figure}
 
@@ -127,7 +127,7 @@ ASDテストパルス試験によって検証できる素子と素子間の導�
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/QAQCasdtpelements.png}
-\caption[ASDテストパルス試験で検証できる素子]{ASDテストパルス試験で検証することができる素子、素子間の配線を赤枠で示す。}
+\caption[ASDテストパルス試験で検証できる素子]{ASDテストパルス試験で検証することができる素子、素子間の配線を赤枠で示す。ASDテストパルスを期待通り動作させるにはPP ASIC、DAC、Si5395に適したパラーメーターを分配し、ASD、PP ASIC、PS board FPGA、光リンクが同期して動作する必要がある。}
 \label{QAQCasdtpelements}
 \end{figure}
 
@@ -148,13 +148,13 @@ SVF playerはSVFファイルと呼ばれる、JTAG4線をドライブするパ�
 \vskip0.5\baselineskip
 
 \paragraph{クロック試験位相測定}\par
-クロック位相測定試験では、MON線で送られるPS boardで再構成したLHCバンチ交差クロックの位相を測定することができるか試験する。試験システムの概念図を図\ref{JATHubclockmeasure}\cite{mt_atanaka}に示す。JATHub内の水晶発振器から生成した40 MHzクロックを参照クロックとして、その立ち上がりのタイミングでLHCバンチ交差クロックをラッチする。参照クロックを1/56 ns刻みでスキャンしながら、ラッチを繰り返すことでLHCバンチクロックの位相を測定することができる。
+クロック位相測定試験では、MON線で送られるPS boardで再構成したLHCバンチ交差クロックの位相を測定することができるか試験する。試験システムの概念図を図\ref{JATHubclockmeasure}に示す。JATHub内の水晶発振器から生成した40 MHzクロックを参照クロックとして、その立ち上がりのタイミングでLHCバンチ交差クロックをラッチする。参照クロックを1/56 ns刻みでスキャンしながら、ラッチを繰り返すことでLHCバンチクロックの位相を測定することができる。
 \vskip0.5\baselineskip
 
 \begin{figure} 
     \centering
     \includegraphics[width=16cm]{fig/QAQC/JATHubclockmasurement.png}
-    \caption[JATHubによるクロック位相測定の概念図]{JATHubによるクロック位相測定の概念図\cite{mt_atanaka}}
+    \caption[JATHubによるクロック位相測定の概念図]{JATHubによるクロック位相測定の概念図\cite{mt_atanaka}。PSBからMON線を通じて受信した40 MHzクロックの位相を、JATHub内部の水晶発振器から生成した40 MHzクロックを参照クロックに測定する。}
     \label{JATHubclockmeasure}
 \end{figure}    
 
@@ -176,7 +176,7 @@ PLとPS boardの通信には光通信が使われ、PL領域に固定位相のGT
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JAThubinfra.png}
-\caption[QAQC用JATHubのシステム全体像]{QAQC用JATHubのシステム全体像}
+\caption[QAQC用JATHubのシステム全体像]{QAQC用JATHubのシステム全体像。QAQC試験におけるコントロール信号はローカルPC、JATHub PS、JATHub PL、PS boardの順に伝えられる。ローカルPCとPS領域はイーサーネット通信を行う。PS領域とPL領域はAXIプロトコルで通信する。PL領域からPS boardへは高速シリアル通信を行う。PS boardからのデータはその逆のパスを通ってローカルPCまで届けられる。PLからPSへのデータ読み出しはAXI GPIOを活用した自作調停回路を利用する。}
 \label{JAThubinfra}
 \end{figure}
 
@@ -190,8 +190,8 @@ QAQC用JATHubではUbuntuの起動にSDカードを利用する。SDカードに
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{fig/QAQC/JATHubboot.png}
-\caption[Ubuntuの起動シークエンス]{Ubuntuの起動シークエンス}
+\includegraphics[width=12cm]{fig/QAQC/JATHubboot.pdf}
+\caption[Ubuntuの起動シークエンス]{Ubuntuの起動シークエンス。JATHubに電源を投入するとまずFSBLがロードされる。FSBLを起点にファームウェアのビットストリームがPL領域に書き込まれる。またPS領域にLinuxを起動するため、u-bootが起動し、デバイスツリー、カーネルイメージ、Ubuntuのルートファイルシステムがロードされる。}
 \label{JATHubboot}
 \end{figure}
 
@@ -241,13 +241,13 @@ PS領域からAXI GPIOレジスタへは少なくとも2通りの方法でアク
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JATHubgtx.png}
-\caption[QAQC用JATHubにおけるGTXトランシーバーの概要]{QAQC用JATHubにおけるGTXトランシーバーの概要}
+\caption[QAQC用JATHubにおけるGTXトランシーバーの概要]{QAQC用JATHubにおけるGTXトランシーバーの概要。GTXトランシーバーはJATHub内部の水晶発振器で生成される160 MHzクロックを参照クロックとして利用する。TXユーザーロジックはGTX トランシーバーと同期した200 MHz のTXUSER CLOCKで動作する。RX ロジックでは、PS board から送られる40 MHzクロックを固定位相で再構成するため、Comma detectorを実装する。}
 \label{JATHubgtx}
 \end{figure}
 
 
 \paragraph{TXロジック} \par
-GTXトランシーバーはJATHub内部の水晶発振器から生成される160 MHzクロック\footnote{正確にはLHCバンチ交差クロック40.079 MHzの4倍に相当する160.316 MHz。}を参照クロックとして利用する。\ref{subsec_PSBelements}節で述べたようにQAQC用JATHubとPS boardは8 Gbpsの高速光通信を行う。TXロジックでは160 MHzの参照クロックを200 MHzに分周したものをTXユーザークロックとして利用する。200 MHzおきに32bitのパラレルデータ(1ワードと呼ぶ)をGTXトランシーバーに送信し、GTXトランシーバー内で8b/10bのプロトコルで40 bitのパラレルデータへとエンコードした後、シリアルデータへと変換する。生成されたシリアルデータは参照クロックをGTXトランシーバー内のPhase Locked Loop(PLL)で冪倍して得られる4 Gbpsのクロックに乗せて送信される。
+GTXトランシーバーはJATHub内部の水晶発振器から生成される160 MHzクロック\footnote{正確にはLHCバンチ交差クロック40.079 MHzの4倍に相当する160.316 MHz。}を参照クロックとして利用する。\ref{subsec_PSBelements}節で述べたようにQAQC用JATHubとPS boardは8 Gbpsの高速光通信を行う。TXロジックでは160 MHzの参照クロックを200 MHzに分周したものをTXユーザークロックとして利用する。200 MHzおきに32 bitのパラレルデータ(1ワードと呼ぶ)をGTXトランシーバーに送信し、GTXトランシーバー内で8b/10bのプロトコルで40 bitのパラレルデータへとエンコードした後、シリアルデータへと変換する。生成されたシリアルデータは参照クロックをGTXトランシーバー内のPhase Locked Loop(PLL)で冪倍して得られる4 Gbpsのクロックに乗せて送信される。
 \vskip0.5\baselineskip
 
 \paragraph{RXロジック} \par
@@ -256,7 +256,7 @@ RXロジックで固定位相のクロック再構成を実現するために重
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JATHubcomma.png}
-\caption[comma detectorの概要]{comma detectorの概要}
+\caption[comma detectorの概要]{comma detectorの概要。GTXトランシーバーで再構成された40 bitのパラレルデータの下位10 bitがcommaワードと一致するまで、RX SLIDEを打ち続ける。これにより、commaワードをもとに再構成する40 MHzクロックが、固定位相になることが保証される。}
 \label{JATHubcomma}
 \end{figure}
 \vskip0.5\baselineskip
@@ -272,7 +272,7 @@ FPGA内での信号の遷移は$\mathcal{O}(10)$ MHzの高速クロックを基�
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JATHubarbitator.png}
-\caption[PLからPSでのデータ読み出しシステム概要]{PLからPSでのデータ読み出しシステム概要}
+\caption[PLからPSでのデータ読み出しシステム概要]{PLからPSでのデータ読み出しシステム概要。異なるクロックを基準クロックに動作する、Ubuntuと読み出し回路を制御するため、両者のタイミングを取り持つ調停回路を実装した。}
 \label{JATHubarbitor}
 \end{figure}
 
@@ -281,7 +281,7 @@ AXI GPIOレジスタにはFPGAからもUbuntuからも任意のタイミング�
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JATHubarbitation.png}
-\caption[調停回路のシークエンス]{調停回路のシークエンス}
+\caption[調停回路のシークエンス]{調停回路のシークエンス。Ubuntu側とFPGA側で共通のフラグを操作・モニターすることで両者がコミュニケーションをとる。フラグは0をFIFOからの書き込み待ち、1をUbuntuからの読み出し待ちと定義する。Ubuntuはフラグをモニターし、1になっていたらAXI GPIOからデータを読み出し、フラグを0に下げる。FPGAのステートマシンも同様にフラグをモニターし、0になっていたらFIFOにread enable信号を送信し、フラグを1に上げる。}
 \label{JATHubarbitation}
 \end{figure}
 
@@ -296,9 +296,9 @@ Ubuntu上のアプリケーションではフラグをモニターし、1にな�
 それ加え、JATHub1台でDAQを完結させるためにJATHub内部でTTC信号をエミュレートする機能、ファームウェア全体を制御するコントロール機能を実装した。
 PS boardに送信するコントロール信号に関係する機能は200 MHzのTXユーザークロックを動作クロックとして利用する。PS boardから受信するデータを処理するパスでは200 MHzのRXユーザークロックを動作クロックに利用する。
 開発を進めた2022年時点において、JATHubのファームウェアは完成していたためJTAG/Recovery/Clock monitor機能はそれをそのまま利用する。SLのファームウェアは開発が行われていなかったため、Run3で使われているSLのファームウェアを参考に開発を進めた。以下に各機能の詳細を説明する。
-\begin{itembox}{後で直すところ}
-    全体像としてクロックドメインまとめたものを貼りたいところだよね
-\end{itembox}
+% \begin{itembox}{後で直すところ}
+%     全体像としてクロックドメインまとめたものを貼りたいところだよね
+% \end{itembox}
 
 \subsection*{\textbf{コントロール機能}}
 \label{subsubsec_control}
@@ -323,22 +323,58 @@ UbuntuからControl Center内のレジスタ操作は、VMEプロトコルを模
 
 PS boardの制御はSLとPS board間で定められた通信フォーマット(図\ref{TGC_PSBdownlink})に従って、高速光通信を介して行われる。
 QAQC用JATHubにもこのフォーマットに従ったパケット交換を行う機能を実装することで、PS boardのコントロールおよびLHCクロックの分配を行う。200 MHzのTXユーザークロックで動作するステートマシンにより40 MHzおきに5ワードを送信する。この時、40 MHzのLHCバンチ交差クロックの立ち上がりと同期したタイミングでワード0を送るように設計することで、40 MHzクロックに対して相対的な位相関係が固定されるよう実装されている。PS boardへ送るソフトリセット信号やテストパルストリガー信号はControl Center内のレジスタ操作により制御する。PS board FPGA内のレジスタ操作はワード2、ワード3に定義された16 bitのAddress、Command、Dataを用いて制御する。Commandにより書き込み/読み出し動作を決め、AddressでPS board内のレジスタアドレスを指定し、書き込み動作の場合はDataに設定した値を書き込む。
-PS board上のDACやPP ASICを制御する方法として\ref{subsec_QAQCdesign}節では自立型制御機構を利用するものを述べた。QAQC用JATHubからPS boardを制御する際も、ワード1で定義されたCS BitmapおよびSCLK、SDI線をビットバンギングすることで、QSPIフラッシュメモリーにパラメータを書き込む。PS board FPGAの状態や各素子のモニターには自立型監視機構を利用する。DACの設定値、ADCの測定値、FGPAの温度、xADCによる供給電圧値などのモニター値は図\ref{PSBdataformat}に示すフォーマットに従い、6bitのデータタイプと4bitのデータに分割してQAQC用JATHubに送信される。たとえば16 bitのADCの値は4bitずつ4tickに分割して送信される。QAQC用JATHubは図\ref{JATHubmonitor}に示すように、分割されたモニターデータを再構成し、Control Center内のレジスタに自動で分配する。これによりUbuntuから任意のタイミングでControl Centerにアクセスしても、常に最新のモニターデータを取得することができる。
+PS board上のDACやPP ASICを制御する方法として\ref{subsec_QAQCdesign}節では自立型制御機構を利用するものを述べた。QAQC用JATHubからPS boardを制御する際も、ワード1で定義されたCS BitmapおよびSCLK、SDI線をビットバンギングすることで、QSPIフラッシュメモリーにパラメータを書き込む。PS board FPGAの状態や各素子のモニターには自立型監視機構を利用する。DACの設定値、ADCの測定値、FGPAの温度、xADCによる供給電圧値などのモニター値は表\ref{tab:PSBdatatype}に示すフォーマットに従い、6bitのデータタイプと4bitのデータに分割してQAQC用JATHubに送信される。たとえば16 bitのADCの値は4bitずつ4tickに分割して送信される。QAQC用JATHubは図\ref{JATHubmonitor}に示すように、分割されたモニターデータを再構成し、Control Center内のレジスタに自動で分配する。これによりUbuntuから任意のタイミングでControl Centerにアクセスしても、常に最新のモニターデータを取得することができる。
 \vskip0.5\baselineskip
 
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JATHubmonitor.png}
-\caption[JATHub monitor]{JAThubに実装された監視機構。PS boardから送られる制御用データをデコードし、Control Center内のレジスタに格納する}
+\caption[JATHub monitor]{JAThubに実装された監視機構。PS boardから送られる制御用データをデコードし、Control Center内のレジスタに格納する。}
 \label{JATHubmonitor}
 \end{figure}
 
-\begin{figure} 
-\centering
-\includegraphics[width=10cm]{fig/QAQC/PSBdataformat.png}
-\caption[PS boardから送信されるモニターデータのフォーマット]{PS boardから送信されるモニターデータのフォーマット}
-\label{PSBdataformat}
-\end{figure}
+% \begin{figure} 
+% \centering
+% \includegraphics[width=10cm]{fig/QAQC/PSBdataformat.png}
+% \caption[PS boardから送信されるモニターデータのフォーマット]{PS boardから送信されるモニターデータのフォーマット}
+% \label{PSBdataformat}
+% \end{figure}
+
+\begin{table}[]
+    \centering
+    \caption[PS boardから送信されるモニターデータのデータタイプ]{PS boardから送信されるモニターデータのデータタイプ。}
+    \label{tab:PSBdatatype}
+    \begin{tabular}{|cccccc|l|}
+    \hline
+    \multicolumn{6}{|c}{Data type {[}5:0{]}}                                                                                       & \multicolumn{1}{|c|}{PS Data {[}7:0{]}} \\ \hline\hline
+    \multicolumn{1}{|c}{0} & 0                      & 0                      & 1                      & 0                      & 0 & ADC data {[}15:12{]}                   \\  
+    \multicolumn{1}{|c}{0} & 0                      & 0                      & 1                      & 0                      & 1 & ADC data {[}11:8{]}                    \\  
+    \multicolumn{1}{|c}{0} & 0                      & 0                      & 1                      & 1                      & 0 & ADC data {[}7:4{]}                     \\  
+    \multicolumn{1}{|c}{0} & 0                      & 0                      & 1                      & 1                      & 1 & ADC data {[}3:0{]}                     \\  \hline
+    \multicolumn{1}{|c}{0} & 0                      & 1                      & 0                      & 0                      & 0 & DAC data {[}15:12{]}                   \\  
+    \multicolumn{1}{|c}{0} & 0                      & 1                      & 0                      & 0                      & 1 & DAC data {[}11:8{]}                    \\  
+    \multicolumn{1}{|c}{0} & 0                      & 1                      & 0                      & 1                      & 0 & DAC data {[}7:4{]}                     \\  
+    \multicolumn{1}{|c}{0} & 0                      & 1                      & 0                      & 1                      & 1 & DAC data {[}3:0{]}                     \\  \hline
+    \multicolumn{1}{|c}{0} & 0                      & 1                      & 1                      & 0                      & 0 & xADC data {[}15:12{]}                  \\  
+    \multicolumn{1}{|c}{0} & 0                      & 1                      & 1                      & 0                      & 1 & xADC data {[}11:8{]}                   \\  
+    \multicolumn{1}{|c}{0} & 0                      & 1                      & 1                      & 1                      & 0 & xADC data {[}7:4{]}                    \\  
+    \multicolumn{1}{|c}{0} & 0                      & 1                      & 1                      & 1                      & 1 & xADC data {[}3:0{]}                    \\  \hline
+    \multicolumn{1}{|c}{0} & 1                      & 0                      & 0                      & 0                      & 0 & SEM data {[}15:12{]}                   \\  
+    \multicolumn{1}{|c}{0} & 1                      & 0                      & 0                      & 0                      & 1 & SEM data {[}11:8{]}                    \\  
+    \multicolumn{1}{|c}{0} & 1                      & 0                      & 0                      & 1                      & 0 & SEM data {[}7:4{]}                     \\  
+    \multicolumn{1}{|c}{0} & 1                      & 0                      & 0                      & 1                      & 1 & SEM data {[}3:0{]}                     \\  \hline
+    \multicolumn{1}{|c}{0} & 1                      & 0                      & 1                      & 0                      & 0 & Tempurature data {[}15:12{]}           \\  
+    \multicolumn{1}{|c}{0} & 1                      & 0                      & 1                      & 0                      & 1 & Tempurature data {[}11:8{]}            \\  
+    \multicolumn{1}{|c}{0} & 1                      & 0                      & 1                      & 1                      & 0 & Tempurature data {[}7:4{]}             \\  
+    \multicolumn{1}{|c}{0} & 1                      & 0                      & 1                      & 1                      & 1 & Tempurature data {[}3:0{]}             \\  \hline
+    \multicolumn{1}{|c}{1} & 1                      & 1                      & 0                      & 0                      & 0 & Register access Address {[}7:4{]}      \\  
+    \multicolumn{1}{|c}{1} & 1                      & 1                      & 0                      & 0                      & 1 & Register access Address {[}3:0{]}      \\  \hline
+    \multicolumn{1}{|c}{1} & 1                      & 1                      & 1                      & 0                      & 0 & Register access data {[}15:12{]}       \\  
+    \multicolumn{1}{|c}{1} & 1                      & 1                      & 1                      & 0                      & 1 & Register access data {[}11:8{]}        \\  
+    \multicolumn{1}{|c}{1} & 1                      & 1                      & 1                      & 1                      & 0 & Register access data {[}7:4{]}         \\  
+    \multicolumn{1}{|c}{1} & 1                      & 1                      &1                       & 1                      & 1 & Register access data {[}3:0{]}         \\  \hline
+    \end{tabular}
+    \end{table}
 
 \subsection*{ヒットデータ読み出し機能}
 \label{subsubsec_DAQ}
@@ -349,7 +385,7 @@ PS board上のDACやPP ASICを制御する方法として\ref{subsec_QAQCdesign}
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JATHubdaq.png}
-\caption[読み出し回路の全体像]{読み出し回路の全体像}
+\caption[読み出し回路の全体像]{読み出し回路の全体像。PS boardから25 nsごとに送られる256 bitのヒット信号はL1 Bufferに格納される。TTC emulatorはTPT信号から決まったレイテンシー後にL1Aを発行し、テストパルスに該当するイベントをL1 Bufferから取り出す。取り出されたデータは後段の処理待ち用のDerandomizerに入れられ、ここからはCPUの動作する任意のタイミングでデータパスとは非同期に読み出しが行われる。}
 \label{JATHubdaq}
 \end{figure}
 
@@ -387,8 +423,8 @@ Event BuilderはDeradomizerに格納された32bit幅のデータを240 MHzの�
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{fig/QAQC/JATHubhitformat.png}
-\caption[JATHubからのヒットデータ読み出しフォーマット]{JATHubからのヒットデータ読み出しフォーマット}
+\includegraphics[width=16cm]{fig/QAQC/JATHubhitformat.pdf}
+\caption[JATHubからのヒットデータ読み出しフォーマット]{JATHubからのヒットデータ読み出しフォーマット。3 BC 分のヒットデータに加えて、デバッグ用にJATHubで付与したBCIDやPS boardで付与したBCIDなどが読み出される。}
 \label{JATHubhitformat}
 \end{figure}
 
@@ -399,8 +435,8 @@ Event BuilderはDeradomizerに格納された32bit幅のデータを240 MHzの�
 \vskip0.5\baselineskip
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{fig/QAQC/JTAHubreadspeed.png}
-\caption[PSからのヒットデータ読み出し速度の測定]{PSからのヒットデータ読み出し速度の測定}
+\includegraphics[width=16cm]{fig/QAQC/JATHubreadspeed.pdf}
+\caption[PSからのヒットデータ読み出し速度の測定]{PSからのヒットデータ読み出し速度の測定。軸に読み出したパケット数、縦軸に経過時間(s)をとり、得られた測定結果を線形フィットしている。}
 \label{JTAHubreadspeed}
 \end{figure}
 
@@ -412,7 +448,7 @@ ASDテストパルス試験ではUbuntuから読み出したイベント数を�
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JATHubbackpressure.png}
-\caption[リードアウト回路におけるバックプレッシャー機能]{リードアウト回路におけるバックプレッシャー機能}
+\caption[リードアウト回路におけるバックプレッシャー機能]{リードアウト回路におけるバックプレッシャー機能。Derandomizerのoccupancyがあらかじめ設定した容量閾値を超えると、L1 Bufferにalmost full信号が送られる。almost full信号を受け取ったDerandomizerは処理中のイベントの出力が終わった後、Derandomizerへのデータ送信を停止する。}
 \label{JATHubbackpressure}
 \end{figure}
 
@@ -422,11 +458,14 @@ ASDテストパルス試験ではUbuntuから読み出したイベント数を�
 \subsection{試験環境}
 \label{subsec_testenv}
 東京大学に設置したテストベンチを利用して、開発したQAQC用JATHubの動作検証およびQAQC試験のデモンストレーションを行なった。
-セットアップを図\ref{QAQCsetup}に示す。QAQC用のJATHubはVMEクレートに設置しバックプレーンのJ3コネクターを通じて給電する。PS boardには3.3 Vデジタル電源、3.0 V、-3.0 Vアナログ電源を用意しデスクトップで給電する。QAQC用JATHubとPS boardは3本の光ファーバーと2本のCat-6ケーブルで接続する。1台のPS boardには8台のASDをシグナルケーブルで接続する。
+セットアップを図\ref{QAQCsetup}に示す。QAQC用のJATHubはVMEクレートに設置しバックプレーンのJ3コネクターを通じて給電する。PS boardには3.3 Vデジタル電源、3.0 V、-3.0 Vアナログ電源を用意しデスクトップで給電する。QAQC用JATHubとPS boardは3本の光ファイバーと2本のCat-6ケーブルで接続する。1台のPS boardには8台のASDをシグナルケーブルで接続する。
 
-\begin{itembox}{図QAQCsetup}
-    3号館のセットアップの良い写真を撮ってくる
-\end{itembox}
+\begin{figure} 
+\centering
+\includegraphics[width=16cm]{fig/QAQC/TB_3goukan.pdf}
+\caption[]{QAQC試験のための東京大学でのセットアップ。QAQC用JATHubはVMEクレートに設置し、バックプレーンのJ3コネクターを通じて給電する。PS boardおよびASDには3.3 Vデジタル、3.0 V、-3.0 Vアナログ用電源をそれぞれ用意し、デスクトップで給電する。QAQC用JATHubとPS boardは3本の光ファイバーと2本のCat-6ケーブルで接続する。1台のPS boardには8台のASDを接続する。},
+\label{QAQCsetup}
+\end{figure}
 
 \vskip\baselineskip
 
@@ -455,16 +494,13 @@ L1A depthはL1 Bufferの深さを決めるパラメーターであり、TTC emul
 
 \subsubsection{ノイズスキャン}
 DACの閾値電圧は使用するASDのノイズの大きさに依存して変えるべきパラメーターである。ASDをには$\mathcal{O}(10 \,\mathrm{mV})$のノイズが乗っていることが知られており、それよりも閾値電圧を低く設定してしまうと、ノイズをヒット信号として処理してしまう。閾値電圧はノイズの値よりも高く、かつテストパルスの波高より十分低く設定すべきである。そこで、DACの閾値電圧を変えながらテストパルスを測定するノイズスキャンを行なった。その結果を図\ref{QAQCnoisescan}に示す。
-1台のPS boardに搭載される16台のASDに印加する閾値電圧をコヒーレントに変えていき、ヒットのefficiencyを測定した。閾値電圧が0 mV程度になるとノイズによるヒットが見られるようになってきて、50 mV以上の閾値電圧をかけるとノイズが消えていく。この結果から本セットアップでのDAC閾値は+-それぞれ+70 mV、-40 mVと設定した。
+1台のPS boardに搭載される16台のASDに印加する閾値電圧をコヒーレントに変えていき、ヒットのefficiencyを測定した。閾値電圧が0 mV程度になるとノイズによるヒットが見られるようになってきて、50 mV以上の閾値電圧をかけるとノイズが消えていく。この結果から本セットアップでのDAC閾値は$\pm$それぞれ+70 mV、-40 mVと設定した。
 \vskip0.5\baselineskip
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{fig/QAQC/QAQCnoisescan.png}
-\caption[ノイズスキャン]{ノイズスキャンの結果}
-\begin{itembox}{要更新}
-    3号館でとりなおす。16台の結果を重ね書きしたものに更新。
-\end{itembox}
+\includegraphics[width=16cm]{fig/QAQC/noise_A2.pdf}
+\caption[ノイズスキャン]{ノイズスキャンの結果。PP ASIC に印加する閾値電圧を変えながら、10,000 回のテストパルスに対するノイズレートを測定した。ここでは8台あるPP ASICのうちの1台の結果を示している。閾値電圧が -10 mV から 60 mV の間でノイズによるヒットが見られる。}
 \label{QAQCnoisescan}
 \end{figure}
 
@@ -472,8 +508,8 @@ DACの閾値電圧は使用するASDのノイズの大きさに依存して変�
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{fig/QAQC/QAQCresult.png}
-\caption[ASDテストパルスの結果]{ASDテストパルス試験の結果}
+\includegraphics[width=16cm]{fig/QAQC/QAQCresult.pdf}
+\caption[ASDテストパルスの結果]{ASDテストパルス試験の結果。10,000回のテストパルスに対するEfficiencyをプロットしている。PS board が担う全256チャンネルでCurrent BCのEfficiencyが1である。また、Previous、NextのEfficiencyは0である。}
 \label{QAQCresult}
 \end{figure}
 
@@ -500,8 +536,8 @@ DACの閾値電圧は使用するASDのノイズの大きさに依存して変�
 QAQC試験のデモンストレーションにより、1枚のPS boardを試験するのに配線作業等も含めると、合計50分以上時間かかることが明らかになった。1500枚のPS boardに対して試験を行うには、24時間試験をやり続けたとしても2ヶ月程度かかる見込みで、現実的なタイムスケールで試験を完了させるためには試験の高速化が求められる。単純にはQAQC用JATHub1台とPS board1台のセットアップを複数用意することが考えらるが、QAQC用JATHubに必要なイーサーネット通信のためのRJコネクターと光通信のためのSFP+コネクターを両方有しているものは、世界に1台しか存在しない(JATHub 試作1号機)。並列化のためには新たなシステム設計が必要となる。そこで考案された並列化システムのセットアップを図\ref{QAQCpararell}に示す。システムのコンセプトは、試作1号機をQAQCマスターとして利用し、QAQCマスターから20台のQAQC用JATHub\footnote{RJコネクターをもたないJATHub量産機} (QAQCスレーブ) を操作することである。ユーザーはQAQCマスターのみを操作して、QAQCスレーブに対して試験開始を命令したり、試験状況を監視したりする。QAQCマスターとQAQCスレーブの通信を中継する目的でTAMボードも利用する。QAQC用マスターとTAMの通信は光ファイバーを介したシリアル通信を用い、TAMとQAQCスレーブの通信はバックプレーンを通じたVME通信を用いる。
 \begin{figure} 
     \centering
-    \includegraphics[width=16cm]{fig/QAQC/QAQCpararell.png}
-    \caption[並列化システムの概要]{並列化システムの概要}
+    \includegraphics[width=16cm]{fig/QAQC/QAQCpararell.pdf}
+    \caption[並列化システムの概要]{並列化システムの概要。JATHub 1台 (QAQCスレーブ) とPS board 1台を用いた試験システムを20台並列に設置する。それに加えて、20台のJATHubの動作を制御するため、1台の検査マスターJATHub (QAQCマスター) を用意する。QAQCマスターとQAQCスレーブの通信はTAMボードを介して行う。QAQC用マスターとTAMは光ファイバーで接続し、高速光通信を行う。TAMとQAQCスレーブはVMEバックプレーンで接続され、VME通信を行う。}
     \label{QAQCpararell}
 \end{figure}
 
@@ -517,7 +553,7 @@ QAQCスレーブのUbuntuは起動と同時に試験用アプリケーション�
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{fig/QAQC/QAQCpararellpicture.png}
+\includegraphics[width=16cm]{fig/QAQC/QAQCpararellpicture.pdf}
 \caption[並列化システムの写真]{並列化システムの写真}
 \label{QAQCpararellpicture}
 \end{figure}
@@ -530,8 +566,8 @@ QAQCスレーブのUbuntuは起動と同時に試験用アプリケーション�
 
 \begin{figure}
 \centering
-\includegraphics[width=16cm]{fig/QAQC/JATHubEIL4.JPG}
-\caption[QAQC用JATHubの使用例:EIL4チェンバー試験]{QAQC用JATHubの使用例:EIL4チェンバー試験\cite{mt_wada}}
+\includegraphics[width=16cm]{fig/QAQC/JATHubEIL4.pdf}
+\caption[QAQC用JATHubの使用例:EIL4チェンバー試験]{QAQC用JATHubの使用例:EIL4チェンバー試験\cite{mt_wada}。高輝度LHC-ALTAS実験で新しく導入される、tripletのEIL4チェンバーの性能評価を目的としてCERNで行われた。ASDをEIL4チェンバーに接続し、PS board、QAQC用JATHubを用いて信号処理を行った。宇宙線ミューオンを用いたチャンネルごとのefficiency測定などが行われた。}
 \label{JATHubEIL4}
 \end{figure}
 
@@ -539,8 +575,8 @@ QAQCスレーブのUbuntuは起動と同時に試験用アプリケーション�
 
 \begin{figure}
 \centering
-\includegraphics[width=16cm]{fig/QAQC/JATHubSEU.JPG}
-\caption[QAQC用JATHubの使用例:PS board SEUモニター]{QAQC用JATHubの使用例:PS board SEUモニター\cite{mt_hashimoto}}
+\includegraphics[width=16cm]{fig/QAQC/JATHubSEU.pdf}
+\caption[QAQC用JATHubの使用例:PS board SEUモニター]{QAQC用JATHubの使用例:PS board SEUモニター\cite{mt_hashimoto}。ATLAS実験室内に設置したPS boardにおける、SEU発生頻度を測定することを目的にCERNで行われた。PS boardから送信されるモニター用データの読み出しにQAQC用JATHubが使われた。}
 \label{JATHubSEU}
 \end{figure}
 
