@@ -1,3 +1,114 @@
+\section{トリガーロジック開発の流れ}
+\label{sec_TriggerTestSystem}
+図\ref{Trigger_flow}にトリガーロジックの開発フローを示す。トリガーロジックの開発は、概念設計、モジュールごとのHDL実装、全体ファームウェアの統合という3ステップで進められる。
+以下でそれぞれのステップについて説明する。
+
+\begin{figure} 
+\centering
+\includegraphics[width=16cm]{fig/SL/Trigger_flow.png}
+\caption[TGCトリガー開発の流れ]{トリガーロジック開発の流れ。トリガー開発はまず、検出器からのヒットデータを用いてどのようにコインシデンスロジックを組むか、など概念設計が行われる。次に、その設計をHDLとして実装し、デジタル回路の論理演算へと翻訳する。最後に実装されたトリガーモジュールを全体ファームウェアの中に統合し、システム全体として動作するようになる。概念設計の際にはソフトウェアシミュレーターが、HDL実装の際にはVivado シミュレーターが検証用に用いられる。}
+\label{Trigger_flow}
+\end{figure}
+
+\subsection*{トリガーロジックの概念設計}
+トリガーロジック開発の最初のステップは概念設計である。高輝度LHC-ATLAS実験ではL0 Trigger Systemが従来のものからアップグレードされ、トリガーレートは10倍に、トリガーレイテンシーは4倍に増強される。それに伴い、TGCエレクトロニクスシステムも刷新され、SL FPGAはヒットの有無に関わらず、TGC BWの全7層からのヒットビットマップをすべて受信するようになる。
+
+概念設計の段階では、新しい入力データを利用して、どのようなロジックを構築すれば、L0トリガーシステムの要求 ( 具体的にはトリガー効率、再構成されたミューオンの\pt 分解能、トリガーレート、トリガーレイテンシーなど ) を満たすとともに、より高精度のトリガーを実現できるかを考案する。このプロセスで、ロジックの全体的な設計 (例えば、M1、M2、M3のヒット情報からミューオンの飛跡と無限運動量飛跡がなす角度を算出し、それを利用して \pt を概算する、など) から、具体的な仕様（例えば、複数の飛跡候補がある場合にどの基準で候補を絞り込むか）まで決定する。
+
+設計したロジックを、より具体的なデザインに落とし込む際にはソフトウェアシミュレーターが重要な役割を果たす。ソフトウェアは開発が容易であり、ロジックの実装→性能評価→修正→…という開発サイクルを迅速に進めることが可能である。そのため、グローバルなデザインを決めていく初期の開発では特に有効である。また、パターンマッチングに利用するLUTもロジックの設計と同時に開発される。
+
+\subsection*{モジュールごとのHDL実装}
+トリガー開発の次のステップは各モジュールのHardware Description Language ( HDL ) 実装である。この段階では、概念設計で策定したロジックをHDLを通じて、デジタル回路の論理演算へと翻訳する。この工程では、限られたハードウェアリソースの中で、どのように性能を維持したままロジックを実現するか、という物理制約を意識したロジック最適化が重要となる。例えば、パターンマッチングを行うための最小領域の設計などが行われた。パターンマッチングでは多くのチャンネルを入力とした方が、より多くの飛跡パターンをカバーすることができるため、トリガー効率は高くなる。一方、FPGA内で使用できるRAMリソースは限られているため、使用するLUTのサイズには物理的な制限がかかる。トリガー効率を維持したまま、1枚のFPGAでロジックを実現できるよう、最小領域の取り決めが行われた。
+
+実装されたHDLの動作検証および実装されたトリガー回路の性能評価には、Vivado シミュレーターが用いられる。Vivado シミュレーターとはHDLで記述されたデジタル回路の動作を逐次的にエミュレートするソフトウェアツールである。デジタル回路に含まれる全ての信号の遷移を厳密にシミュレーションし、任意の時間の任意の信号線をプローブすることができる。
+
+\subsection*{トリガーロジックの統合}
+トリガー開発の最後のステップはトリガーロジックの統合である。この段階では、開発したトリガーモジュールをSLの全体ファームウェアへと適切に組み込む。
+
+統合作業では、トリガー回路をI/O、コントロール回路、読み出し回路と接続する。I/Oは、PS boardや磁場内部からの検出器からのヒット信号を受信するパートで、受信したデータをトリガー入力に適した形に整形し、適切なタイミングでロジックへと投入する。コントロール回路は、トリガー動作に必要なLUTの書き込みや、各種パラメーターの設定を行う。読み出し回路はトリガーの演算結果を適切に処理し、後段のシステムへ伝達する。TGC トリガーは固定レイテンシーで動作するよう設計しているため、これらの周辺機能を適切に調整・配備して、システム全体を同期して動かす。
+
+統合ファームウェアはVivadoによるインプリメンテーション\footnote{Vivadoのインプリメンテーションプロセスは、主に1. ロジック最適化、2.デザイン配置、3.配置後のデザインの物理最適化、4. デザインの配線、5. 配線後のデザインの物理最適化、6 ビットストリームの生成で構成される。}プロセスを経て、ハードウェア上で動作させる。このプロセスでは、ファームウェア全体を通じて、リソース使用量やタイミング制約などの物理制約を満たす必要がある。SLのような大規模論理回路では、ロジック間の信号伝達方法の最適化やシステム全体を俯瞰したリソースの割り振りなど、広い視点での最適化が求められる。
+
+\subsection*{本研究の立ち位置}
+これまでの先行研究でトリガーロジックの概念設計、各モジュールのHDL実装、ソフトウェアシミュレーターおよびVivado シミュレーターを用いた性能検証が完了している。そこで本研究では、トリガーロジックの統合を行い、トリガーロジックを全体ファームウェアの中に組み込んだ。この詳細は\ref{sec_TriggerIntegration}節で述べる。また、統合ファームウェア内で動作しているトリガー回路を試験するための、シングルボード試験システムを開発し、実機上で動作するトリガー回路の性能を詳細に調査することを可能にした。この詳細は\ref{chap_TriggerTest}章で述べる。
+
+\subsection{これまで行われた性能評価研究}
+これまで、Inner Coincidenceまでのロジックはソフトウェアシミュレーターによる性能検証が完了しており、TGC BW CoincidenceまでのロジックはVivado シミュレーターによる動作検証も完了している。以下にTGC BW Coincidenceまでの各モジュールの性能評価の結果を示す。
+
+\subsubsection*{ソフトウェアシミュレーターによるコンセプトの検証}
+図\ref{Soft_WS}にソフトウェアシミュレーターで測定された、Single Muon モンテカルロデータ (Monte-Carlo , MC) に対する、TGC BW コインシデンスのトリガー効率を示す。この試験では、MCサンプル含まれるTGCヒットチャンネル情報をステーションコインシデンスのインプットとしている。Efficiencyは以下のように定義され\pt 閾値ごとにビンわけされている。
+\begin{equation}
+    \mathrm{Efficiency} = \frac{\mathrm{TGC\,BW\,coincidenceで}\,p_{\mathrm{T}}\,閾値20、15、10、5\,\mathrm{GeV}と判断されたミューオンの数}{オフラインで再構成されたミューオンの数}
+\end{equation}
+
+\begin{figure} 
+    \centering
+    \includegraphics[width=16cm]{fig/Test/Soft_WS.pdf}
+    \caption[ソフトウェアシミュレーターで測定された、Wire Strip Coincidenceのトリガー効率]{ソフトウェアシミュレーターで測定された、Wire Strip Coincidenceのトリガー効率\cite{SLPDR}。20 < $p_\mathrm{T}$のプラトー領域でのefficiencyは94 \%程度である。}
+    \label{Soft_WS}
+\end{figure}
+
+\subsubsection*{Vivado シミュレーターによるHDLの動作検証}
+Vivado シミュレーターで測定された、Single Muon  MC に対する Wire Segment Reconstructionの再構成性効率を図\ref{Vivado_Wire_Efficiency}に示す。この試験でも同様のSingle Muon MCサンプルが利用された。この試験ではMCサンプルに含まれるTGC チェンバーのヒットチャンネル情報を、Wire Station Coincidenceのインプットに適したフォーマットに整形した上でVivadoシミュレーションに入力された。Efficiencyは以下のように定義され、Truth Muonの$\eta$、$\phi$ごとにビンわけされている。
+
+\begin{figure}
+    \begin{minipage}[b]{.5\linewidth}
+    \centering
+    \includegraphics[height=6cm]{fig/Test/Vivado_Wire_eta.pdf}
+    \subcaption{Efficiencyの$\eta$依存性}
+    \end{minipage}%
+    \begin{minipage}[b]{.5\linewidth}
+    \centering
+    \includegraphics[height=6cm]{fig/Test/Vivado_Wire_phi.pdf}
+    \subcaption{Efficiencyの$\phi$依存性}
+    \end{minipage}%
+    \caption[Wire Segment Reconstructionの検出効率]{Wire Segment Reconstructionの検出効率\cite{mt_nabeyama}。$\eta$、$\phi$全領域でトリガー効率は95 \%程度に達している。}
+    \label{Vivado_Wire_Efficiency}
+    \end{figure}
+    
+    \begin{equation}
+    \mathrm{Efficiency} = \frac{\mathrm{Wire \,Segment \,Reconstructionで}\,\Delta\theta\,\mathrm{を再構成できたイベント数}}{\mathrm{Truth ミューオン の数}}
+\end{equation}
+
+TGCチェンバーの構造やエンドキャップマグネットとの干渉によると考えられる、数\%のInefficiencyが局所的に見られるものの、Efficiencyは$\eta$、$\phi$全領域で95 \%程度に達している。これによりWire Segment ReconstructionのHDL実装が期待通り達成されていることが検証された。
+
+HDL実装された Strip Segment Reconstruction と Wire strip Coincidence の動作検証は、ソフトウェアシミュレーター出力との一致を確かめることで行われた。Strip Segment Reconstruction ではソフトウェアシミュレーターによるStrip Station Coincidenceの出力をVivadoシミュレーターのインプットとし、出力をソフトウェアシミュレーターと比較した。比較結果を表\ref{tab:Vivado_strip}に示す。エンドキャップ領域 (EC) 、フォワード領域 (FW) それぞれで出力の96 \%程度一致した。数\%の不一致は、Segment Reconstructionをパスした飛跡候補が複数あった場合にどれを優先的に後段に送るか、という候補選択ロジックの差異によるものであると理解されている。同じユニット内でヒットレイヤー数が同じ、かつユニット中心からの距離も同じである候補が存在する場合、HDLではM3 スタッガードチャンネルの上位bitを優先に選ぶ、というロジックが実装されているが、ソフトウェアシミュレーターではその二つを仕分ける方法が用意されていない。
+
+\begin{table}[]
+    \centering
+    \caption{Strip Segment Reconstruction出力のソフトウェアシミュレーターとVivadoシミュレーター比較結果。ECはエンドキャップ領域、FWはフォワード領域を示す。\cite{mt_kawamoto}}
+    \label{tab:Vivado_strip}
+    \begin{tabular}{|c|cc|}
+    \hline
+    \multirow{2}{*}{}        & \multicolumn{2}{c|}{割合}                \\ \cline{2-3} 
+                             & \multicolumn{1}{c|}{EC}      & FW      \\ \hline\hline
+    飛跡情報が一致したイベント            & \multicolumn{1}{c|}{96.8 \%} & 97.8 \% \\ \hline
+    候補の選び方の違いに由来する差異があったイベント & \multicolumn{1}{c|}{3.2 \%}  & 2.2 \%  \\ \hline
+    候補の選び方以外に由来する差異があったイベント  & \multicolumn{1}{c|}{1.8 \%}  & 0 \%    \\ \hline
+    \end{tabular}
+\end{table}
+
+Wire Strip Coincidenceの動作検証では、ソフトウェアシミュレーターによるWire Segment ReconstructionとStrip Segment Reconstructionの出力を取り出して、Vivadoシミュレーターのインプットとした。比較結果を表\ref{tab:Vivado_WS}に示す。同様のわずかなロジックの違いによる出力の不一致は存在するが、概ねソフトウェアで設計されたロジックと同等のものをHDLで実装できていることが確認された。
+
+\begin{table}[]
+    \centering
+    \caption{Wire Strip Coincidence出力のソフトウェアシミュレーターとVivadoシミュレーター比較結果。ECはエンドキャップ領域、FWはフォワード領域を示す。\cite{mt_kawamoto}}
+    \label{tab:Vivado_WS}
+    \begin{tabular}{|c|cc|}
+    \hline
+    \multirow{2}{*}{}                      & \multicolumn{2}{c|}{割合}                \\ \cline{2-3} 
+                                           & \multicolumn{1}{c|}{EC}      & FW      \\ \hline\hline
+    飛跡情報が一致したイベント                          & \multicolumn{1}{c|}{98.4 \%} & 99.9 \% \\ \hline
+    飛跡情報の異なったイベント                          & \multicolumn{1}{c|}{1.6 \%}  & 0.07 \% \\ \hline
+    イベントで最大の\textbackslash{}pt出力がことなったイベント & \multicolumn{1}{c|}{0.09 \%} & 0.02 \% \\ \hline
+    \end{tabular}
+\end{table}
+
+
+
+\clearpage
+
+
 \section{タイミングバイオレーションへの対処}
 \label{sec:appendix:timing_violation}
 Inner Coincidenceを統合した当初はタイミング違反が発生した。本節ではタイミング違反解決までに行った2種類の最適化について説明する。
