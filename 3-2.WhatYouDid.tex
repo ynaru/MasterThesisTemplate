@@ -127,7 +127,7 @@ Wire Strip Coincidenceは8 Unit regionから1 つののミューオン候補を�
 \begin{itemize}
     \item L0 Buffer　　
     \par
-    トリガーロジックでフォーマットされたデータはL0 Bufferにダンプされる。L0 Bufferは入力ビットマップと同じ幅をもつ深さ512 列のBRAMあり、TTC emulatorからL0Aが出されるまでのバッファリングを行う。トリガーロジックには40 MHz、160 MHz、240 MHzで駆動するものが存在するが、いずれのモジュールでも1つの陽子バンチ衝突由来の出力は25 nsごとに横並びに揃えられ、40 MHzのLHC クロックで動作する書き込みポインタに従って、L0 Bufferに格納される。一方、読み出しは240 MHzで行われ、読み出されたデータはDerandomizerに送られる。
+    トリガーロジックでフォーマットされたデータはL0 Bufferにダンプされる。L0 Bufferは入力ビットマップと同じ幅をもつ深さ512 列のBRAMあり、TTC emulatorからL0Aが出されるまでのバッファリングを行う。トリガーロジックには40 MHz、160 MHz、240 MHzで駆動するものが存在するが、いずれのモジュールでも1つの陽子バンチ交差由来の出力は25 nsごとに横並びに揃えられ、40 MHzのLHC クロックで動作する書き込みポインタに従って、L0 Bufferに格納される。一方、読み出しは240 MHzで行われ、読み出されたデータはDerandomizerに送られる。
 
     \item Derandomizer　　
     \par
@@ -138,15 +138,12 @@ Wire Strip Coincidenceは8 Unit regionから1 つののミューオン候補を�
     Candidate Selectorは各トリガーモジュールのすべてのユニットから出力される飛跡候補の中から、ミューオン候補を再構成できたユニットの出力のみを選択して後段に送る。これにより大幅なデータ削減が達成される。選択された飛跡情報には、どのサブユニットからの出力かを示す6 bitの識別IDと2bit のbunch tagが付与され、32 bit幅のワードとして後段のSerializerに送信される。
     Serializerは32 bit幅のワードをクロックチックごとに1ワードずつ処理し、あるL0Aに対応する1イベント分のパケットをまとめて、後段のEvent Builderに渡す。図\ref{tab:packet_format}にパケットのフォーマットを示す。パケットにはイベント境界を示すための特別なワード Start of Event (SOE)、End Of Event (EOE) が挿入される。
 
-\begin{itembox}{後で直すところ}
-    表はみだし問題
-\end{itembox}
-
     \begin{table}
         \centering
         \caption[パケットのフォーマット]{SerializerからEvent Builderに送られるパケットのフォーマット}
         \label{tab:packet_format}
         \footnotesize
+        \scalebox{0.7}[0.8]{
         \begin{tabular}{|c|cccccccccccccccccccccccccccccccc|}
         \hline
                 & \multicolumn{1}{c|}{31} & \multicolumn{1}{c|}{30} & \multicolumn{1}{c|}{29} & \multicolumn{1}{c|}{28} & \multicolumn{1}{c|}{27} & \multicolumn{1}{c|}{26} & \multicolumn{1}{c|}{25} & \multicolumn{1}{c|}{24} & \multicolumn{1}{c|}{23} & \multicolumn{1}{c|}{22} & \multicolumn{1}{c|}{21} & \multicolumn{1}{c|}{20} & \multicolumn{1}{c|}{19} & \multicolumn{1}{c|}{18} & \multicolumn{1}{c|}{17} & \multicolumn{1}{c|}{16} & \multicolumn{1}{c|}{15} & \multicolumn{1}{c|}{14} & \multicolumn{1}{c|}{13} & \multicolumn{1}{c|}{12} & \multicolumn{1}{c|}{11} & \multicolumn{1}{c|}{10} & \multicolumn{1}{c|}{9} & \multicolumn{1}{c|}{8} & \multicolumn{1}{c|}{7} & \multicolumn{1}{c|}{6} & \multicolumn{1}{c|}{5} & \multicolumn{1}{c|}{4} & \multicolumn{1}{c|}{3} & \multicolumn{1}{c|}{2} & \multicolumn{1}{c|}{1} & 0 \\ \hline
@@ -155,6 +152,7 @@ Wire Strip Coincidenceは8 Unit regionから1 つののミューオン候補を�
         data word & \multicolumn{6}{c|}{Unit address}                                                                                                                         & \multicolumn{2}{c|}{BC tag}                       & \multicolumn{24}{c|}{bitmap}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   \\ \hline
         buffer    & \multicolumn{12}{c|}{0xBFF}                                                                                                                                                                                                                                                                                           & \multicolumn{9}{c|}{rsvd}                                                                                                                                                                                                               & \multicolumn{11}{c|}{L0ID}                                                                                                                                                                                                                                   \\ \hline
         \end{tabular}
+        }
     \end{table}
 
     \item Event Builder　　
@@ -249,7 +247,7 @@ Aurora 64B/66B MasterはAXI Stream形式のデータをシリアル通信のデ�
 \end{table}
 
 \subsubsection*{Strip Segment Reconstructionの結果}
-Strip Segment Reconstructionではフォワード領域とエンドキャップ領域の全格子点に対して飛跡再構成に成功した。この結果はChannel Mapping、Strip Station Coincidence、Strip Segment Reconstruction、の論理回路実装がミスなく行われたこと、作成されたLUTが抜けなく実装されていること、そしてLUTの書き込みやタイミング制御などトリガーを稼働させるのに必要なコントロール機能が正確に動作していることを示している。さらに、この結果は実機試験システム自体が正確に動作していることも示唆している。MPSoCからのテストパターンを書き込むパスとトリガーロジックの読み出しパスは安定して動作しており、TTC emulator、トリガーロジック、読み出しパスが固定レイテンシーで制御されていることが確認された。これらのコントロールおよび読み出しパスは実験本番でも使われるシステムであり、SL統合ファームウェア全体が精度良く動作していることを示すしている。この結果を得られるまでの過程で、本研究によって
+Strip Segment Reconstructionではフォワード領域とエンドキャップ領域の全格子点に対して飛跡再構成に成功した。この結果はChannel Mapping、Strip Station Coincidence、Strip Segment Reconstruction、の論理回路実装がミスなく行われたこと、作成されたLUTが抜けなく実装されていること、そしてLUTの書き込みやタイミング制御などトリガーを稼働させるのに必要なコントロール機能が正確に動作していることを示している。さらに、この結果は実機試験システム自体が正確に動作していることも示唆している。MPSoCからのテストパターンを書き込むパスとトリガーロジックの読み出しパスは安定して動作しており、TTC emulator、トリガーロジック、読み出しパスが固定レイテンシーで制御されていることが確認された。これらのコントロールおよび読み出しパスは実験本番でも使われるシステムであり、SL統合ファームウェア全体が精度良く動作していることを示している。この結果を得られるまでの過程で、本研究によって
 Strip LUTのミスを発見し、修正を行った。デバッグの過程はAppendix\ref{sec:appendix:infinite-momentum-tracks}に詳述する。
 
 \begin{figure}
@@ -268,7 +266,7 @@ Strip LUTのミスを発見し、修正を行った。デバッグの過程はAp
         \includegraphics[height=5.6cm]{fig/Test/A_InfFW_strip.pdf}
         \subcaption{フォワード領域の結果}
     \end{minipage}
-    \caption[異なる画像形式の比較]{無限運動量飛跡に対する、Strip Segment Reconstructionの応答。横軸にM3におけるStripのスタッガードID、縦軸にM3におけるWireのスタッガードIDをとる。各2次元格子点をピボットとする無限運動量飛跡を実機試験システムに投入し、$0 \leq \Delta\phi$を再構成できた場合にはその格子点を白色、できなかった場合は黒色で塗り潰す。この結果は、全ての2次元格子点で飛跡再構成に成功したことを示す。}
+    \caption[無限運動量飛跡に対する、Strip Segment Reconstructionの応答]{無限運動量飛跡に対する、Strip Segment Reconstructionの応答。横軸にM3におけるStripのスタッガードID、縦軸にM3におけるWireのスタッガードIDをとる。各2次元格子点をピボットとする無限運動量飛跡を実機試験システムに投入し、$0 \leq \Delta\phi$を再構成できた場合にはその格子点を白色、できなかった場合は黒色で塗り潰す。この結果は、全ての2次元格子点で飛跡再構成に成功したことを示す。}
     \label{Inf_A_Strip}
 \end{figure}
 
@@ -276,7 +274,7 @@ Strip LUTのミスを発見し、修正を行った。デバッグの過程はAp
 Wire Segment Reconstructionでは、フォワード領域で99.9 \% ( 15,287 / 15,309 )、エンドキャップ$\phi\,$0領域で99.7 \%(35,370 / 36,477)、エンドキャップ$\phi\,$1領域で99.9 ( 36.181 / 36.477 )の飛跡再構成に成功した。しかし、全領域において特定の構造を持たない$\mathcal{O}(0.1\,\%)$のInefficiencyが観測された。\footnote{エンドキャップ$\phi\,$1領域のWire スタッガード ID $0 \sim 2$ の範囲でもInefficiencyが見られるが、これはM3とM1の$\eta$方向のカバレージの違いによるものであると理解されている。$\phi1$領域の$\eta\sim$2.0付近の領域では、M3がM1よりも広い$\eta$範囲をカバーしている。そのため、M3の代表点をピボットにしてスタッガードIDを割り振ると同じスタッガードIDをもつチャンネルでも$\eta$位置にずれが生じ、直線的な飛跡にならない。
 }
 
-このInefficiencyに関しては、Bitwiseシミュレーターでは確認されていないため、実機試験システム固有の問題であると考えられる。調査によると、飛跡再構成に失敗する格子点の位置は、データ取得のたびに変わることが判明している。失敗するイベントの割合は試験ごとに概ね一定で、Wire Segment Reconstruction では約0.1 \%である。現時点では、この問題がハードウェア上のトリガー回路自体の問題に起因するのか、それとも読み出し回路の問題に起因するのかの区別がついておらず、問題の解決には至っていない。今後、詳細な調査を進め、原因の解明と修正に努める。一方で、本研究で議論するInefficiencyは $\mathcal{O}(10 \%)$ 程度のものであるため、このInefficiencyは今後の議論には影響しないと考えられる。
+このInefficiencyに関しては、Bitwiseシミュレーターでは確認されていないため、実機試験システム固有の問題であると考えられる。調査によると、飛跡再構成に失敗する格子点の位置は、データ取得のたびに変わることが判明している。失敗するイベントの割合は試験ごとに概ね一定で、Wire Segment Reconstruction では約0.1 \%である。現時点では、この問題がハードウェア上のトリガー回路自体の問題に起因するのか、それとも読み出し回路の問題に起因するのかの区別がついておらず、問題の解決には至っていない。今後、詳細な調査を進め、原因の解明と修正に努める。一方で、本研究で議論するInefficiencyは\ref{sec_SingleMuon}節で議論するように $\mathcal{O}(10 \%)$ 程度のものであるため、この$\mathcal{O}(0.1 \%)$程度のInefficiencyは今後の議論には影響しないと考えられる。
 
 この結果を得られるまでの過程で、本研究によって無限運動量飛跡生成機構に問題を発見し、修正を行った。デバッグの過程はAppendix\ref{sec:appendix:infinite-momentum-tracks}に詳述する。
 
@@ -296,7 +294,7 @@ Wire Segment Reconstructionでは、フォワード領域で99.9 \% ( 15,287 / 1
         \includegraphics[height=5.6cm]{fig/Test/A_InfFW_wire.pdf}
         \subcaption{フォワード領域の結果}
     \end{minipage}
-    \caption[異なる画像形式の比較]{無限運動量飛跡に対する、Wire Segment Reconstructionの応答。横軸にM3におけるStripのスタッガードID、縦軸にM3におけるWireのスタッガードIDをとる。各2次元格子点をピボットとする無限運動量飛跡を実機試験システムに投入し、$0 \leq \Delta\eta$を再構成できた場合にはその格子点を白色、できなかった場合は黒色で塗り潰す。全体の$\mathcal{O}(0.1\,\%)$程度の格子点で飛跡再構成に失敗していることがわかる。}
+    \caption[無限運動量飛跡に対する、Wire Segment Reconstructionの応答]{無限運動量飛跡に対する、Wire Segment Reconstructionの応答。横軸にM3におけるStripのスタッガードID、縦軸にM3におけるWireのスタッガードIDをとる。各2次元格子点をピボットとする無限運動量飛跡を実機試験システムに投入し、$0 \leq \Delta\theta$を再構成できた場合にはその格子点を白色、できなかった場合は黒色で塗り潰す。全体の$\mathcal{O}(0.1\,\%)$程度の格子点で飛跡再構成に失敗していることがわかる。}
     \label{Inf_A_Wire}
 \end{figure}
 
@@ -322,7 +320,7 @@ Wire Strip Coincidence では、フォワード領域で 99.6 \% ( 15,179 / 15,3
         \includegraphics[height=5.6cm]{fig/Test/A_InfFW_WS.pdf}
         \subcaption{フォワード領域の結果}
     \end{minipage}
-    \caption[異なる画像形式の比較]{無限運動量飛跡に対する、Wire Strip Coincidence の応答。横軸にM3におけるStripのスタッガードID、縦軸にM3におけるWireのスタッガードIDをとる。各2次元格子点をピボットとする無限運動量飛跡を実機試験システムに投入し、$0 \leq p_\mathrm{T}$を再構成できた場合にはその格子点を白色、できなかった場合は黒色で塗り潰す。Forward領域ではWire スタッガード ID 190番に該当するイベントが全て再構成に失敗している。Endcap 領域ではWire スタッガード ID 410 番以降の領域で$\phi0$と$\phi1$のどちらにも規則的な構造を持ったInefficiencyが見られる。}
+    \caption[無限運動量飛跡に対する、Wire Strip Coincidence の応答]{無限運動量飛跡に対する、Wire Strip Coincidence の応答。横軸にM3におけるStripのスタッガードID、縦軸にM3におけるWireのスタッガードIDをとる。各2次元格子点をピボットとする無限運動量飛跡を実機試験システムに投入し、$0 \leq p_\mathrm{T}$を再構成できた場合にはその格子点を白色、できなかった場合は黒色で塗り潰す。Forward領域ではWire スタッガード ID 190番に該当するイベントが全て再構成に失敗している。Endcap 領域ではWire スタッガード ID 410 番以降の領域で$\phi0$と$\phi1$のどちらにも規則的な構造を持ったInefficiencyが見られる。}
     \label{Inf_A_WS}
 \end{figure}
 
@@ -342,7 +340,7 @@ Wire Strip Coincidence では、フォワード領域で 99.6 \% ( 15,179 / 15,3
     Parameter        &                                                                                              \\ \hline
     $p_{\mathrm{T}}$ & $ 0 \, < \, p_{\mathrm{T}}\, < 50$ GeV flat                                                  \\ \hline
     $\eta$           & 1.06 \textless |$\eta$| \textless 2.4 flat                                                   \\ \hline
-    $\phi$           & 0 \textless{} $\phi$ \textless 2\pi flat                                      \\ \hline
+    $\phi$           & 0 \textless{} $\phi$ \textless 2$\pi$ flat                                      \\ \hline
     イベント数            & 500,000                                                                                      \\ \hline
     イベントカット          & \begin{tabular}[c]{@{}c@{}}1つのトリガーセクター内のM1、M2、M3各ステーションに\\ それぞれ1つ以上のヒットがあることを要求\end{tabular} \\ \hline
     \end{tabular}
@@ -385,7 +383,7 @@ Strip Segment Reconstructionの検出効率の$\eta$および$\phi$依存性を�
 Stripの場合と同様に、Efficiencyは式\ref{eq:Wire_Efficiency}のように定義する。
 
 \begin{equation}
-    \mathrm {Efficiency} = \frac{\mathrm{Wire\,Segment \,Reconstruction\,で\Delta\eta\,を再構成できたイベント数}}{\mathrm{Truth\,pt \,20 \,GeV以上のイベント数}}
+    \mathrm {Efficiency} = \frac{\mathrm{Wire\,Segment \,Reconstruction\,で\Delta\theta\,を再構成できたイベント数}}{\mathrm{Truth\,pt \,20 \,GeV以上のイベント数}}
     \label{eq:Wire_Efficiency}
 \end{equation}
 
@@ -434,7 +432,7 @@ Wire Strip Coincidenceは無限運動量飛跡を用いた試験で既にエン�
     \label{SM_A_WS}
 \end{figure}
 
-図\ref{SM_A_WS_turnon}にWire Strip Coincidenceの$p_\mathrm{T}$ごとの検出効率を示す。赤色、青色、緑色、ピンクの各カーブは、それぞれがトリガー閾値20 GeV、15 GeV、10 GeV、5 GeVと判断されたイベントの割合を示しており、一般にこのような図をターンオンカーブという。どの\pt 閾値に対してもプラトー領域のefficiencyは93.5 \%程度であり、ソフトウェアシミュレーションやVivado シミュレーションの結果と一致している (図\ref{Soft_WS})。一方、ソフトウェアシミュレーションの結果と比べて、Efficiencyの立ち上がりが緩やかで、\pt 閾値より小さいイベントを多くトリガーしてしてしまっていることがわかる。例えばWire Segment Reconstructionで不当に$\Delta\eta$を小さく見積もってしまうと、このような振る舞いが生じ得る。今後、ソフトウェアシミュレーターと実機出力でSegment Reconstructionの結果を比較するなどして、原因の解明を行う。
+図\ref{SM_A_WS_turnon}にWire Strip Coincidenceの$p_\mathrm{T}$ごとの検出効率を示す。赤色、青色、緑色、ピンクの各カーブは、それぞれがトリガー閾値20 GeV、15 GeV、10 GeV、5 GeVと判断されたイベントの割合を示しており、一般にこのような図をターンオンカーブという。どの\pt 閾値に対してもプラトー領域のefficiencyは93.5 \%程度であり、ソフトウェアシミュレーションやVivado シミュレーションの結果と一致している (図\ref{Soft_WS})。一方、ソフトウェアシミュレーションの結果と比べて、Efficiencyの立ち上がりが緩やかで、\pt 閾値より小さいイベントを多くトリガーしてしてしまっていることがわかる。例えば、Wire Segment Reconstructionで不当に$\Delta\theta$を小さく見積もってしまうと、このような振る舞いが生じ得る。今後、ソフトウェアシミュレーターと実機出力でSegment Reconstructionの結果を比較するなどして、原因の解明を行う。
 
 この結果を得るまでに本研究によってWire Segment Reconstructionの問題点が発見され、修正が行われた。詳細をAppendix\ref{sec:appendix:MC-test}に記述する。また、プラトー領域に存在する6.5 \%程度のInefficiencyの原因についてもの調査を行った。この調査結果についてはAppendix\ref{sec:appendix:plateau}に詳細を記述する。
 % さらに、今回の試験ではTGC検出器は理想位置と呼ばれる設計段階の位置に設置されていることを仮定して、モンテカルロデータやLUTを作成した。実験本番ではTGC検出器はアライメントの誤差により理想位置からずれた場所に設置される。このずれがトリガー効率にどれほど影響を与えるか調査した。その結果をAppendix{sec:appendix:alignment  \(\)}に示す。
@@ -446,6 +444,9 @@ Wire Strip Coincidenceは無限運動量飛跡を用いた試験で既にエン�
 \label{SM_A_WS_turnon}
 \end{figure}
 
+\section{まとめ}
+以上のように、本研究ではSoCを活用することで、ハードウェア上で動作するトリガー回路を直接検証することができる、次世代的な試験システムを開発した。
+これにより、トリガー回路に対して詳細かつ網羅的な性能評価を行うことができるようになり、無限運動量飛跡やモンテカルロデータを用いた試験を通じて、従来発見が困難だった問題の特定に成功した。さらに、実機出力とBitwiseシミュレーションの比較により、問題を系統的に特定し解決する検証基盤も完成し、これまでに多くの問題点を解決することができた(Appendix \ref{sec:appendix:infinite-momentum-tracks}$\sim$ \ref{sec:appendix:MC-test}参照)。これからも、本研究で議論した残された課題に対して詳細な調査とデバッグを進めていくことで、より精度の高いミューオントリガー回路を実現する。
 
 
 

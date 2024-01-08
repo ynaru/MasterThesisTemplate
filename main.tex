@@ -31,8 +31,8 @@
 % \subfiguretopcaptrue
 
 % 行番号を表示する。添削時のみに使い、事務提出版ではコメントアウトする
-\usepackage{lineno}
-\linenumbers
+% \usepackage{lineno}
+% \linenumbers
 
 % PDF 内で外部リンクや文書内リンクを生成したい場合に使う（好みによる）
 % 印刷時に色が出るかどうかは、使用する PDF viewer の挙動による。
@@ -93,29 +93,24 @@
 \end{center}
 
 \input{Abstract}
-
-この文書の\LaTeX {}ファイルは,\url{https://github.com/akira-okumura/MasterThesisTemplate}から入手可能です。
-
 \tableofcontents
 \listoffigures
 \listoftables
-
 \mainmatter
 
-include を使うことで、別ファイルに分割することができます。。
-% \include{1.Introduction}
-% \include{2.Review}
+\include{1.Introduction}
+\include{2.Review}
 \include{3-1.WhatYouDid}
-% \include{3-2.WhatYouDid}
-% \include{3-3.WhatYouDid}
+\include{3-2.WhatYouDid}
+\include{3-3.WhatYouDid}
 % \include{4.LaTeX}
 % \include{5.Plagiarism}
 % \include{6.Color}
-% \include{7.Discussion}
-% \include{8.Conclusion}
-% \include{Appendix}
-% \include{Appendix1}
-% \include{Acknowledgments}
+\include{8.Conclusion}
+\include{Acknowledgments}
+\include{Appendix}
+\include{Appendix1}
+
 
 \renewcommand{\bibname}{引用文献}
 \bibliographystyle{unsrt}

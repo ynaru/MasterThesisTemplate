@@ -5,7 +5,7 @@
 
 \section{高輝度LHC-ATLAS実験におけるトリガーロジックの概要と論理回路実装}
 \label{sec_Phase2TriggerLogic}
-前章で述べたように、Phase\two アップグレードにより、SLは1/24セクター内のTGC BW 7層からのヒットビットマップを、ヒットの有無に関わらず、すべてのBCについて受信するようになる。そのため、Run3でSLBボード、HPTボード、SLに分割されていたトリガーロジックは、SLに集約される。高輝度LHC-ATLAS実験でのミューオントリガー回路の全体像を図\ref{Trigger_over}に示す。SL FPGAに実装されるトリガーロジックはChannel Mapping、Station Coincidence、Segment Reconstruction、Wire Strip Coincidence、Inner Coincidence、Track Selectorという6段階のトリガーモジュールで構成される。
+前章で述べたように、Phase\two アップグレードにより、SLは1/24セクター内のTGC BW 7層からのヒットビットマップを、ヒットの有無に関わらず、すべてのBCについて受信するようになる。そのため、Run 3でSLB、HPT、SLに分割されていたトリガーロジックは、SLに集約される。高輝度LHC-ATLAS実験でのミューオントリガー回路の全体像を図\ref{Trigger_over}に示す。SL FPGAに実装されるトリガーロジックはChannel Mapping、Station Coincidence、Segment Reconstruction、Wire Strip Coincidence、Inner Coincidence、Track Selectorという6段階のトリガーモジュールで構成される。
 
 \begin{figure} 
 \centering
@@ -14,7 +14,7 @@
 \label{Trigger_over}
 \end{figure}
 
-Channel Mappingは、PS boardから受信したヒットデータをコインシデンスロジックの入力に適した形へと並び替える。Station Coincidenceはステーション内の2層または3層の間のコインシデンスをとり、そのステーションにおけるミューオンのヒット位置を表す"代表点"を出力する。Segment Reconstructionは各ステーションの代表点を組み合わせてミューオンの飛跡を再構成し、M3の代表点を基準点とした無限運動量飛跡とのなす角$\Delta\eta$、$\Delta\phi$を算出する。Wire Strip CoincidenceはWireで算出した$\Delta\eta$とStripで算出した$\Delta\phi$からミューオンの横方向運動量閾値\pt を概算する。TGC検出器に飛来するミューオンはエンドキャップトロイド磁場により、主に$\eta$方向に曲げられるため、$\Delta\eta$は\pt 再構成において有効な分別変数となる。一方、ミューオンは基本的には$\phi$方向に曲げられず、$\Delta\phi$はミューオンが衝突点から飛来したものであることを担保する目的で利用される。ここまでのトリガーロジックはTGC検出器からのヒットデータのみを利用するものであり、TGC BW Coincidenceと呼ぶ。Inner CoincidenceはTGC BW Coincidenceで再構成されたミューオン飛跡候補と、磁場内部の検出器(NSW、BIS78、RPC、EIL4 TGC、Tile カロリメーター)で得られたヒット情報の間でコインシデンスをとり、フェイクトリガーを削減するとともに\pt 精度の向上を図る。Inner Coincidenceまでのロジックは、1つの1/24セクターごとに最大112個のミューオン飛跡候補を出力する。Track Selectorは、112個のミューオン飛跡候補から\pt が大きい順に6つまで候補を絞り込む。そのうち3つはMDTTPに転送され、さらに高い精度で\pt が計算される。最終的に、MDTTPからSLに送り返された3つの飛跡候補と、MDTTPへ転送しなかった3つの飛跡候補を合わせてMUCTPIに送信する。
+Channel Mappingは、PS boardから受信したヒットデータをコインシデンスロジックの入力に適した形へと並び替える。Station Coincidenceはステーション内の2層または3層の間のコインシデンスをとり、そのステーションにおけるミューオンのヒット位置を表す"代表点"を出力する。Segment Reconstructionは各ステーションの代表点を組み合わせてミューオンの飛跡を再構成し、M3の代表点を基準点とした無限運動量飛跡とのなす角$\Delta\theta$、$\Delta\phi$を算出する。Wire Strip CoincidenceはWireで算出した$\Delta\theta$とStripで算出した$\Delta\phi$からミューオンの横方向運動量閾値\pt を概算する。TGC検出器に飛来するミューオンはエンドキャップトロイド磁場により、主に$\eta$方向に曲げられるため、$\Delta\theta$は\pt 再構成において有効な分別変数となる。一方、ミューオンは基本的には$\phi$方向に曲げられず、$\Delta\phi$はミューオンが衝突点から飛来したものであることを担保する目的で利用される。ここまでのトリガーロジックはTGC検出器からのヒットデータのみを利用するものであり、TGC BW Coincidenceと呼ぶ。Inner CoincidenceはTGC BW Coincidenceで再構成されたミューオン飛跡候補と、磁場内部の検出器(NSW、BIS78、RPC、EIL4 TGC、Tile カロリメーター)で得られたヒット情報の間でコインシデンスをとり、フェイクトリガーを削減するとともに\pt 精度の向上を図る。Inner Coincidenceまでのロジックは、1つの1/24セクターごとに最大112個のミューオン飛跡候補を出力する。Track Selectorは、112個のミューオン飛跡候補から\pt が大きい順に6つまで候補を絞り込む。そのうち3つはMDTTPに転送され、さらに高い精度で\pt が計算される。最終的に、MDTTPからSLに送り返された3つの飛跡候補と、MDTTPへ転送しなかった3つの飛跡候補を合わせてMUCTPIに送信する。
 
 %ここまで
 
@@ -22,7 +22,7 @@ Channel Mappingは、PS boardから受信したヒットデータをコインシ
 
 \subsection{Channel Mapping}
 \subsubsection*{概要}
-Channel MappingはPS board から受信するTGC BW 全チャンネルのヒット情報 (128 bit x 62 link) を、飛跡再構成に先んじてトリガー入力に適したフォーマットへとマッピングする。ここでは単にチャンネルを並び変えるだけでなく、TGC検出器のジオメトリーに合わせて設計されたフロントエンドのチャンネル構造を、トリガーロジックとして取り扱いやすいものへと変換する。TGC BW のエンドキャップ領域は$\eta$方向にM1は4つ、M2、M3は5つのチェンバーで構成されており、それぞれ不完領域がないようにオーバーラップを持って設置されている。オーバーラップするチャンネル同士はOR処理を施す。また、ストリップのコインシデンスではミューオンが$\eta$方向に曲げられ、複数のチェンバーに跨ってヒットを残した場合に対応するため、チェンバー間でコインシデンスをとる。例えば図\ref{Channel_Mapping}に示す通り、M3の下から2つ目のチェンバーにヒットがある場合、M1、M2では下から1番目のチェンバーにヒットがある場合と、下から2番目にヒットがある場合が考えられる。どちらの場合でも、ステーション間でコインシデンスが取れるよう、M1及びM2では適切なチェンバー間でORをとる。
+Channel MappingはPS board から受信するTGC BW 全チャンネルのヒット情報 (128 bit x 62 link) を、飛跡再構成に先んじてトリガー入力に適したフォーマットへとマッピングする。ここでは単にチャンネルを並び変えるだけでなく、TGC検出器のジオメトリーに合わせて設計されたフロントエンドのチャンネル構造を、トリガーロジックとして取り扱いやすいものへと変換する。TGC BW のエンドキャップ領域は$\eta$方向にM1は4つ、M2、M3は5つのチェンバーで構成されており、それぞれ不完領域がないようにオーバーラップを持って設置されている(図\ref{TGC_elec_mount}および図\ref{Channel_Mapping}参照)。オーバーラップするチャンネル同士はOR処理を施す。また、ストリップのコインシデンスではミューオンが$\eta$方向に曲げられ、複数のチェンバーに跨ってヒットを残した場合に対応するため、チェンバー間でコインシデンスをとる。例えば、図\ref{Channel_Mapping}に示す通り、M3の下から2つ目のチェンバーにヒットがある場合、M1、M2では下から1番目のチェンバーにヒットがある場合と、下から2番目にヒットがある場合が考えられる。どちらの場合でも、ステーション間でコインシデンスが取れるよう、M1及びM2では適切なチェンバー間でORをとる。
 
 \begin{figure} 
 \centering
@@ -42,9 +42,6 @@ Channel Mappingモジュールは単純なワイヤーとOR回路で実装され
 \centering
 \includegraphics[width=16cm]{fig/SL/Concept_station.pdf}
 \caption[Station コインシデンスの概要]{Station Coincidence の概要\cite{mt_mino}。TGC検出器ではステーション内のワイヤーは$\eta$方向に、ストリップは$\phi$方向にずらして設置されており、各層のチャンネルが重複してカバーsる$\eta$領域を代表点として定義する。Station Coincidenceでは2層または3層でコインシデンスのとれた代表点を出力する。}
-\begin{itembox}{後で直すところ}
-    スタッガードチャンネルの$\eta$カバレージ揃えることが推奨される。
-\end{itembox}
 \label{Concept_station}
 \end{figure}
 
@@ -79,11 +76,11 @@ M2、M3ステーションは2層で構成されているため、2/2コインシ
 \subsection{Segment Reconstruction}
 \label{subsec:segment_reco}
 \subsubsection*{概要}
-Segment ReconstructionではStation Coincidenceで得られた、各ステーションの代表点の組み合わせから、無限運動量飛跡と実際の飛跡のなす角度 ($\Delta\theta$、$\Delta\phi$)を算出する。ミューオンはエンドキャップトロイド磁場により主に$\eta$方向に曲げられるため、$\Delta\eta$は\pt を再構成する上で有効な分別変数となる。一方、$\phi$方向にはほとんど曲げられず、有効な分別変数とはなり得ない。ミューオンが衝突点から飛来したものであることを担保するための、追加的な条件として利用される。Segment Reconstructionの概念図を図\ref{Concept_segment}に示す。角度情報の概算には、パターンマッチングと呼ばれる手法を用いる。この手法ではあらかじめ、代表点の組み合わせとそこから計算される角度情報の対応関係をまとめたテーブル (パターンリスト、LUTともよぶ) を用意することで、複雑な計算をせずに高速で角度情報を再構成する。
+Segment ReconstructionではStation Coincidenceで得られた、各ステーションの代表点の組み合わせから、無限運動量飛跡と実際の飛跡のなす角度 ($\Delta\theta$、$\Delta\phi$)を算出する。ミューオンはエンドキャップトロイド磁場により主に$\eta$方向に曲げられるため、$\Delta\theta$は\pt を再構成する上で有効な分別変数となる。一方、$\phi$方向にはほとんど曲げられず、有効な分別変数とはなり得ない。ミューオンが衝突点から飛来したものであることを担保するための、追加的な条件として利用される。Segment Reconstructionの概念図を図\ref{Concept_segment}に示す。角度情報の概算には、パターンマッチングと呼ばれる手法を用いる。この手法ではあらかじめ、代表点の組み合わせとそこから計算される角度情報の対応関係をまとめたテーブル (パターンリスト、LUTともよぶ) を用意することで、複雑な計算をせずに高速で角度情報を再構成する。
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{fig/SL/Concept_segment.pdf}
+\includegraphics[width=12cm]{fig/SL/Concept_segment.pdf}
 \caption[Segment Reconstructionのコンセプト]{$\eta$方向のパターンマッチングの概念図\cite{mt_mino}。黒い線が実際のミューオンの飛跡を表し、赤い線がTGCのヒットから再構成される飛跡を表す。黒い点線はM3ステーションの代表点と衝突点を結んだ、無限運動量飛跡を表す。M1、M2、M3の代表点の組み合わせから、実際の飛跡と無限運動量飛跡とがなす角度$\Delta\theta$を再構成する。}
 \label{Concept_segment}
 \end{figure}
@@ -91,16 +88,16 @@ Segment ReconstructionではStation Coincidenceで得られた、各ステーシ
 \subsubsection*{Wire Segment Reconstructionの論理回路実装}
 このモジュールの駆動クロックは、LHC クロックに同期した周波数 160 MHz のクロックで、レイテンシーは 12 クロックチック分 (75 ns) である。
 
-Wire Segment ReconstructionはUnit、Subunitと呼ばれる単位領域でトリガーセクターを分割して、Subunitごとに並列にコインシデンスロジックを用意する。ワイヤーロジックではエンドキャップ領域を37分割、フォワード領域を16分割したものをUnitと定義する。図\ref{StationCoin_unit}にユニットの構造を示す。UnitやSubunitは先行研究にて、とあるM3チャンネルにヒットを残した \pt 5 GeVのミューオンを再構成するのに必要な、M1、M2チャンネルを網羅するよう定義された。1つのユニットはM1ステーションの96 代表点、M2ステーションの32 代表点、M3ステーションの16 代表点をカバーする。また、1つのユニットを4等分するようにSubunitが定義されており、Subunitに1つパターンマッチング用のLUTが用意される。
+Wire Segment ReconstructionはUnit、Subunitと呼ばれる単位領域でトリガーセクターを分割して、Subunitごとに並列にコインシデンスロジックを用意する。ワイヤーロジックではエンドキャップ領域を37分割、フォワード領域を16分割したものをUnitと定義する。図\ref{StationCoin_unit}にユニットの構造を示す。1つのユニットはM1ステーションの96 代表点、M2ステーションの32 代表点、M3ステーションの16 代表点をカバーする。また、1つのユニットを4等分するようにSubunitが定義されており、Subunitに1つパターンマッチング用のLUTが用意される。UnitやSubunitの大きさは必要なLUTのサイズによる制約で決められており、FPGAのRAMリソースに合わせて最適化されている。Unitの範囲は、とあるM3チャンネルにヒットを残した \pt$\,$5 GeVのミューオンを再構成するのに必要な、M1、M2チャンネルを網羅するよう定義された。
 
 \begin{figure} 
     \centering
     \includegraphics[width=12cm]{fig/SL/StationCoin_unit.pdf}
-    \caption[Wire Station Coincidence および Wire Segment Reconstruction におけるユニット。1つのユニットはM1の96代表点、M2の32代表点、M3の16代表点をカバーする。]{Wire Station Coincidence および Wire Segment Reconstruction におけるユニット。1つのユニットはM1の96代表点、M2の32代表点、M3の16代表点をカバーする。\cite{SLPDR}}
+    \caption[Wire Segment Reconstruction におけるユニット]{Wire Segment Reconstruction におけるユニット。1つのユニットはM1の96代表点、M2の32代表点、M3の16代表点をカバーする。\cite{SLPDR}}
     \label{StationCoin_unit}
 \end{figure}
 
-最終的にはそれぞれのサブユニットから最大1つの飛跡情報を出力するため、SL全体では最大360の角度情報が出力される。Wire Segment Reconstructionの各サブユニット内でのロジックの概要を図\ref{SegReco_wire}に示す。各サブユニットはAddress Specifier・Segment Extractor・Segment Selector で構成される。以下でそれぞれのモジュールについて述べる。
+最終的にはそれぞれのサブユニットから最大1つの飛跡情報を出力するため、SL全体では最大360の飛跡候補が出力される。Wire Segment Reconstructionの各サブユニット内でのロジックの概要を図\ref{SegReco_wire}に示す。各サブユニットはAddress Specifier・Segment Extractor・Segment Selector で構成される。以下でそれぞれのモジュールについて述べる。
 
 \begin{figure} 
 \centering
@@ -159,7 +156,7 @@ Strip Segment ReconstructionもUnit、Subunit呼ばれる単位領域でトリ�
 \begin{figure} 
     \centering
     \includegraphics[width=12cm]{fig/SL/StationCoin_unit_strip.pdf}
-    \caption[Strip Station Coincidence および Strip Segment Reconstruction におけるユニット]{Strip Station Coincidence および Strip Segment Reconstruction におけるユニット\cite{SLPDR}。1つのユニットはM1の40代表点、M2の24代表点、M3の16代表点をカバーする。}
+    \caption[Strip Segment Reconstruction におけるユニット]{Strip Segment Reconstruction におけるユニット\cite{SLPDR}。1つのユニットはM1の40代表点、M2の24代表点、M3の16代表点をカバーする。}
     \label{StationCoin_unit_strip}
 \end{figure}
 
@@ -216,12 +213,12 @@ Segment Extractorから送られる最大6つのStrip Segment から マッチ�
 
 \subsection{Wire-Strip Coincidence}
 \subsubsection*{概要}
-Wire Strip CoincidenceではWire Segment Reconstructionで算出した$\Delta\eta$とStrip Segment Reconstructionで算出した$\Delta\phi$を組み合わせることで、横方向運動量 \pt を概算する。\pt の計算もCoincidence Windowと呼ばれるLUTを用いて行う。Coincidence Windowの例を図\ref{Concept_WS}に示す。
+Wire Strip CoincidenceではWire Segment Reconstructionで算出した$\Delta\theta$とStrip Segment Reconstructionで算出した$\Delta\phi$を組み合わせることで、横方向運動量 \pt を概算する。\pt の計算もCoincidence Windowと呼ばれるLUTを用いて行う。Coincidence Windowの例を図\ref{Concept_WS}に示す。
 
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/SL/Concept_WS.pdf}
-\caption[Wire Strip CoincidenceにおけるCoincidence Windowの例]{Wire Strip CoincidenceにおけるCoincidence Windowの例\cite{SLPDR}。WireおよびStrip Segment Reconstructionで再構成された$\Delta\theta$、$\Delta\phi$から$p_\mathrm{T}$閾値を概算する。本番運用時には$p_\mathrm{T}$は4 bit、16段階で出力する予定であるが、現状は5 GeV、10 GeV、15 GeV、20 GeVの4段階で出力している。}
+\caption[Wire Strip CoincidenceにおけるCoincidence Windowの例]{Wire Strip CoincidenceにおけるCoincidence Windowの例\cite{SLPDR}。WireおよびStrip Segment Reconstructionで再構成された$\Delta\theta$、$\Delta\phi$から$p_\mathrm{T}$閾値を概算する。$\Delta\phi$で再構成したミューオンが衝突点に由来するものであることを担保し、$\Delta\theta$で\pt を決めている。$\Delta\phi$の値域が$\Delta\theta$の関数になっているのは、この例で示した領域が荷電粒子を$\phi$方向にも曲げる磁場を持つ例外的な点であるためである。現状\pt は5 GeV、10 GeV、15 GeV、20 GeVの4段階で出力している。本番運用時には4 bit、16段階で出力する予定である。}
 \label{Concept_WS}
 \end{figure}
 
@@ -276,7 +273,7 @@ Wire Strip CoincidenceからInner Coincidenceに送られる飛跡情報のフ�
     4          & $p_{\mathrm{T}}$ threshold reconstructed using Coincidence Window                           \\ \hline
     8          & Local $\eta$ position in the unit                                                           \\ \hline
     3          & Unit ID                                                                                     \\ \hline
-    7          & Angle difference $\Delta\eta$ between the segment and the vector from IP                    \\ \hline
+    7          & Angle difference $\Delta\theta$ between the segment and the vector from IP                    \\ \hline
     2          & Number of stations with the hits used for wire segment reconstruction                       \\ \hline
     4          & Angle difference $\Delta\phi$ between the segment and the vector from IP                    \\ \hline
     2          & Number of stations with the hits used for strip segment reconstruction                      \\ \hline

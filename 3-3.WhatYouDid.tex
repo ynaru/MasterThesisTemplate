@@ -6,7 +6,7 @@
 \subsection{Phase2 upgradeに向けたPS board量産スケジュール}
 \label{subsec_PSBschedule}
 2029年から始まる高輝度LHC-ATLAS実験に向けてTGC検出器エレクトロニクスは刷新される。
-TGC検出器フロントエンドエレクトロニクスの一つであるPS boardは、Run3までに使用されていたエレクトロニクスに代わり、FPGAを搭載した新しいハードウェアデバイスへと置き換えられる。
+TGC検出器フロントエンドエレクトロニクスの一つであるPS boardは、Run 3までに使用されていたエレクトロニクスに代わり、FPGAを搭載した新しいハードウェアデバイスへと置き換えられる。
 図\ref{PSBschedule}にPS boardの量産スケジュールを示す。PS boardは第一試作機、第二試作機の開発・調査の末、2022年にプレ量産が完了している。2024年から1400枚に及ぶ本量産が開始され、2026年からUX15へのインストール作業が行われる。
 高輝度LHC-ATLAS実験でもPS boardはTGC検出器付近に取り付けられたPS-packに設置される。そのため、もし加速器の運転が始まった後にエレクトロニクスの不具合が発見された場合でも修理や交換が困難であり、そのPS board が信号処理を担当する領域は検出器の不感領域となってしまう。高輝度LHC-ATLAS実験の運転初日から安定したデータ収集を実現するためには、量産された各個体それぞれにハードウェアの不良がないことを詳細に調べ上げた上でインストールすることが大切となる。そのために行うハードウェアの品質調査試験のことをQuality Assurance and Quality Control (QAQC) 試験と呼ぶ。この章では、PS boardのQAQC試験の設計およびそれに伴い開発したQAQC試験用JATHubの概要、実装、動作検証について説明する。
 
@@ -246,7 +246,7 @@ RXロジックで固定位相のクロック再構成を実現するために重
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JATHubcomma.png}
-\caption[comma detectorの概要]{comma detectorの概要。GTXトランシーバーで再構成された40 bitのパラレルデータの下位10 bitがcommaワードと一致するまで、RX SLIDEを打ち続ける。これにより、commaワードをもとに再構成する40 MHzクロックが、固定位相になることが保証される。}
+\caption[Comma detectorの概要]{Comma detectorの概要。GTXトランシーバーで再構成された40 bitのパラレルデータの下位10 bitがcommaワードと一致するまで、RX SLIDEを打ち続ける。これにより、commaワードをもとに再構成する40 MHzクロックが、固定位相になることが保証される。}
 \label{JATHubcomma}
 \end{figure}
 \vskip0.5\baselineskip
@@ -270,7 +270,7 @@ FPGAからUbuntuに読み出したいデータはFPGA内の動作クロックに
 AXI GPIOレジスタにはFPGAからもUbuntuからも任意のタイミングでアクセスすることができる。そのためUbuntuがデータを読み出す前にFIFOがデータを書き換えると、そのデータはUbuntuから読み出されずロスすることになる。またFIFOがデータを書き換える前にUbuntuが2回読み出し動作を行うと、同じデータを重複して読み出すことになる。すべてのデータを漏れや重複なく読み出すために、FIFOとUbuntuのタイミングを取り持つ調停回路を作成した。調停回路は1 bitのフラグとステートマシンからなる。フラグはUbuntuとFIFO間の状況伝達に利用しており、0をFIFOからの書き込み待ち、1をUbuntuからの読み出し待ちと定義する。調停回路で実現される読み出しシークエンスを図\ref{JATHubarbitation}で示す。
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{fig/QAQC/JATHubarbitation.png}
+\includegraphics[width=16cm]{fig/QAQC/JATHubarbitation.pdf}
 \caption[調停回路のシークエンス]{調停回路のシークエンス。Ubuntu側とFPGA側で共通のフラグを操作・モニターすることで両者がコミュニケーションをとる。フラグは0をFIFOからの書き込み待ち、1をUbuntuからの読み出し待ちと定義する。Ubuntuはフラグをモニターし、1になっていたらAXI GPIOからデータを読み出し、フラグを0に下げる。FPGAのステートマシンも同様にフラグをモニターし、0になっていたらFIFOにread enable信号を送信し、フラグを1に上げる。}
 \label{JATHubarbitation}
 \end{figure}
@@ -285,7 +285,7 @@ Ubuntu側はフラグをモニターし、1になったらAXI GPIO レジスタ�
 要請される機能はSLの働きをエミュレートする、PS board制御機能、ヒットデータ読み出し機能、JATHubの働きをエミュレートするJTAG/Recovery/Clock monitor機能である。
 それに加えJATHub1台でDAQを完結させるために、JATHub内部でTTC信号をエミュレートする機能、ファームウェア全体を制御するコントロール機能を実装した。
 PS boardに送信するコントロール信号に関係する機能は200 MHzのTXユーザークロックを動作クロックとして利用する。PS boardから受信するデータを処理するパスでは200 MHzのRXユーザークロックを動作クロックに利用する。
-開発を進めた2022年時点において、JATHubのファームウェアは完成していたためJTAG/Recovery/Clock monitor機能はそれをそのまま利用する。一方、SLのファームウェアは開発段階であったため、SLの働きをエミュレートする機能については、Run3で使われていたNew Sector Logic (NSL) のファームウェアを参考にした。以下に各機能の詳細を説明する。
+開発を進めた2022年時点において、JATHubのファームウェアは完成していたためJTAG/Recovery/Clock monitor機能はそれをそのまま利用する。一方、SLのファームウェアは開発段階であったため、SLの働きをエミュレートする機能については、Run 3で使われていたNew Sector Logic (NSL) のファームウェアを参考にした。以下に各機能の詳細を説明する。
 % \begin{itembox}{後で直すところ}
 %     全体像としてクロックドメインまとめたものを貼りたいところだよね
 % \end{itembox}
@@ -318,7 +318,7 @@ PS board上のDACやPP ASICを制御する方法として\ref{subsec_QAQCdesign}
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JATHubmonitor.png}
-\caption[JATHub monitor]{JAThubに実装された監視機構。PS boardから送られる制御用データをデコードし、Control Center内のレジスタに格納する。}
+\caption[JAThubに実装された監視機構]{JAThubに実装された監視機構。PS boardから送られる制御用データをデコードし、Control Center内のレジスタに格納する。}
 \label{JATHubmonitor}
 \end{figure}
 
@@ -464,21 +464,23 @@ QAQC試験では量産個体に対する試験に先んじて、PP ASICの遅延
 以下に各パラメーターを定めるために行った事前試験の内容とその結果を示す。
 
 \subsubsection{PP ASIC遅延パラメーター}
-PP ASICの遅延パラメーターは、使用するシグナルケーブルの長さに依存するパラメーターである。ASDからのテストパルス信号の立ち上がりがPP ASIC陽子バンチ識別回路におけるLHCバンチ交差クロックの立ち上がりと極めて近い場合、イベントごとにアサインされるBCIDが1つに定まらない可能性がある。これを防ぐため、PP ASICの可変遅延回路の遅延パラメーターを変更し、両者の立ち上がりが十分離れるよう調整する。このパラメーターの決定のためディレイスキャンを行なった。ディレイスキャンとは、PP ASICの遅延パラメーターを1 stepずつ変更しながらデータを取得し、アサインされたBCIDの変化をみるものである。結果を図\ref{QAQCdelayscan}に示す。横軸に設定した遅延の大きさ、縦軸にefficiencyを表す。この測定では陽子バンチ識別回路の有効ゲート幅を25 ns、可変遅延回路の刻み幅を1.19 nsに設定している。遅延パラメーターを変更していくと、陽子バンチ識別回路でアサインされるBCがprevious → current → nextと遷移していく様子がわかる。current BCのプラトー領域にヒットが返ってくるよう、QAQC試験で利用する遅延パラメーターは20 nsと決定した。
+PP ASICの遅延パラメーターは、使用するシグナルケーブルの長さに依存するパラメーターである。ASDからのテストパルス信号の立ち上がりがPP ASIC陽子バンチ識別回路におけるLHCバンチ交差クロックの立ち上がりと極めて近い場合、イベントごとにアサインされるBCIDが1つに定まらない可能性がある。これを防ぐため、PP ASICの可変遅延回路の遅延パラメーターを変更し、両者の立ち上がりが十分離れるよう調整する。このパラメーターの決定のためディレイスキャンを行なった。ディレイスキャンとは、PP ASICの遅延パラメーターを1 stepずつ変更しながらデータを取得し、アサインされたBCIDの変化をみるものである。
+% 結果を図\ref{QAQCdelayscan}に示す。横軸に設定した遅延の大きさ、縦軸にefficiencyを表す。この測定では陽子バンチ識別回路の有効ゲート幅を25 ns、可変遅延回路の刻み幅を1.19 nsに設定している。遅延パラメーターを変更していくと、陽子バンチ識別回路でアサインされるBCがprevious → current → nextと遷移していく様子がわかる。current BCのプラトー領域にヒットが返ってくるよう、
+この試験の結果、QAQC試験で利用する遅延パラメーターは20 nsと決定した。
 \vskip0.5\baselineskip
 
-\begin{figure} 
-\centering
-\includegraphics[width=16cm]{fig/QAQC/QAQCdelayscan.png}
-\caption[ディレイカーブ]{テストベンチで測定したdelay curve}
-\begin{itembox}{要更新}
-    これは青木さんの結果。自分で取り直したものに差し替える。
-\end{itembox}
-\label{QAQCdelayscan}
-\end{figure}
+% \begin{figure} 
+% \centering
+% \includegraphics[width=16cm]{fig/QAQC/QAQCdelayscan.png}
+% \caption[ディレイカーブ]{テストベンチで測定したdelay curve}
+% \begin{itembox}{要更新}
+%     これは青木さんの結果。自分で取り直したものに差し替える。
+% \end{itembox}
+% \label{QAQCdelayscan}
+% \end{figure}
 
 \subsubsection{L1Adepth}
-L1A depthはL1 Bufferの深さを決めるパラメーターであり、TTC emulatorでTPTを発行してからPS board からヒットデータが返ってくるまでのレイテンシーに合わせて調整する必要がある。主にPS boardからJATHubの間の光ケーブルの長さに依存するパラメーターである。このパラメーターはディレイスキャンと同時に設定を行なっており、0x85に設定した。
+L1A depthはL1 Bufferの深さを決めるパラメーターであり、TTC emulatorでTPTを発行してからPS board からヒットデータが返ってくるまでのレイテンシーに合わせて調整する必要がある。主にPS boardからJATHubの間の光ケーブルの長さに依存するパラメーターである。このパラメーターはディレイスキャンと同時に設定を行なっており、0x 85に設定した。
 \vskip0.5\baselineskip
 
 \subsubsection{ノイズスキャン}
@@ -489,7 +491,7 @@ DACの閾値電圧は使用するASDのノイズの大きさに依存して変�
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/noise_A2.pdf}
-\caption[ノイズスキャン]{ノイズスキャンの結果。PP ASIC に印加する閾値電圧を変えながら、10,000 回のテストパルスに対するノイズレートを測定した。ここでは8台あるPP ASICのうちの1台の結果を示している。閾値電圧が -10 mV から 60 mV の間でノイズによるヒットが見られる。}
+\caption[ノイズスキャンの結果]{ノイズスキャンの結果。PP ASIC に印加する閾値電圧を変えながら、10,000 回のテストパルスに対するノイズレートを測定した。ここでは8台あるPP ASICのうちの1台の結果を示している。閾値電圧が -10 mV から 60 mV の間でノイズによるヒットが見られる。}
 \label{QAQCnoisescan}
 \end{figure}
 
@@ -522,7 +524,7 @@ DACの閾値電圧は使用するASDのノイズの大きさに依存して変�
 
 \subsection{試験並列化のためのシステムアップグレード}
 \label{subsec_parallel}
-QAQC試験のデモンストレーションにより、1枚のPS boardを試験するのに配線作業等も含めると、合計50分以上時間かかることが明らかになった。1500枚のPS boardに対して試験を行うには、24時間試験をやり続けたとしても2ヶ月程度かかる見込みで、現実的なタイムスケールで試験を完了させるためには試験の高速化が求められる。単純にはQAQC用JATHub1台とPS board1台のセットアップを複数用意することが考えられるが、イーサーネット通信のためのRJコネクターと光通信のためのSFP+コネクターを両方有しているJATHubは、1台しか用意することができない(JATHub 試作1号機)\footnote{イーサーネット通信のためのRJコネクターはネットワークテスト用に試作1号機にのみつけられており、試作2号機、量産機にはついていない}。並列化のためには新たなシステム設計が必要となる。そこで考案された並列化システムのセットアップを図\ref{QAQCpararell}に示す。システムのコンセプトは、試作1号機をQAQCマスターとして利用し、QAQCマスターから20台のQAQC用JATHub (QAQCスレーブ) を操作することである。ユーザーはQAQCマスターのみを操作して、QAQCスレーブに対して試験開始の命令や、試験状況の監視を行う。QAQCマスターとQAQCスレーブの通信を中継するため、TAMボードを\footnote{Mini-Rackに導入されるTGCエレクトロニクスの一つ。異なる1/24セクター間の陽子バンチ衝突クロックの位相合わせに用いられる。}利用する。QAQC用マスターとTAMの通信は光ファイバーを介したシリアル通信を行い、TAMとQAQCスレーブの通信はVMEバックプレーンを通じたVME通信を行う。
+QAQC試験のデモンストレーションにより、1枚のPS boardを試験するのに配線作業等も含めると、合計50分以上時間かかることが明らかになった。1500枚のPS boardに対して試験を行うには、24時間試験をやり続けたとしても2ヶ月程度かかる見込みで、現実的なタイムスケールで試験を完了させるためには試験の高速化が求められる。単純にはQAQC用JATHub1台とPS board1台のセットアップを複数用意することが考えられるが、イーサーネット通信のためのRJコネクターと光通信のためのSFP+コネクターを両方有しているJATHubは、1台しか用意することができない(JATHub 試作1号機)\footnote{イーサーネット通信のためのRJコネクターはネットワークテスト用に試作1号機にのみつけられており、試作2号機、量産機にはついていない}。並列化のためには新たなシステム設計が必要となる。そこで考案された並列化システムのセットアップを図\ref{QAQCpararell}に示す。システムのコンセプトは、試作1号機をQAQCマスターとして利用し、QAQCマスターから20台のQAQC用JATHub (QAQCスレーブ) を操作することである。ユーザーはQAQCマスターのみを操作して、QAQCスレーブに対して試験開始の命令や、試験状況の監視を行う。QAQCマスターとQAQCスレーブの通信を中継するため、TAMボードを\footnote{Mini-Rackに導入されるTGCエレクトロニクスの一つ。異なる1/24セクター間の陽子バンチ交差クロックの位相合わせに用いられる。}利用する。QAQC用マスターとTAMの通信は光ファイバーを介したシリアル通信を行い、TAMとQAQCスレーブの通信はVMEバックプレーンを通じたVME通信を行う。
 \begin{figure} 
     \centering
     \includegraphics[width=16cm]{fig/QAQC/QAQCpararell.pdf}
