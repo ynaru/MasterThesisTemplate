@@ -1,23 +1,27 @@
 \chapter{PS board QAQC試験の開発}
 \label{chap_QAQC}
 
-\section{試験設計}
+\section{PS board QAQC試験の設計}
 \label{sec_QAQCdesign}
-\subsection{Phase2 upgradeに向けたPS board量産スケジュール}
+\subsection{PS board QAQC試験の概要}
 \label{subsec_PSBschedule}
-2029年から始まる高輝度LHC-ATLAS実験に向けてTGC検出器エレクトロニクスは刷新される。
-TGC検出器フロントエンドエレクトロニクスの一つであるPS boardは、Run 3までに使用されていたエレクトロニクスに代わり、FPGAを搭載した新しいハードウェアデバイスへと置き換えられる。
-図\ref{PSBschedule}にPS boardの量産スケジュールを示す。PS boardは第一試作機、第二試作機の開発・調査の末、2022年にプレ量産が完了している。2024年から1400枚に及ぶ本量産が開始され、2026年からUX15へのインストール作業が行われる。
-高輝度LHC-ATLAS実験でもPS boardはTGC検出器付近に取り付けられたPS-packに設置される。そのため、もし加速器の運転が始まった後にエレクトロニクスの不具合が発見された場合でも修理や交換が困難であり、そのPS board が信号処理を担当する領域は検出器の不感領域となってしまう。高輝度LHC-ATLAS実験の運転初日から安定したデータ収集を実現するためには、量産された各個体それぞれにハードウェアの不良がないことを詳細に調べ上げた上でインストールすることが大切となる。そのために行うハードウェアの品質調査試験のことをQuality Assurance and Quality Control (QAQC) 試験と呼ぶ。この章では、PS boardのQAQC試験の設計およびそれに伴い開発したQAQC試験用JATHubの概要、実装、動作検証について説明する。
+2029年から始まる高輝度LHC-ATLAS実験に向けて、TGC検出器エレクトロニクスは刷新される。
+フロントエンドエレクトロニクスの1つであるPS boardは、Run 3までのエレクトロニクスに代わり、FPGAを搭載した新しいハードウェアデバイスへと置き換えられる。
+図\ref{PSBschedule}にPS boardの量産スケジュールを示す。PS boardはこれまでに第一試作機、第二試作機を用いた機能開発が進められ、2022年にプレ量産が完了している。2024年から1500枚に及ぶ本量産が始まり、2026年からATLAS実験室への設置作業が開始される。
+
+% 高輝度LHC-ATLAS実験においても、PS boardはTGC検出器付近に取り付けられたPS-packに設置される。そのため、加速器の運転が始まった後にエレクトロニクスの不具合が発見された場合、修理や交換が困難であり、そのPS board が信号処理を担当する領域は検出器の不感領域となってしまう。
+
+高輝度LHC-ATLAS実験の運転初日から安定したデータ収集を実現するためには、量産された各個体にハードウェアとしての欠陥がないことを詳細に検査することが必要である。そのために行う品質保証試験のことをQuality Assurance and Quality Control (QAQC) 試験と呼ぶ。
+
+本章ではまず、PS board のハードウェアを網羅的に検査することができる試験内容を考案し、それを実現するセットアップを設計した。次に、試験の実行に必要なシステムを、\ref{chap_TriggerTest}で述べたトリガー試験システムと多くの技術を共有する形で、開発した。最後に、開発したシステムの動作確認とデモンストレーションを行ない、PS board QAQC試験に向けたシステム構築を完了させた。
 
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/PSBschedule.png}
-\caption[PS board量産のスケジュール]{PS board量産のスケジュール。PS boardはこれまでに第一試作機、第二試作機を通したシステム開発が完了している。2023年現在、プレ量産された各個体に対しての試験を進めている。2024年から1400枚の本量産が開始され2026年からATLAS実験室への設置が開始される。}
+\caption[PS board量産のスケジュール]{PS board量産のスケジュール。これまでに第一試作機、第二試作機を用いた試験が行われ、2022年にプレ量産が完了している。2024年から1500枚に及ぶ本量産が始まり、2026年からATLAS実験室への設置作業が開始される。}
 \label{PSBschedule}
 \end{figure}
 
-\newpage
 \subsection{PS boardに搭載された素子}
 \label{subsec_PSBelements}
 QAQC試験ではエレクトロニクス上のすべての素子を網羅的に検査し、素子の不良や実装上の欠陥を確実に検出することが求められる。そのために、PS boardに搭載されている素子やそれらの間をつなぐ配線を精査し、試験に適したセットアップおよび試験内容を考案した。
@@ -27,298 +31,318 @@ QAQC試験ではエレクトロニクス上のすべての素子を網羅的に�
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/PSBoverall.png}
-\caption[PS boardの全体像]{PS boardの全体像。PS boardに搭載されている素子とその間の配線を示す。PS boardはSLと3本の光ファイバーで接続され、高速シリアル通信を行う。PS board FPGAから送られるパラレル信号はSFP+モジュールで電気信号から光信号へと変換される。また、PS boardはJATHubと2本のCat-6ケーブルで接続される。1本はJTAG線と呼ばれ、JATHubからQSPIフラッシュメモリーにファームウェアを書き込むのに利用される。もう1本はRecovery/Monitor線と呼ばれ、JATHubからPS boardに自己修復不可能なSEUが発生した際のファームウェア再コンフィギュレーションのための信号が送られる。PS board FPGAとDACとは$I^{2}C$バスで接続され、ADC、Si5395、QSPI、PPASICとはSPIバスで接続される。DACからASDへはアナログの閾値電圧が供給され、ADCがそれをモニターする。PS board FPGAはPP ASICにTTC信号を送信し、ヒット信号を受信する。1つのPP ASICは2台のASDボードと接続されそれぞれから8チャンネル分のヒットデータを受信する。PP ASICからASDへテストパルスを発行する機構もある。}
+\caption[PS boardの全体像]{PS boardの全体像。PS boardに搭載されている素子とその間の配線を示す。PS boardはSLと3本の光ファイバーで接続され、高速シリアル通信を行う。PS board FPGAから送られる電気信号はSFP+モジュールで光信号へと変換される。また、PS boardはJATHubと2本のCat-6ケーブルで接続される。1本はJTAG線と呼ばれ、JATHubからQSPIフラッシュメモリーにファームウェアを書き込む際に利用される。もう1本はRecovery/Monitor線と呼ばれ、PS board に自己修復不可能なSEUが発生した際のリカバリー手続およびクロックの位相測定に利用される。PS board FPGAとDACは$\mathrm{I^{2}C}$バスで接続され、ADC、Si5395、QSPI、PPASICとはSPIバスで接続される。DACからASDへはアナログの閾値電圧が供給され、ADCはそれをモニターする。PS board FPGAはPP ASICにTTC信号を送信し、ヒット信号を受信する。1つのPP ASICは2台のASDと接続され、それぞれから8チャンネル分のヒットデータを受信する。}
 \label{PSBconcept}
 \end{figure}
 
-\vskip0.5\baselineskip
-
 \begin{enumerate}
-    \item \texttt{SFP+ :} 電気信号と光信号の変換するモジュール。PS board FPGAは3本の光ファイバーを介してSLと通信する。2線は送信用に定義されており、1枚のPS boardが担当する256チャンネルのヒット信号をヒットの有無に関わらず送信する。1線は受信用に定義されており、コントロール信号を受け取る。コントロール信号にはTTC信号も含まれ、PS boardはシリアルデータから40 MHzのLHCバンチ交差クロックを再構成する。
+    \item \texttt{SFP+ :} エレクトロニクス上の電気信号と光ファイバー上の光信号を相互に変換する光トランシーバーモジュール。PS board FPGAは3本の光ファイバーを介してSLと通信する。2本は送信用に定義されており、1枚のPS boardが担当する256チャンネルのヒット信号を送信する。1本は受信用に定義されており、コントロール信号およびTTC信号を受け取る。
     \vskip0.5\baselineskip
 
-    \item \texttt{RJ45コネクター :} Cat-6ケーブルを接続するためのコネクター。JATHubとPS boardは2本のCat-6ケーブルで接続され、LVDS規格で通信する。1線はJTAG線として定義され、JATHubがJTAG4線をドライブすることでPS boardのQSPIフラッシュメモリーにファームウェアを書き込む。もう1線はRecovery/Monitor線として定義され、PS boardに自己修復不可能なSEUが発生した場合のリカバリー手続きと、PS board FPGAで再構成したLHCバンチ交差クロックのモニター用に使われる。
+    \item \texttt{RJ45コネクター :} Cat-6ケーブルを接続するためのコネクター。JATHubとPS boardは2本のCat-6ケーブルで接続され、LVDS規格で通信する。1本はJTAG線と呼ばれ、JATHubからQSPIフラッシュメモリーにファームウェアを書き込む際に利用される。もう1本はRecovery/Monitor線と呼ばれ、PS board に自己修復不可能なSEUが発生した際のリカバリー手続きおよびLHCバンチ交差クロックの位相測定に利用される。
     \vskip0.5\baselineskip
 
-    \item \texttt{QSPIフラッシュメモリー :} 電力供給を切ってもデータを保持し続ける不揮発性のメモリー。PS board FPGAとはSPIバスで接続される。PS boardではファームウェアや制御用パラメーターを保存するのに使われる。ファームウェアはJATHubがJTAG線をドライブすることで、PS board FPGAを経由して書き込まれる。制御用のパラメーターはSLがコントロール線に乗せてSPIプロトコルをビットバンギングし、PS board FPGAがそれを中継することで書き込まれる。PS board FPGAは自動でこれらのパラメーターを読み出し、PP ASICやDACへ自ら分配する (自律型制御機構)。
+    \item \texttt{QSPIフラッシュメモリー :} SPIバスによる高速データ転送が可能な不揮発性のメモリー。PS boardではファームウェアおよび制御用パラメーターを保存するのに利用される。ファームウェアはJATHubからJTAG線を操作することで、PS board FPGAを経由して書き込まれる。制御用パラメーターはSLがコントロール信号に乗せてSPIプロトコルをビットバンギングし、PS board FPGAがそれを中継することで書き込まれる。PS board FPGAは自動でこれらのパラメーターを読み出し、PP ASICやDACへ分配する (自律型制御機構)。
     \vskip0.5\baselineskip
 
-    \item \texttt{PP ASIC :} 2台のASDから送られるデジタル信号をBCIDし、LHCバンチ交差クロックと同期させる。可変遅延回路における信号遅延の大きさや、陽子バンチ識別回路の有効ゲート幅などはASDごとに異なるパラメーターを設定する必要がある。これらのパラメーターは上述の自律型制御機構により、SLから設定され、PS board FGPAからSPIバスを通じて分配される。その他にもPS board FPGAはTTC信号やテストパルストリガー信号をPP ASICに供給する。PP ASICはPS board FPGAに16 チャンネル分のヒット信号を送信する。またPP ASICはASDにテストパルスを供給する。
+    \item \texttt{PP ASIC :} ASDからのヒット信号の処理用に開発されたASIC。可変遅延回路における信号遅延の大きさや、陽子バンチ識別回路の有効ゲート幅はASDごとに異なる値を設定する必要がある。これらのパラメーターは自律型制御機構により、PS board FGPAからSPIバスを通じて設定される。その他に、PS board FPGAからTTC信号やTPT信号を受信し、16 チャンネル分のヒット信号を送信する。PP ASICはASDにテストパルスを供給する。
     \vskip0.5\baselineskip            
 
-    \item \texttt{DAC :} ASDのコンパレーターに閾値電圧を供給する。PS board FPGAとは$\mathrm{I^{2}C}$バスで接続される。ADCに印加する閾値電圧の極性や大きさなどのパラメーターは自律型制御機構により分配される。設定されたパラメーターはPS board FPGAの自律型監視機構により定期的に読み出され、SLに送信される。
+    \item \texttt{DAC :} ASDのコンパレーターにアナログの閾値電圧を供給する。PS board FPGAとは$\mathrm{I^{2}C}$バスで接続される。電圧の大きさや極性はASDごとに異なる値を設定する必要があり、自律型制御機構により設定される。設定されたパラメーターは、自律型制御機構により定期的に読み出され、モニター用にSLに送信される。
     \vskip0.5\baselineskip
 
-    \item  \texttt{ADC :} DACからASDに供給される閾値電圧をモニターする。PS board FPGAとはSPIバスで接続される。ADCの値は自律型監視機構により定期的に読み出され、SLに送信される。
+    \item  \texttt{ADC :} DACからASDに供給される閾値電圧をモニターする。PS board FPGAとはSPIバスで接続される。ADCから読み出された電流のモニター値は自律型制御機構により定期的に読み出され、SLに送信される。
     \vskip0.5\baselineskip
 
-    \item \texttt{Si5395 :} PS board FPGAがシリアルデータから再構成したLHCバンチ交差クロックのジッターを低減し、FPGA、PP ASIC、GTXトランシーバーへ分配する。PS board FPGAとはSPIバスで接続される。Si5395にはクロックのインプットポートの設定や、アウトプットクロックの周波数などいくつかの制御用パラメーターが存在するが、1434枚のPS boardで共通で、今後変更の予定もない。そこで、制御用パラメーターはQSPIフラッシュメモリーではなくFPGA内のBRAMに格納され、自律型制御機構のシークエンスの中で分配される。
+    \item \texttt{Si5395 :} PS board FPGAがシリアルデータから再構成したLHCバンチ交差クロックのジッターを低減し、FPGA、PP ASIC、GTXトランシーバーへ分配する。PS board FPGAとはSPIバスで接続される。Si5395ではクロックの入出力ポートの設定や周波数の設定を行う必要があるが、これらのパラメーターは1434枚のPS boardで共通である。そこで、このパラメーターはQSPIフラッシュメモリーではなく、ファームウェア内のBRAMに固定値として保存される。
     \vskip0.5\baselineskip
 
 \end{enumerate}
 
-\subsection{QAQC試験の設計}
+\subsection{試験内容およびセットアップの設計}
 \label{subsec_QAQCdesign}
-\ref{subsec_PSBelements}節で述べたすべてのインターフェイスと素子を網羅的に試験可能なセットアップとして、JATHubを用いた試験システムを考案した。JATHubはPS boardを試験するための十分なインターフェイスを有していることに加え、拡張性に富んだZynq SoCデバイスをメインドライバーとして搭載している。この特性から、JATHubのPSを起点にすべての試験を実行するコンパクトな試験システムを実現できると考えた。図\ref{PSBtestdesign}にその概念図を示す。
+\ref{subsec_PSBelements}節で述べたすべてのインターフェイスと素子を網羅的に検証可能なセットアップとして、JATHubを用いた試験システムを考案した。JATHubはPS boardを試験するための十分なインターフェイスを有していることに加え、拡張性に富んだZynq SoCデバイスをメインドライバーとして搭載している。この特性から、JATHubのPSを起点にすべての試験を完結させる、コンパクトな試験システムを実現できると考えた。図\ref{PSBtestdesign}にその概念図を示す。
 
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/PSBtestdesign.png}
-\caption[PS board QAQC試験セットアップの概念図]{PS board QAQC試験セットアップの概念図。試験にはPS board 1台に対してJATHub 1台を利用する。JATHubとPS boardは2本のCat-6ケーブルと3本の光ファイバーで接続する。この試験ではSLが担うPS board 制御機能をJATHubに実装することで、SLを用いずにPS boardの機能を網羅的に検証する。}
+\caption[PS board QAQC試験セットアップ]{PS board QAQC試験のセットアップ。試験ではPS board 1台に対してJATHub 1台を利用する。JATHubとPS boardは2本のCat-6ケーブルと3本の光ファイバーで接続する。JATHubにPS boardを制御するを実装することで、SLを用いずに試験を完結させる。}
 \label{PSBtestdesign}
 \end{figure}
 
-このシステムではPS board 1台を試験するのに、JATHub 1台を用い、JATHubとPS boardは2本のCat-6ケーブルと3本の光ファイバーで接続する。このシステムのコンセプトは、PS boardに対してSLが担う機能をJATHubに実装し、SLを用いることなくPS boardを網羅的に試験することである。SLを駆動するためにはATCAクレートが必要で、それに伴った大掛かりなセットアップが必要となる。その点JATHubはデスクトップで給電することも可能であり、場所を選ばない汎用的な試験システムを実現できる。QAQC試験のマスターとして動作させるJATHubを以降ではQAQC用JATHubと呼ぶ。
-PS boardには試験用のファームウェアなどは用意せず、本番用のファームウェアを用いる。これによりハードウェアの検査に加えて、PS board FPGAで使われるファームウェアの検証も同時に行うことができる。
-JATHubのメインドライバーであるZynq SoCのPS領域にはUbuntuを起動し、試験のマスターとして動作させる。試験ではローカルのPCからイーサーネット経由でUbuntuにアクセスし、ここを起点に試験用信号の送信や、試験用データの読み出しを行う。Ubuntuは汎用的なOSであり、既存のソフトウェアを用いてネットワークやwebサーバーを構築することができる。また、コンパイラをインストールすることでUbuntu上で直接アプリケーションの開発ができるため、簡単に開発を進めることができる。
-FPGA部分であるPL領域には試験用に新しくファームウェアを開発する。
-先行研究で開発された、Cat-6ケーブルを介してPS boardを制御する機能 (JTAG線をドライブする機能、リカバリー手続き、クロックの位相測定) に加えて、光ファイバーを介してPS boardを制御する機能 (GTXトランシーバー、コントロール信号の送信、ヒットデータ読み出し) も実装することで、JATHub1台でPS boardの有する機能を網羅的に試験することができる。
-QAQC用JATHubのファームウェア開発にあたり、\ref{subsec_PSBelements}節で挙げたPS board上のすべての素子とその間の導通を検証できる必要十分な試験として、ASDテストパルス試験とJTAG/Recovery/Clock monitor試験をベンチマークとして設定する。以下にそれぞれの試験の概要と手順を示す。
+このシステムではPS board 1台の試験に、JATHub 1台を用い、JATHubとPS boardを2本のCat-6ケーブルと3本の光ファイバーで接続する。このシステムのコンセプトは、SLが担うPS board 制御機能をJATHubに実装することで、JATHub 1台でPS boardの試験を完結させることである。SLの駆動にはATCAクレートが必要で、大掛かりなセットアップが必要となる。一方、JATHubはデスクトップで給電することも可能であり、場所を選ばない汎用的な試験システムを実現する。以降、QAQC試験のマスター用に開発するJATHubを、QAQC用JATHubと呼ぶ。
+
+QAQC用JATHubのZynq PS領域にはUbuntuを起動する。試験では、ローカルPCからイーサーネット経由でUbuntuにアクセスし、Ubuntu上で実行したアプリケーションを起点に試験用信号の送信や、試験用データの読み出しを行う。Ubuntuは汎用的なOSであり、既存のソフトウェアを用いてネットワークやwebサーバーを構築することができる。また、コンパイラをインストールすることでUbuntu上で直接アプリケーションを作成することができるため、開発を簡単に進めることができる。
+
+FPGA部分であるPL領域には試験用の新しくファームウェアを開発する。
+Cat-6ケーブルを介してPS boardを制御する機能 (JTAG線をドライブする機能、リカバリー手続き、クロックの位相測定) に加えて、光ファイバーを介してPS boardを制御する機能 (GTXトランシーバー、コントロール信号の送信、ヒットデータ読み出し) も実装することで、JATHub1台でPS boardの有する機能を網羅的に試験する。
+QAQC用JATHubのファームウェア開発にあたり、ASDテストパルス試験とJTAG/Recovery/Clock monitor試験をベンチマークとして設定する。以下にそれぞれの試験の概要を示す。
 
 \subsubsection{ASDテストパルス試験}
+\vskip0.5\baselineskip
 \label{subsubsec_testpulse}
-\vskip0.5\baselineskip
+ASDテストパルスは、PP ASICからASDに送られる試験用の電荷であり、ASDからSLまでのデータパスの試験に使用される。高輝度LHC-ATLAS実験のTGCシステムでは、TPT信号を含むTTC信号は、CTPからSLを中継して各フロントエンドエレクトロニクスに分配される。PP ASIC内のテストパルス生成回路 (図\ref{PSBtpg}) はTPT信号を受信すると、参照クロックである40 MHzクロックの立ち上がりと同期した差動の矩形波をASDに送信する。
 
-ASDテストパルスは、PP ASICからASDに送られる試験用の電荷であり、SLからASDまでのデータパスの試験に使用される。図\ref{PSBasdtp}にその概要を示す。高輝度LHC-ATLAS実験のTGCシステムでは、CTPから生成されたTTC信号はSLを中継して各フロントエンドエレクトロニクスに分配される。テストパルスの駆動を司るテストパルストリガー信号(TPT)も同様のパスで、PS board FPGA、PP ASICへと伝達される。PP ASIC内のテストパルスジェネレーター回路 (図\ref{PSBtpg}) はTPT信号を受信すると、参照クロックである40 MHzクロックの立ち上がりと同期した差動の矩形波をASDに送信する。テストパルスの時間幅や波高はPS board FGPAから設定することができる。テストパルスはASD、PP ASIC、PS board FPGAによる処理を経て、ヒット信号としてSLに送信される。SLで期待したタイミングにヒット信号得られることを確認することで、ASDからSLまでのトリガーパスにハードウェアの不具合がないこと、およびFixed latencyでのデータ処理を実現できていることを確かめることができる。
-\vskip0.5\baselineskip
+% SLにおいて、期待したタイミングにヒット信号得られることを確認することで、ASDからSLまでのトリガーパスにハードウェアの不具合がないこと、およびFixed latencyでのデータ処理を実現できていることを確かめることができる。
 
-\begin{figure} 
-\centering
-\includegraphics[width=16cm]{fig/QAQC/PSBasdtp.png}
-\caption[ASDテストパルスの概念図]{ASDテストパルス機構の概念図。SLを起点にテストパルストリガー信号が駆動され、PS board FPGAを経由してPPASICに届けられる。PPASIC内のテストパルスジェネレーターはテストパルストリガー信号をトリガーに参照クロックの立ち上がりと同期した試験電荷をASDに送る。ASDで閾値電圧を信号はデジタル信号へ変換され、PPASIC、PS board FPGA、SLへとヒット信号が伝搬される。}
-\label{PSBasdtp}
-\end{figure}
+PS board QAQC試験ではQAQC用JATHubが試験のマスターとして、TPT信号の発行や、ヒットデータの読み出しを行う。図\ref{QAQCasdtp}に概要を示す。Zynq SoCのPL領域にPS board制御と読み出しのための回路を実装し、Ubuntu上のアプリケーションを起点にTPTの発行およびヒットデータの読み出しを行う。Ubuntuから読み出されたヒットデータは、SDカード上にテキストファイルとして保存される。
+
+この試験ではTPT信号の発行回数に対するヒット信号の割合をEfficiencyと定義し、PS boardが担当する256 チャンネルのEfficiencyが1であることを確認する。
+ASDテストパルスを期待通り動作させるにはPP ASIC、DAC、Si5395に適したパラーメーターを分配し、ASD、PP ASIC、PS board FPGA、光リンクが固定レイテンシーで同期して動作する必要がある。この試験により、PS board上に搭載されたほとんどの素子および素子間の導通を検証することができる。以下に試験の手順を示す。
+
+% \begin{figure} 
+% \centering
+% \includegraphics[width=16cm]{fig/QAQC/PSBasdtp.png}
+% \caption[ASDテストパルスの概念図]{ASDテストパルス機構の概念図。SLを起点にTPT信号が駆動され、PS board FPGAを経由してPPASICに届けられる。PPASIC内のテストパルス生成はTPT信号を起点に、参照クロックの立ち上がりと同期した試験電荷をASDに送る。ASDで試験電荷はデジタル信号へ変換され、PPASIC、PS board FPGA、SLへとヒット信号が送信される。}
+% \label{PSBasdtp}
+% \end{figure}
 
 \begin{figure} 
     \centering
     \includegraphics[width=16cm]{fig/QAQC/PSBtpg.png}
-    \caption[テストパルスジェネレーターの回路図]{テストパルスジェネレーターの回路図。PS board FPGAからTRIG信号を受け取り、参照クロックである40 MHzクロックの立ち上がりに同期してASDに対して差動の矩形波を送信する。矩形波の幅や高さはFPGAから設定可能なパラメーターである。}
+    \caption[テストパルス生成回路]{テストパルス生成回路。PS board FPGAからTPT信号(TRIG)を受け取り、参照クロックである40 MHzクロックの立ち上がりに同期して、ASDに対して差動の矩形波を送信する。}
     \label{PSBtpg}
 \end{figure}
-
-図\ref{QAQCasdtp}に示すようにPS board QAQC試験ではQAQC用JATHubが試験のマスターとして機能し、PS boardの制御、テストパルストリガーの駆動、およびヒットデータの読み出しを行う。Zynq SoCのPL領域にPS board制御と読み出しのための回路を実装し、Ubuntu上のアプリケーションを起点にTPTの発行およびヒットデータの読み出しを行う。Ubuntuから読み出されたヒットデータは、ローカルのSDカード上にテキストファイルとして保存され、Ubuntu上でそのまま解析される。以下に試験の手順を示す。
 
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/QAQCasdtp.png}
-\caption[QAQC用JATHubを用いたASDテストパルス試験]{QAQC用JATHubを用いたASDテストパルス試験。QAQC用JATHubが試験のマスターとして、PS boardの制御、テストパルストリガーの駆動およびヒットデータの読み出しを行う。Zynq SoCのPL領域にPS board制御および読み出しのための回路を実装し、Ubuntu上のアプリケーションを起点に動作する。読み出し回路によりUbuntuに読み出されたヒットデータはローカルのSDカード上にテキストファイルとして保存する。}
+\caption[QAQC用JATHubを用いたASDテストパルス試験]{QAQC用JATHubを用いたASDテストパルス試験の概要。QAQC用JATHubが試験のマスターとして、PS boardの制御、TPTの発行、ヒットデータの読み出しを行う。Zynq SoCのPL領域にPS board制御と読み出しのための回路を実装し、Ubuntu上のアプリケーションを起点にTPTの発行およびヒットデータの読み出しを行う。Ubuntuから読み出されたヒットデータは、SDカード上にテキストファイルとして保存される。}
 \label{QAQCasdtp}
 \end{figure}
 
 \begin{enumerate}
-    \item QAQC用JATHubをコントロールマスターとしてUbuntu上のアプリケーションを起点にPS boardに制御パラメーターを設定する。コントロール線を利用してSPIバスをビットバンギングすることで、PS board上のQSPIフラッシュメモリーに制御パラメーターを書き込む。その後、PS boardの自律型制御を駆動し、パラメーターをDAC、PP ASICに分配する。PP ASICの制御パラメーターは具体的に、ヒット信号遅延、有効ゲート幅、テストパルスの極性、テストパルスの波高、テストバルスの時間幅などがある。
+    \item QAQC用JATHubをマスターとして、Ubuntu上のアプリケーションを起点にPS boardに制御パラメーターを設定する。コントロール信号を利用してSPIバスを制御し、PS board上のQSPIフラッシュメモリーにパラメーターを書き込む。その後、PS boardの自律型制御を駆動し、パラメーターをDAC、PP ASICに分配する。PP ASICの制御パラメーターには、ヒット信号遅延、有効ゲート幅、テストパルスの極性、テストパルスの波高、テストバルスの時間幅などが含まれる。
     \vskip0.5\baselineskip
 
-    \item QAQC用JATHubからコントロール信号に乗せてTPTを発行する。また、それに同期して、決まったレイテンシー後にL1A信号を発行する。これによりFixed Latencyでのデータ読み出しを実現する。
-    TPTを発行してからヒット信号が帰ってくるまでのレイテンシーは試験セットアップ (シグナルケーブルや光ファイバーの長さなど) に依存するため、あらかじめセットアップに適した値を測定しておく。そのレイテンシーに合わせてBufferの深さを調整することで、TPTに該当するBCのヒットデータを選択的に読み出すことができる。
+    \item QAQC用JATHubからコントロール信号に乗せてTPTを発行する。また、固定レイテンシー後にL1A信号を発行し、3BC分 (Previous BC、Current BC、Next BC) のヒットデータを読み出す。
+    TPTを発行してからヒット信号が返ってくるまでのレイテンシーは、試験セットアップ (シグナルケーブルや光ファイバーの長さなど) に依存する。試験開始前にレイテンシーを測定し、Current BC にヒットが返ってくるよう試験パラメーターを設定する。
     \vskip0.5\baselineskip
 
-    \item TPTの発行とデータ読み出しを複数回繰り返し、読み出したデータにヒットが入っていた割合をefficiencyとして評価する。コントロールパスおよびトリガーパスがFixed latencyで安定して動作している場合、efficiencyは100 \%になる。
+    \item TPTの発行とデータ読み出しを複数回繰り返し、読み出したデータにヒットが入っていた割合をEfficiencyとして評価する。PS boardが正常に動作している場合、Current BC のEfficiencyが1、Previous BC および Next BC のEfficiencyが0になる。
     \vskip0.5\baselineskip
 
 \end{enumerate}
 
-ASDテストパルス試験によって検証できる素子と素子間の導通を図\ref{QAQCasdtpelements}に示す。ASDテストパルスを期待通り動作させるにはPP ASIC、DAC、Si5395に適したパラーメーターを分配し、ASD、PP ASIC、PS board FPGA、光リンクが同期して動作する必要がある。この試験により赤色で示した素子、素子間の導通を確かめることができる。
-\vskip0.5\baselineskip
+% ASDテストパルス試験によって検証できる素子と素子間の導通を図\ref{QAQCasdtpelements}に示す。
 
-\begin{figure} 
-\centering
-\includegraphics[width=16cm]{fig/QAQC/QAQCasdtpelements.png}
-\caption[ASDテストパルス試験で検証できる素子]{ASDテストパルス試験で検証することができる素子、素子間の配線を赤枠で示す。ASDテストパルスを期待通り動作させるにはPP ASIC、DAC、Si5395に適したパラーメーターを分配し、ASD、PP ASIC、PS board FPGA、光リンクが同期して動作する必要がある。}
-\label{QAQCasdtpelements}
-\end{figure}
+% \begin{figure} 
+% \centering
+% \includegraphics[width=16cm]{fig/QAQC/QAQCasdtpelements.png}
+% \caption[ASDテストパルス試験で検証できる素子]{ASDテストパルス試験で検証することができる素子。ASDテストパルスを期待通り動作させるにはPP ASIC、DAC、Si5395に適したパラーメーターを分配し、ASD、PP ASIC、PS board FPGA、光リンクが同期して動作する必要がある。s赤枠で示す素子と素子間の配線を。}
+% \label{QAQCasdtpelements}
+% \end{figure}
 
 \subsubsection{JTAG/Recovery/Clock試験}
 \vskip0.5\baselineskip
-
 \label{subsubsec_jtag}
-JATHubがPS boardに対して行うJTAG線を介したファームウェアの書き込み、リカバリー手続き、クロック位相測定が動作することを試験する。以下に各試験の概要を示す。
+JATHubが担うファームウェアの書き込み、リカバリー手続き、クロック位相測定が正常に動作することを確認する。以下に各試験の概要を示す。
 
-\paragraph{JTAG試験}\par
+\paragraph{JTAG試験}　\par
 JTAG試験はZynqに起動したOSからJTAG線をドライブして、QSPIフラッシュメモリーにファームウェアを書き込む試験である。これにはSerial Vector Format (SVF) playerと呼ばれるアプリケーションを用いる。
-SVF playerはSVFファイルと呼ばれる、JTAG4線をドライブするパターンを記述したACSII (テキスト) ファイルを読み込み、PS-PL間チップ通信を利用してJTAG線を操作する。SVFファイルはXilinx社が提供するFPGA開発用ソフトウェアVivadoで作成することができ、QAQC用JATHub内のSDカードに置かれる。
-\vskip0.5\baselineskip
+SVF playerはSVFファイルと呼ばれる、JTAG4線をドライブするパターンを記述したACSII (テキスト) ファイルを読み込み、PS-PL間チップ通信を利用してJTAG線を操作する。SVFファイルはXilinx社が提供するFPGA開発用ソフトウェア "Vivado" で作成することができ、QAQC用JATHub内のSDカード上に置かれる。
 
-\paragraph{リカバリー試験}\par
+\paragraph{リカバリー試験}　\par
 %図作る
-リカバリー試験はPS boardに、自己修復不可能なSEUが発生したことを仮定した救難信号を出力させ、QAQC用JATHubからPS boardを再コンフィギュレーションできるか試験する。PS boardにマニュアルで救難信号 (RcvB線) を出させる仕掛けを実装し、一連のリカバリー手続が動作するか試験する。
-\vskip0.5\baselineskip
+リカバリー試験はPS boardから擬似的に救難信号を出力させ、一連のリカバリー手続が正常に完了することを確認する。これによりRecovery Request線およびProgram線の導通とファームウェアのリセット機構の動作を検証する。
 
-\paragraph{クロック試験位相測定}\par
-クロック位相測定試験では、MON線で送られるPS boardで再構成したLHCバンチ交差クロックの位相を測定する。試験システムの概念図を図\ref{JATHubclockmeasure}に示す。JATHub内の水晶発振器から生成した40 MHzクロックを参照クロックとして、その立ち上がりのタイミングでLHCバンチ交差クロックをラッチする。参照クロックを1/56 ns刻みでスキャンしながら、ラッチを繰り返すことでLHCバンチクロックの位相を測定する。
-\vskip0.5\baselineskip
+\paragraph{クロック位相測定試験}　\par
+クロック位相測定試験では、Monitor線を通じてPS boardが再構成したLHCバンチ交差クロックの位相を測定する。これによりクロック分配線の導通およびSi5395の動作を確認する。先行研究で開発された、JATHub内部でのクロック位相測定の方法を図\ref{JATHubclockmeasure}に示す。JATHub内の水晶発振器から生成した40 MHzクロックを参照クロックとして、その立ち上がりのタイミングでLHCバンチ交差クロックをラッチする。参照クロックを1/56 ns刻みでスキャンしながら、ラッチを繰り返すことでLHCバンチクロックの位相を測定する。
 
 \begin{figure} 
     \centering
-    \includegraphics[width=16cm]{fig/QAQC/JATHubclockmasurement.png}
-    \caption[JATHubによるクロック位相測定の概念図]{JATHubによるクロック位相測定の概念図\cite{mt_atanaka}。PSBからMON線を通じて受信した40 MHzクロックの位相を、JATHub内部の水晶発振器から生成した40 MHzクロックを参照クロックに測定する。}
+    \includegraphics[width=14cm]{fig/QAQC/JATHubclockmasurement.png}
+    \caption[JATHubによるクロック位相測定の概念図]{JATHubによるクロック位相測定の概念図\cite{mt_atanaka}。PS board からMonitor線 (MON線) を通じて受信した40 MHzクロックの位相を、JATHub内部の水晶発振器で生成した40 MHzクロックを用いて測定する。参照クロックを1/56 ns刻みでスキャンしながら、立ち上がりのタイミングで40 MHzクロックをラッチすることで位相を測定する。}
     \label{JATHubclockmeasure}
 \end{figure}    
 
-\section{JATHubを用いた機能実装}
+\section{QAQC試験に向けた機能開発}
 \label{sec_QAQC_JATHub}
-本節では\ref{subsec_QAQCdesign}節で考案した試験を実現するために開発したQAQC用JATHubの機能実装について述べる。
+本節では\ref{subsec_QAQCdesign}節で考案した試験を実現するために開発した、QAQC用JATHubの機能実装について述べる。
 
-\subsection{システムの概要とインフラの実装}
+\subsection{システムの概要とシステム間通信の実装}
 \label{subsec_infra}
-試験セットアップにおけるシステムの概要と、システムをまたぐインターフェイスの実装方法について述べる。
-図\ref{JAThubinfra}にセットアップの概念図を示す。QAQC試験におけるコントロール信号はローカルPC、JATHub PS、JATHub PL、PS boardの順に伝えられる。ローカルPCとPSはイーサーネット通信を行う。PS領域とPL領域はAXIプロトコルで通信する。PL領域からPS boardへは、固定位相の光トランシーバーを用いた高速シリアル通信を行う。PS boardからのデータはその逆のパスを通ってローカルPCまで届けられる。PLからPSへのデータ読み出しはAXI GPIOを活用した自作調停回路を利用する。以下にUbuntuの起動方法と、システム間の通信インフラの設計について述べる。
+% まず、試験セットアップにおけるシステムの概要と、システムをまたぐインターフェイスの実装方法について述べる。
+図\ref{JAThubinfra}に試験システムの全体像を示す。QAQC試験におけるコントロール信号はローカルPC、JATHub PS、JATHub PL、PS boardの順に伝えられる。ローカルPCとPSはイーサーネット通信を行う。PSとPLはAXIプロトコルで通信する。PLからPS boardへは、固定位相の光トランシーバーを用いた高速シリアル通信を行う。PS boardからのデータはその逆のパスを通ってローカルPCまで届けられる。PLからPSへのデータ読み出しはAXI GPIOを活用した自作調停回路を利用する。以下にPSに起動するUbuntuの起動方法と、システム間の通信インフラの設計について述べる。
 
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JAThubinfra.png}
-\caption[QAQC用JATHubのシステム全体像]{QAQC用JATHubのシステム全体像。QAQC試験におけるコントロール信号はローカルPC、JATHub PS、JATHub PL、PS boardの順に伝えられる。ローカルPCとPS領域はイーサーネット通信を行う。PS領域とPL領域はAXIプロトコルで通信する。PL領域からPS boardへは高速シリアル通信を行う。PS boardからのデータはその逆のパスを通ってローカルPCまで届けられる。PLからPSへのデータ読み出しはAXI GPIOを活用した自作調停回路を利用する。}
+\caption[QAQC用JATHubのシステム全体像]{QAQC用JATHubのシステム全体像。QAQC試験における制御信号はローカルPC、JATHub PS、JATHub PL、PS boardの順に伝えられる。ローカルPCとJATHub PSはイーサーネット通信を行う。PSとPLはAXIプロトコルで通信する。PL領域からPS boardへは高速シリアル通信を行う。PS boardからのデータはその逆のパスを通ってローカルPCまで届けられる。}
 \label{JAThubinfra}
 \end{figure}
 
 \subsubsection{Zynq PS領域におけるUbuntuの起動}
-\label{subsubsec_ubuntu}
 \vskip0.5\baselineskip
-Zynq SoCのPS領域には標準的なLinux OSであるUbuntuを起動する。Ubuntuは汎用性と拡張性に富んだOSで、ネットワークの設定やQAQC用JATHub内部でのアプリケーション開発を容易に行うことができる。\par
+\label{subsubsec_ubuntu}
+Zynq SoCのPS領域には標準的なLinux OSであるUbuntuを起動する。Ubuntuは汎用性と拡張性に富んだOSで、ネットワークの設定やQAQC用JATHub内部でのアプリケーション開発を容易に行うことができる。
 
-Zynq組み込みデザインの開発は64bit Ubuntu 18.04.6で行った。Zynq PL部に構築する自作論理回路の開発やPS部のIO設計は、Xilinx社が提供する”Vivado 2020.2”を利用した。Zynq PS 部で走るLinuxの設定はXilinx社が提供するクロスコンパイラー”petalinux 2020.2”を利用した。PetalinuxではVivadoで生成したハードウェア記述ファイルを元にデバイスツリーやRoot File System(rootfs)を設定することで、Zynqの起動に必要なブートファイルを作成することができる。\par
-QAQC用JATHubではUbuntuの起動にSDカードを利用する。SDカードには2つのパーティション\footnote{ブートファイル用のパーティションはfat32、Ubuntuのrootfs用のパーティションはext4で展開する。}を用意し、Zynqの起動に必要なブートファイルとUbuntuのルートファイルシステムをそれぞれ展開する。図\ref{JATHubboot}にZynq上でのUbuntu起動の流れを示す\cite{mt_okazaki}。JATHubに電源を投入すると以下のシークエンスでUbuntuが起動する。
+Zynq組み込みデザインの開発には64 bit Ubuntu 18.04.6 を用いた。Zynq PL領域に構築する自作論理回路の開発やPS領域のIO設計は、Xilinx社が提供する ”Vivado 2020.2” を利用した。Zynq PS 領域で走るLinuxの設定はXilinx社が提供するクロスコンパイラー ”Petalinux 2020.2” を利用した。PetalinuxではVivadoで生成したハードウェア記述ファイルを元にデバイスツリーやRoot File System (rootfs) を設定することで、Zynqの起動に必要なブートファイルを作成することができる。
+
+QAQC用JATHubではUbuntuの起動にSDカードを利用する。SDカードには2つのパーティション\footnote{ブートファイル用のパーティションはfat32、Ubuntuのrootfs用のパーティションはext4で展開する。}を用意し、Zynqの起動に必要なブートファイルとUbuntuのルートファイルシステムをそれぞれ展開する。図\ref{JATHubboot}にZynq上でのUbuntu起動の流れを示す。JATHubに電源を投入すると以下のシークエンスでUbuntuが起動する。
 
 \begin{figure} 
 \centering
 \includegraphics[width=12cm]{fig/QAQC/JATHubboot.pdf}
-\caption[Ubuntuの起動シークエンス]{Ubuntuの起動シークエンス。JATHubに電源を投入するとまずFSBLがロードされる。FSBLを起点にファームウェアのビットストリームがPL領域に書き込まれる。またPS領域にLinuxを起動するため、u-bootが起動し、デバイスツリー、カーネルイメージ、Ubuntuのルートファイルシステムがロードされる。}
+\caption[Ubuntuの起動シークエンス]{Ubuntuの起動シークエンス\cite{mt_okazaki}。JATHubに電源を投入すると、まずFSBLがロードされ、ファームウェアのビットストリームがPL領域に書き込まれる。次にPS領域にLinuxを起動するため、u-bootが起動し、デバイスツリー、カーネルイメージ、Ubuntuのルートファイルシステムがロードされる。}
 \label{JATHubboot}
 \end{figure}
 
 \begin{enumerate}
     \item First Stage Boot Loader(FSBL)がロードされる
-    \item ファームウェアのビットストリームがSoCのPL部に書き込まれる
+    \item ファームウェアのビットストリームがSoCのPL領域に書き込まれる
     \item LinuxカーネルやOSを起動するためのブートローダーであるu-bootがロードされ、制御が移行される。
     \item u-boot 制御下でデバイスのハードウェア情報を記述したデバイスツリーがロードされる。
-    \item u-boot 制御下でLinux kernelがロードされPS部に構築される。
+    \item u-boot 制御下でLinux kernelがロードされPS領域に構築される。
     \item 制御がLinuxカーネルに移行されLinuxが起動する。
 \end{enumerate}
 
 \subsubsection{LANケーブル経由のネットワーク通信}
-\label{subsubsec_network}
 \vskip0.5\baselineskip
-QAQC試験で用いるJATHub試作1号機は図\ref{JATHub_ether}に示す2通りの方法でEthernet通信を行うことができる。1つ目はLANケーブルを使用するもので、回路上に搭載されたPHY chip (Micrel PHY Chip) を利用して、Ethernet信号をCPUが扱える信号に変換する。2つ目は光ケーブルを用いる方法で、GTXトランシーバーで受けた光信号を1000BASE X PCS/PMAと呼ばれるIPブロックを利用して処理する。QAQC用JATHubでは3本の光ファイバーはPS board との通信に利用するため、LANケーブルを用いる方法を採用する。
+\label{subsubsec_network}
+QAQC試験で用いるJATHub試作1号機は図\ref{JATHub_ether}に示す、2通りの方法でEthernet通信を行うことができる。1つ目はLANケーブルを使用するもので、回路上に搭載されたPHY chip (Micrel PHY Chip) を利用して、Ethernet信号をCPUが扱える信号に変換する。2つ目は光ファイバーを用いる方法で、GTXトランシーバーで受けた光信号を1000BASE X PCS/PMAと呼ばれるIPブロックを利用して処理する。QAQC用JATHubでは3本の光ファイバーはPS board との通信に利用するため、LANケーブルを用いる方法を採用する。
 
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JATHub_ether.pdf}
-\caption[光Ethernet通信の仕組み]{光Ethernet通信の仕組み\cite{mt_atanaka}}
+\caption[光Ethernet通信の仕組み]{光Ethernet通信の仕組み\cite{mt_atanaka}。QAQC試験で用いるJATHub試作1号機は光を介した方法とLANケーブルを介した方法の2種類でEthernet通信を行うことができる。QAQC用JATHubでは光ファイバーをPS boardとの通信用に使用するため、LANケーブルを用いた方法を採用する。}
 \label{JATHub_ether}
 \end{figure}
 
 
-\subsubsection{AXI GPIOを用いたPSからPLへのアクセス}
+\subsubsection{AXI GPIOを用いたPS-PL間通信}
+\vskip0.5\baselineskip
 \label{subsubsec_axi}
-\vskip0.5\baselineskip
-PS領域からPL領域への通信は統一的にAXI General Purpose Input Output (GPIO)を介して行う。AXI GPIOによって接続されたPLのレジスタには固有の物理アドレスが割り当てられる。割り当てられれた物理アドレスの例を図\ref{JATHuaddress}に示す。このアドレスはVivadoのAddress Mapで確認することができ、Address Editorにてユーザーが自由に変更することができる。
-PS領域からAXI GPIOレジスタへは少なくとも2通りの方法でアクセスすることができる。1つはUbuntuルートファイルシステム内の/dev/memが提供するキャラクターデバイスをアプリケーションから直接開く方法である。/dev/memを介したアクセスではUbuntuが扱うすべての物理アドレスに制限なくアクセスすることができるため、簡単に使用できる。一方、カーネル動作に必要なレジスタにも意図せずアクセスする危険があるため、カーネルを壊す危険性がある。2つ目の方法は特定のAXI GPIOレジスタをUser space I/O (UIO) としてデバイスツリーに登録し、アプリケーションからUIOドライバーを介してアクセスする方法である。この方法ではUIOに登録したアドレス以外へのアクセスは禁止されるためカーネルを壊す危険性がなくなる。また割り込み処理ができるという利点もある。本システムのコントロールパスにおいては、より実装が簡単な/dev/memを直接用いる方法をとっている。
-\vskip0.5\baselineskip
+PS領域からPL領域への通信は、汎用入出力インターフェースであるAXI General Purpose Input Output (GPIO) を介して行う。AXI GPIOによって接続されたPLのレジスタには固有の物理アドレスが割り当てられる。
+% 割り当てられれた物理アドレスの例を図\ref{JATHuaddress}に示す。
+このアドレスはVivadoのAddress Mapで確認することができ、Address Editorにてユーザーが自由に変更することができる。
 
-\begin{figure} 
-\centering
-\includegraphics[width=10cm]{fig/QAQC/JATHubaddress.png}
-\caption[アドレスマップ]{JAThub PL領域に割り当てられたアドレスマップ。各AXI GPIOレジスタには固有の物理アドレスが割り当てられる。}
-\label{JATHuaddress}
-\end{figure}
+PSからAXI GPIO レジスタへは少なくとも2通りの方法でアクセスすることができる。1つ目はUbuntuルートファイルシステム内の /dev/memが提供するキャラクターデバイスをアプリケーションから直接開く方法である。/dev/memを介したアクセスではUbuntuが扱うすべての物理アドレスに制限なくアクセスすることができるため、簡単に使用できる。一方、カーネル動作に必要なレジスタにも意図せずアクセスする危険があるため、カーネルを壊す危険性がある。2つ目の方法は特定のAXI GPIOレジスタをUser space I/O (UIO) としてデバイスツリーに登録し、アプリケーションからUIOドライバーを介してアクセスする方法である。この方法ではUIOに登録したアドレス以外へのアクセスは禁止されるため、カーネルを壊す危険なく安全に制御できる。本システムのコントロールパスにおいては、より実装が簡単な /dev/memを用いる方法を採用した。
+
+% \begin{figure} 
+% \centering
+% \includegraphics[width=10cm]{fig/QAQC/JATHubaddress.png}
+% \caption[アドレスマップ]{JATHub PL領域におけるアドレスマップ。AXI GPIOによって接続されたPLのレジスタには固有の物理アドレスが割り当てられる。}
+% \label{JATHuaddress}
+% \end{figure}
 
 \subsubsection{固定位相での高速シリアル通信のためのGTXトランシーバーの実装}
 \vskip0.5\baselineskip
 \label{subsubsec_gtx}
-\ref{subsec_PSBelements}節で述べたようにSLとPS boardの間では光ファイバーを介した固定位相のクロック分配が行われる。LHCバンチ交差クロックとPS baordで再構成されるクロックの位相関係が、電源の再投入や光リンクのリセットで変化しないことは、PP ASICで適切なBCIDをするのに必要不可欠な要請である。PS boardのこの機能を検証するため、QAQC用JATHubを用いたASDテストパルス試験においても固定位相でのDAQが実現できていることを確認する。そこで先行研究\cite{mt_aoki}で開発された、固定位相でのクロック再構成を可能にする、特別なGTXトランシーバーを本システムにも組み込んだ。図\ref{JATHubgtx}に実装したGTXトランシーバーの概要を示す。
-\vskip0.5\baselineskip
+SL-PS board間の通信では、光ファイバーを介した固定位相のクロック分配が行われる。
+固定位相のクロック分配とは、LHCバンチ交差クロックとPS boardで再構成されるクロックの位相関係が、電源の再投入や光リンクのリセットで変化しないことを意味する。
+% は、PP ASICで適切なBCIDをするのに必要不可欠な要請である。PS boardのこの機能を検証するため、QAQC用JATHubを用いたASDテストパルス試験においても固定位相でのDAQが実現されていることを確認する。
+
+ASDテストパルス試験では固定レイテンシーでのデータ収集を行うため、
+
+QAQC用JATHubにも先行研究\cite{mt_aoki}で開発された、固定位相でのクロック分配システムを組み込んだ。このシステムはXilinx社製のFPGAに搭載されている高速シリアル通信対応のトランシーバーの1種であるGTXトランシーバーを中心に構成されている。図\ref{JATHubgtx}にシステムの概要を示す。
 
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JATHubgtx.png}
-\caption[QAQC用JATHubにおけるGTXトランシーバーの概要]{QAQC用JATHubにおけるGTXトランシーバーの概要。GTXトランシーバーはJATHub内部の水晶発振器で生成される160 MHzクロックを参照クロックとして利用する。TXユーザーロジックはGTX トランシーバーと同期した200 MHz のTXUSER CLOCKで動作する。RX ロジックでは、PS board から送られる40 MHzクロックを固定位相で再構成するため、Comma detectorを実装する。}
+\caption[QAQC用JATHubにおけるGTXトランシーバーの概要]{QAQC用JATHubにおける固定位相でのクロック分配GTXトランシーバーの概要。GTXトランシーバーはJATHub内部の水晶発振器で生成した160 MHzクロックを参照クロックとして利用する。TXユーザーロジックはGTX トランシーバーと同期した200 MHz のTXUSER CLOCKで動作する。RX ロジックでは、PS board から送られる40 MHzクロックを固定位相で再構成するため、Comma detectorを実装する。}
 \label{JATHubgtx}
 \end{figure}
 
 
-\paragraph{TXロジック} \par
-GTXトランシーバーはJATHub内部の水晶発振器から生成される160 MHzクロック\footnote{正確にはLHCバンチ交差クロック40.079 MHzの4倍に相当する160.316 MHz。}を参照クロックとして利用する。\ref{subsec_PSBelements}節で述べたようにQAQC用JATHubとPS boardは8 Gbpsの高速光通信を行う。TXロジックでは160 MHzの参照クロックを200 MHzに分周したものをTXユーザークロックとして利用する。200 MHzおきに32 bitのパラレルデータ(1ワードと呼ぶ)をGTXトランシーバーに送信し、GTXトランシーバー内で8b/10bのプロトコルで40 bitのパラレルデータへとエンコードした後、シリアルデータへと変換する。生成されたシリアルデータは、参照クロックをGTXトランシーバー内のPhase Locked Loop(PLL)で冪倍して得られる4 Gbpsのクロックに乗せて送信される。
-\vskip0.5\baselineskip
+\paragraph{TXロジック}　\par
+GTXトランシーバーはJATHub内部の水晶発振器から生成される160 MHzクロック\footnote{正確にはLHCバンチ交差クロック40.079 MHzの4倍に相当する160.316 MHz。}を参照クロックとして利用する。\ref{subsec_PSBelements}節で述べたようにQAQC用JATHubとPS boardは8 Gbpsの高速光通信を行う。TXロジックでは160 MHzの参照クロックを200 MHzに分周したものをTXユーザークロックとして利用する。200 MHzおきに32 bitのパラレルデータ(1ワードと呼ぶ)をGTXトランシーバーに送信し、GTXトランシーバー内で8b/10bのプロトコルで40 bitのパラレルデータへとエンコードした後、シリアルデータへと変換する。生成されたシリアルデータは、参照クロックをGTXトランシーバー内のPhase Locked Loop (PLL) で冪倍して得られる4 Gbpsのクロックに乗せて送信される。
 
-\paragraph{RXロジック} \par
-RXロジックで固定位相のクロック再構成を実現するために重要な役割を果たすのが、RX Clock Data Recovery機構(CDR)とcomma detectorである。CDR機構とは受信したシリアルデータの立ち上がりまたは立ち下がりのタイミングに同期してクロックを再構成する機能で、受信データと位相関係を固定してクロックを再構成することができる。CDRで再構成された4 GHzクロックは1/20に分周され、200 MHzのRXユーザークロックが作られるのだが、その過程で合計20種類の位相の不確定性が生じる。この中から特定の1つの位相を決めるために用意されているのがComma detectorである。commaデータとは送信側と受信側の間で事前に取り決められた10 bitの予約語で、本システムでは40 MHzに1回送信するよう決める。comma detectorはcommaデータが40 bit中の下位10 bitにくるまでシリアルデータをシフトする機能で(図\ref{JATHubcomma})、これにより40 MHzで送信される200 bitのシリアルデータから、再構成されるクロックの位相を一意に定めることができる。
+\paragraph{RXロジック}　\par
+RXロジックで固定位相のクロック再構成を実現するために重要な役割を果たすのが、RX Clock Data Recovery機構(CDR)とComma detectorである。CDR機構とは受信したシリアルデータの立ち上がりまたは立ち下がりのタイミングに同期してクロックを再構成する機能で、受信データと位相関係を固定してクロックを再構成することができる。CDRで再構成された4 GHzクロックは1/20に分周され、200 MHzのRXユーザークロックが作られるが、その過程で合計20種類の位相の不定性が生じる。この中から特定の1つの位相を決めるために用意されているのがComma detectorである。Commaデータとは送信側と受信側の間で事前に取り決められた10 bitの予約語で、本システムでは40 MHzに1回送信するよう決める。Comma detectorはCommaデータが200 bitのシリアルデータの下位10 bitにくるまで、RX ユーザークロックをシフトする機能で(図\ref{JATHubcomma})、これにより受信するデータに対して、RXユーザークロックの位相を一位に定めることができる。
 
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JATHubcomma.png}
-\caption[Comma detectorの概要]{Comma detectorの概要。GTXトランシーバーで再構成された40 bitのパラレルデータの下位10 bitがcommaワードと一致するまで、RX SLIDEを打ち続ける。これにより、commaワードをもとに再構成する40 MHzクロックが、固定位相になることが保証される。}
+\caption[Comma detectorの概要]{Comma detectorの概要。Comma detectorはGTXトランシーバーで再構成された200 bitのシリアルデータの下位10 bitがCommaワードと一致するまで、RX SLIDEを打ち続け、RXユーザークロックの位相をシフトさせる。これにより、受信するデータに対して、RXユーザークロックの位相を一位に定めることができる。}
 \label{JATHubcomma}
 \end{figure}
-\vskip0.5\baselineskip
 
 
 \subsubsection{PLからPSへのデータ読み出しシステムの設計}
 \vskip0.5\baselineskip
 \label{subsubsec_readout}
 
-一般にプロセッサーを$\mathcal{O}(\mathrm{ns})$で制御し、FPGAと同期してデータを読み出すことは困難である。そこでQAQC用JATHubでは異なる速度で動作する2つのプロセス間のデータ転送に利用される、First In First Out(FIFO)メモリーを活用した自作調停回路を開発し、すべてのデータをもれなく読み出すことができる汎用読み出しシステムを開発した。
+% 一般に、ZynqのPL領域からPS領域へ、安定的かつ高速でデータを読み出すには工夫が必要となる。
+
+% ASDテストパルス試験ではJATHubのFPGAで受信したデータを、高速でUbuntuに読み出すことが求められる。これは、FPGAからUbuntuへの読み出しにかかる時間を短縮することができれば、テストパルス試験におけるイベント数を増やすことができ、より精度の高い試験を実現することができるからである。
+
+% JATHubのFPGAは40 MHzクロックに同期して固定レイテンシーで動作しているが、プロセッサー領域を$\mathcal{O}(\mathrm{ns})$で制御し、FPGAと同期してデータを読み出すことは一般に困難である。PS領域から安定かつ高速にデータを読み出すためには工夫が必要となる。
+
+% 一般にSoCのPS領域をFPGAと同期させてZynqのPL領域からPS領域へのデータ読み出しは、究では異なる速度で動作する2つのプロセス間のデータ転送に利用される、
+
+高速かつ安定的にZynq PL領域からPS領域へとデータを読み出すため、本研究では自作調停回路を用いた読み出しシステムを開発した。
 図\ref{JATHubarbitor}に実装した読み出しシステムの概要を示す。
 
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JATHubarbitator.png}
-\caption[PLからPSでのデータ読み出しシステム概要]{PLからPSでのデータ読み出しシステム概要。異なるクロックを基準クロックに動作する、Ubuntuと読み出し回路を制御するため、両者のタイミングを取り持つ調停回路を実装した。}
+\caption[PLからPSへのデータ読み出しシステム概要]{PLからPSへのデータ読み出しシステム概要。UbuntuからFPGA内のデータを読み出すために、AXI GPIOレジスタを利用する。FIFOがレジスタのデータを更新するタイミングとUbuntuがレジスタのデータを読み出すタイミングは制御されている必要があり、制御のために調停回路を実装した。調停回路により、1$\sim$6の動作順序が保証され、安定した読み出しが保証される。}
 \label{JATHubarbitor}
 \end{figure}
 
-FPGAからUbuntuに読み出したいデータはFPGA内の動作クロックに乗せられ、FIFOメモリーにダンプされる。UbuntuからFIFOメモリーに直接アクセスする方法はないため、データのやり取りには工夫が必要となる。本システムではAXI GPIOレジスタを利用した。
-AXI GPIOレジスタにはFPGAからもUbuntuからも任意のタイミングでアクセスすることができる。そのためUbuntuがデータを読み出す前にFIFOがデータを書き換えると、そのデータはUbuntuから読み出されずロスすることになる。またFIFOがデータを書き換える前にUbuntuが2回読み出し動作を行うと、同じデータを重複して読み出すことになる。すべてのデータを漏れや重複なく読み出すために、FIFOとUbuntuのタイミングを取り持つ調停回路を作成した。調停回路は1 bitのフラグとステートマシンからなる。フラグはUbuntuとFIFO間の状況伝達に利用しており、0をFIFOからの書き込み待ち、1をUbuntuからの読み出し待ちと定義する。調停回路で実現される読み出しシークエンスを図\ref{JATHubarbitation}で示す。
+データの読み出しシステムは、FIFO (First In First Out) メモリー、AXI GPIO レジスタ、自作調停回路で構成される。
+FIFOメモリーは、データが書き込まれた順番に出力されるよう設計されたメモリーで、書き込み動作と読み出し動作を非同期に行うことができる。この特性を利用して、FIFOをPL領域からPS領域へデータを読み出す際のバッファーとして動作させる。FPGAから読み出すデータは、FPGA内の動作クロックに同期してFIFOメモリーに書き込まれる。書き込まれたデータは、PS領域に起動したUbuntuの動作するタイミングに合わせて読み出されるが、PS領域からFIFOメモリーに直接アクセスする方法はないため、AXI GPIO レジスタをデータの中継に利用する。
+
+AXI GPIO レジスタはFPGA内のFIFOからもUbuntuからも任意のタイミングでアクセスすることができるため、両者の動作タイミングを調整する仕掛けが必要である。例えば、Ubuntuがデータを読み出す前にFIFOがAXI GPIO レジスタのデータを書き換えると、書き換える前のデータはUbuntuから読み出されることなく失われることになる。また、FIFOがデータを書き換える前にUbuntuが2回読み出し動作を行うと、同じデータを重複して読み出すことになる。すべてのデータを漏れや重複なく読み出すためには、FIFOとUbuntuの動作順序を制御することが必要である。
+
+これを行うのが自作調停回路である。この回路はUbuntuからもFPGAからも操作することができる1 bitのフラグと、ステートマシンで構成される。フラグはUbuntuとFIFO間の情報伝達に利用し、0をFIFOからの書き込み待ち、1をUbuntuからの読み出し待ちと定義する。調停回路で実現される読み出しシークエンスを図\ref{JATHubarbitation}に示す。
+
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JATHubarbitation.pdf}
-\caption[調停回路のシークエンス]{調停回路のシークエンス。Ubuntu側とFPGA側で共通のフラグを操作・モニターすることで両者がコミュニケーションをとる。フラグは0をFIFOからの書き込み待ち、1をUbuntuからの読み出し待ちと定義する。Ubuntuはフラグをモニターし、1になっていたらAXI GPIOからデータを読み出し、フラグを0に下げる。FPGAのステートマシンも同様にフラグをモニターし、0になっていたらFIFOにread enable信号を送信し、フラグを1に上げる。}
+\caption[調停回路のシークエンス]{調停回路のシークエンス。Ubuntu側とFPGA上のステートマシン側で共通のフラグを操作・モニターすることで両者がコミュニケーションをとる。フラグは0をFIFOからの書き込み待ち、1をUbuntuからの読み出し待ちと定義する。Ubuntuはフラグをモニターし、1になったらAXI GPIOからデータを読み出し、その後フラグを0に下げる。FPGAの調停回路もフラグをモニターし、0になったらFIFOにread enable信号を送信し、その後フラグを1に上げる。これにより、FIFOがAXI GPIO レジスタのデータを更新する動作とUbuntuがレジスタのデータを読み出す動作の順序が保たれ、漏れや重複のない読み出しが実現される。}
 \label{JATHubarbitation}
 \end{figure}
 
-Ubuntu側はフラグをモニターし、1になったらAXI GPIO レジスタの値を読み出し、フラグを1から0に下げる。FPGA側も同様にフラグをモニターし、0になったらFIFOにread enable信号を送り、フラグを0から1に上げる。これによりAXI GPIO レジスタのデータ更新→データ読み出し→データ更新→データ読み出し…の順序が必ず保たれ、もれや重複のない読み出しが実現される。
-作成した読み出しシステムの動作検証や性能評価は\ref{sec_PSboardQAQCdemo}節で行う。またこの読み出しシステムはPLからPSへの読み出しに複数箇所使われているため、以降汎用読み出しシステムと呼ぶ。
+Ubuntu側はフラグをモニターし、1であることを確認するとAXI GPIO レジスタの値を読み出し、その後、フラグを1から0に下げる。FPGA上に実装したステートマシンも同時にフラグをモニターし、0であることを確認するとFIFOにデータ更新用のread enable信号を送り、フラグを0から1に上げる。これによりFIFOがAXI GPIO レジスタのデータを更新する動作とUbuntuがレジスタのデータを読み出す動作の順序が保たれ、漏れや重複のない読み出しが実現される。
 
+作成した読み出しシステムの動作検証や性能評価は\ref{sec_PSboardQAQCdemo}節で行う。また、この読み出しシステムはPL領域からPS領域へのデータ読み出しに複数箇所使われているため、以降汎用読み出しシステムと呼ぶ。
 
 \subsection{FPGAの機能実装}
 \label{subsec_function}
-本節では\ref{sec_QAQCdesign}節で考案した試験を実行するために、QAQC用JATHub FPGAに実装した機能について述べる。
-要請される機能はSLの働きをエミュレートする、PS board制御機能、ヒットデータ読み出し機能、JATHubの働きをエミュレートするJTAG/Recovery/Clock monitor機能である。
-それに加えJATHub1台でDAQを完結させるために、JATHub内部でTTC信号をエミュレートする機能、ファームウェア全体を制御するコントロール機能を実装した。
-PS boardに送信するコントロール信号に関係する機能は200 MHzのTXユーザークロックを動作クロックとして利用する。PS boardから受信するデータを処理するパスでは200 MHzのRXユーザークロックを動作クロックに利用する。
-開発を進めた2022年時点において、JATHubのファームウェアは完成していたためJTAG/Recovery/Clock monitor機能はそれをそのまま利用する。一方、SLのファームウェアは開発段階であったため、SLの働きをエミュレートする機能については、Run 3で使われていたNew Sector Logic (NSL) のファームウェアを参考にした。以下に各機能の詳細を説明する。
+QAQC用JATHub FPGAに実装した機能について述べる。実装する機能は大別してSLが担う、PS board制御機能、ヒットデータ読み出し機能とJATHubの担うJTAG/Recovery/Clock monitor機能である。
+
+% このシステムではJATHub内部の水晶発振器から生成される200 MHzのTX ユーザークロックを逓倍した40 MHzクロックを参照クロックとして利用する。JATHub内部の水晶発振器は、LHCバンチ交差クロック40.079 MHzの4倍に相当する160.316 MHzで動作する。このクロックを参照クロックとして利用することで、JATHub内部の機能はLHCバンチ交差クロックと同期して動作することができる。また、
+
+% PS boardに送信するコントロール信号に関係する機能は200 MHzのTXユーザークロックを動作クロックとして利用する。PS boardから受信するデータを処理するパスでは200 MHzのRXユーザークロックを動作クロックに利用する。
+開発を進めた2022年時点において、JATHubのファームウェアは先行研究での開発が完了していたため、JTAG/Recovery/Clock monitor機能はそれを本システムに組みこんだ。SLのファームウェアは開発段階であったため、Run 3で使われていたNew Sector Logic (NSL) のファームウェアを参考に、本研究で開発を進めた。以下に各機能の詳細を説明する。
 % \begin{itembox}{後で直すところ}
 %     全体像としてクロックドメインまとめたものを貼りたいところだよね
 % \end{itembox}
 
 \subsection*{\textbf{コントロール機能}}
 \label{subsubsec_control}
-コントロール機能はQAQC用JATHubのファームウェア全体を制御するための機能であり、LHCバンチ交差クロックと同期する必要のないスローな制御を担当する。FPGA内のレジスタを制御し、読み出し機能に使われるパラメーターの変更や、PS boardに送るコントロール信号の操作を担う。
+コントロール機能はQAQC用JATHubのファームウェア全体を制御するための機能であり、LHCバンチ交差クロックと同期する必要のないスローな制御を担当する。FPGA内のレジスタを制御し、読み出し機能に使われるパラメーターの変更や、PS boardに送るコントロール信号の操作を行う。
 
 \subsubsection{FPGA制御機能}
-QAQC用JATHub上の各機能の制御はControl Centerから一元的に行う。
-Control Centerでは複数のレジスタがインスタンス化されており、このレジスタを書き換えることでFPGA内の各機能を制御する。Control Centerの操作はUbuntu上で実行したアプリケーションを起点に行う。
+QAQC用JATHub上の各機能の制御はControl Centerから行う。Control Centerでは複数のレジスタがインスタンス化されており、このレジスタの値を書き換えることでFPGA内の各機能を制御する。Control Centerの操作はUbuntu上で実行したアプリケーションを起点に行う。
 図\ref{JATHubccenter}にUbuntuとControl Centerの接続を示す。
 
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JATHubccenter.png}
-\caption[JATHubコントロール回路]{JATHubコントロール回路。ZynqのOSからPL領域のControl Center内のレジスタを操作することによりFPGA内の各機能の制御やPS boardへのコントロール信号を制御する。OSからControl Center内のレジスタ操作はInterpreterが仲介する。ユーザーはアドレスとデータを指定することでVMEプロトコルに従ってレジスタの書き込みを行うことができる。データの読み出しには自作調停回路を利用しており、複数回の読み出しでも安全な設計が実現されている。}
+\caption[JATHubコントロール回路]{JATHubコントロール回路。ZynqのOSからPL領域のControl Center内のレジスタを操作することによりFPGA内の各機能の制御やPS boardへのコントロール信号を制御する。Control Center内のレジスタ操作はInterpreterが仲介する。UbuntuからAXI GPIO を介してアドレスとデータを指定すると、InterpreterはVMEプロトコルに従ってレジスタの書き込みを行う。データの読み出しには自作調停回路を利用する。}
 \label{JATHubccenter}
 \end{figure}
 
-UbuntuからControl Center内のレジスタ操作は、VMEプロトコルを模倣した独自のプロトコルに従い、Interpreterがその操作を仲介する。ユーザーは、PSからアクセスしたいレジスタのアドレスと書き込みたいデータをInterpreterへ伝えることで、Interpreterがプロトコルに従ったバス操作を行い目的の動作を代行する。この実装によりPSからControl Center内のレジスタへ直接AXIバスを接続する必要がなく、PSからPLに伸びるAXIバスの本数を必要最小限にとどめることができる。また、PS領域とPL領域をつなぐバスが一つしかないため、Control Center内の複数のレジスタが同時に書き換えられることを防ぐ安全な設計になっている。Control Center からのデータの読み出しには 前述の汎用読み出し回路を利用する。
+Control Center内のレジスタ操作は、VMEプロトコルを模倣した独自のプロトコルに従って行い、Interpreterがその操作を仲介する。Zynq PS領域とInterpreterは16 bitのData、12 bitのAddress、読み書きモード選択用のそれぞれ1 bitの信号線で接続される。UbuntuはControl Center内のレジスタアドレスを指定し、read modeまたはwrite modeを1に引き上げることで、レジスタの読み書きを行うことができる。この設計により、PSからControl Center内の各レジスタへ直接AXIバスを接続する必要がなく、PSからPLに伸びるAXIバスの本数を必要最小限にとどめることができる。Control Center からUbuntuへのデータ読み出しは、前述の汎用読み出しシステムを利用する。
 
 \subsubsection{PS board制御機能}
-
 PS boardの制御はSLとPS board間で定められた通信フォーマット(図\ref{TGC_PSBdownlink})に従って、高速光通信を介して行われる。
-QAQC用JATHubにもこのフォーマットに従ったパケット交換を行う機能を実装することで、PS boardのコントロールおよびLHCクロックの分配を行う。200 MHzのTXユーザークロックで動作するステートマシンにより40 MHzおきに5ワードを送信する。この時、40 MHzのLHCバンチ交差クロックの立ち上がりと同期したタイミングでワード0を送るように設計することで、40 MHzクロックに対して相対的な位相関係が固定される。PS boardへ送るソフトリセット信号やテストパルストリガー信号はControl Center内のレジスタ操作により制御する。PS board FPGA内のレジスタ操作はワード2、ワード3に定義された16 bitのAddress、Command、Dataを用いて制御する。Commandにより書き込み/読み出し動作を決め、AddressでPS board内のレジスタアドレスを指定し、書き込み動作の場合はDataに設定した値を書き込む。
-PS board上のDACやPP ASICを制御する方法として\ref{subsec_QAQCdesign}節では自律型制御機構を利用するものを述べた。QAQC用JATHubからPS boardを制御する際も、ワード1で定義されたCS BitmapおよびSCLK、SDI線をビットバンギングすることで、QSPIフラッシュメモリーにパラメータを書き込む。PS board FPGAの状態や各素子のモニターには自律型監視機構を利用する。DACの設定値、ADCの測定値、FGPAの温度、xADCによる供給電圧値などのモニター値は表\ref{tab:PSBdatatype}に示すフォーマットに従い、6bitのデータタイプと4bitのデータに分割してQAQC用JATHubに送信される。たとえば16 bitのADCの値は4bitずつ4tickに分割して送信される。QAQC用JATHubは図\ref{JATHubmonitor}に示すように、分割されたモニターデータを再構成し、Control Center内のレジスタに自動で分配する。これによりUbuntuから任意のタイミングでControl Centerにアクセスしても、常に最新のモニターデータを取得することができる。
-\vskip0.5\baselineskip
+QAQC用JATHubにも、このフォーマットに従ったパケット交換を行う機能を実装し、PS boardのコントロールおよびLHCクロックの分配を行う。200 MHzのTXユーザークロックで動作するステートマシンにより、40 MHzおきに5ワードを送信する。
+
+PS boardへ送るソフトリセット信号やTPT信号はControl Center内のレジスタ操作により制御する。PS board FPGA内のレジスタ操作はワード2、ワード3に定義された16 bitのAddress、Command、Dataを用いて実行する。Commandにより書き込み/読み出し動作を決め、AddressでPS board内のレジスタアドレスを指定し、書き込み動作の場合はDataに設定した値を書き込む。
+
+
+%DACやPP ASIC制御する方法として\ref{subsec_QAQCdesign}節では自律型制御機構を利用するものを述べた。QAQC用JATHubからPS boardを制御する際も、
+PS board上のQSPIフラッシュメモリーへのパラメータ書き込みは、ワード1で定義されたSPIバス制御用信号 (CS BitmapおよびSCLK、SDI) を操作することで行う。
+PS board FPGAや各素子の状態のモニター値は、自立型制御機構により定期的に読み出される。DACの設定値、ADCの測定値、FGPAの温度、xADCによる供給電圧値などのデータは表\ref{tab:PSBdatatype}に示すフォーマットに従い、6 bitのデータタイプと4 bitのデータに分割され、QAQC用JATHubに送信される。QAQC用JATHubは図\ref{JATHubmonitor}に示すように、分割されたモニターデータを再構成し、Control Center内のレジスタに自動で分配する。これにより、常に最新のモニターデータがControl Center内のレジスタに反映される。
 
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JATHubmonitor.png}
-\caption[JAThubに実装された監視機構]{JAThubに実装された監視機構。PS boardから送られる制御用データをデコードし、Control Center内のレジスタに格納する。}
+\caption[QAQC用JAThubに実装されたモニター機構]{QAQC用JAThubに実装されたモニター機構。PS boardから送られるモニター用データを自動でデコードし、Control Center内のレジスタに格納する。これにより、常に最新のモニターデータがControl Center内のレジスタに反映される。}
 \label{JATHubmonitor}
 \end{figure}
 
@@ -367,26 +391,28 @@ PS board上のDACやPP ASICを制御する方法として\ref{subsec_QAQCdesign}
 
 \subsection*{ヒットデータ読み出し機能}
 \label{subsubsec_DAQ}
-読み出し回路の役割はASDテストパルス試験において、PS boardから送信されるヒット信号をJATHub Zynq上のUbuntuから読み出すことである。JATHubは光通信を介してPS boardから25 nsごとに256 bitのヒット信号を受け取る。40 MHzで受け取るデータとそのデータに割り当てられたタイミング情報 (BCID、L1ID) をFPGA上でバッファーしておき (L1 Buffer)、TPTと同期してL1Aを発行することで、テストパルス信号に該当するタイミングのヒットデータを選択的に取り出すことができる。L1 BufferでAcceptされたデータはFIFOメモリーにダンプされ、ここからはCPUの動作する任意のタイミングでデータパスとは非同期で読み出される。
+ヒットデータ読み出し機能は、PS boardから受信するヒットデータをイベントごとにまとめ、Zynq PS領域へと安定的にデータを送る機能である。
+QAQC用JATHubは光ファイバーを介して、PS boardから25 nsごとに256 bitのヒット信号を受け取る。ヒットデータとそのデータに割り当てられたイベント情報 (BCID、L1ID) はFPGA上でバッファーされ (L1 Buffer)、L1Aにより取り出される。L1 Bufferから取り出された1 BC分のデータはFIFOメモリーにダンプされ、CPUの動作する任意のタイミングでデータパスとは非同期に読み出される。
+
 ヒットデータ読み出し機能の全体像を図\ref{JATHubdaq}に示す。
-読み出し回路はTTC emulator、L1 Buffer、Derandomizer、Event Builderで構成される。Derandomizerの入力まではRXユーザークロックで動作しており、PS boardと固定位相で動作することが保証される。Derandomizerの出力からはZynqのシステムクロックで動作しており、PSからFPGAにアクセスするAXIプロトコルと同じクロックドメインに属する。DerandomizerはFIFOで構成されていて、入力と出力を非同期に動作させることができる。以下に各モジュールの役割を説明する。
+読み出し回路はTTC emulator、L1 Buffer、Derandomizer、Event Builderで構成される。Derandomizerの入力までのデータ処理はRXユーザークロックを基準クロックに行われ、固定レイテンシーで動作することが保証される。Derandomizerの出力以降は、LHCバンチ交差クロックとは非同期でUbuntuの動作速度に応じて、処理される。以下に各モジュールの役割を説明する。
 
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JATHubdaq.png}
-\caption[読み出し回路の全体像]{読み出し回路の全体像。PS boardから25 nsごとに送られる256 bitのヒット信号はL1 Bufferに格納される。TTC emulatorはTPT信号から決まったレイテンシー後にL1Aを発行し、テストパルスに該当するイベントをL1 Bufferから取り出す。取り出されたデータは後段の処理待ち用のDerandomizerに入れられ、ここからはCPUの動作する任意のタイミングでデータパスとは非同期に読み出しが行われる。}
+\caption[読み出し回路の全体像]{読み出し回路の全体像。PS boardから25 nsごとに送られる256 bitのヒット信号は、LHC交差クロックに同期してL1 Bufferに格納される。TTC emulatorはTPT信号から固定レイテンシー後にL1Aを発行し、テストパルスに該当するイベントをL1 Bufferから取り出す。取り出されたデータはDerandomizerに入れられ、CPUの動作する任意のタイミングでデータパスとは非同期に読み出される。}
 \label{JATHubdaq}
 \end{figure}
 
-\subsubsection{TTC emulator} \par
-ASDテストパルス試験ではJATHub、PS board、ASDの間で固定位相でLHCバンチ交差クロックを分配して、それぞれのエレクトロニクスが同期して動作する必要がある。TGCシステムではLHCバンチ交差クロックはCTPから分配されるが、本試験システムではJATHub 1台で試験を完結させるため、JATHub上の水晶発振器で生成されたクロックをLHCバンチ交差クロックとして扱う。具体的には水晶発振器をもとに作られた200 MHz TXユーザークロックを分周して40 MHzクロックを作る。Bunch Counter Reset (BCR) 信号やEvent Counter Reset (ECR) などのイベントビルディングに必要なTTC信号も、JATHub内で生成しPS boardへと分配する。この役割を果たすのがTTC emulatorである。ここで発行されたTTC信号はコントロール信号のワード0に埋め込まれ、光ファイバーを介してPS boardへと伝えられる。L1A信号もTTC emulatorから出力され、前述したようにTPTとL1Aを同期して管理することでFixed latencyのDAQを実現している。以下にTTC emulatorのサブモジュールを説明する。
+\subsubsection{TTC emulator}
 \vskip0.5\baselineskip
+ASDテストパルス試験ではJATHub、PS board、ASDの間で固定位相でLHCバンチ交差クロックを分配し、それぞれのエレクトロニクスが同期して動作する必要がある。TGCシステムではLHCバンチ交差クロックはCTPから分配されるが、本試験システムではJATHub 1台で試験を完結させるため、JATHub上の水晶発振器で生成されたクロックを基準クロックとして扱う。Bunch Counter Reset (BCR) 信号やEvent Counter Reset (ECR) などのTTC信号も、JATHub内で生成しPS boardへと分配する。この役割を果たすのがTTC emulatorである。ここで発行されたTTC信号はコントロール信号のワード0に埋め込まれ、光ファイバーを介してPS boardへと送られる。L1A信号もTTC emulatorから出力され、前述したようにTPTとL1Aを同期して制御することでFixed latencyのDAQを実現している。以下にTTC emulatorのサブモジュールを説明する。
 
 \begin{itemize}
     \item {TTC generator : } 40MHz LHCバンチ交差クロックで動作するカウンター。reset信号でカウンターをリセットし、1クロックチック毎にカウンターの値を1つずつインクリメントする。カウンターの値が3564に達したタイミングでBCR信号を発行する。デフォルトの設定ではTPT、L1AもBCRに合わせて3564 BCに一回発行しているが、TPT、L1Aの発行頻度は任意の値に設定することができる。TPT lengthを変更することで、TPTを複数BCに渡って出力することも可能になっている。
     \vskip0.5\baselineskip
 
-    \item{TTC Delay : }1 bit 幅、深さ 4096 列のBRAMで実装したdelay回路。L1A、BCR、TPTに任意の遅延をかけることができる。L1A Delayを調整することでTPTからL1Aを発行するまでのレイテンシーを変更することができる。
+    \item{TTC Delay : }1 bit 幅、深さ 4096 列のBRAMで実装したディレイ回路。L1A、BCR、TPTに任意の遅延をかけることができる。L1A Delayを調整することでTPTからL1Aを発行するまでのレイテンシーを変更することができる。
     \vskip0.5\baselineskip
 
     \item{ID counter : }BCR、ECR、L1Aを受けてBCID、ECID、L1IDを数え上げるカウンター。ここで発行されたBCIDやL1IDはUbuntuからの読み出しフォーマットに組み込まれて出力される。読み出したデータにおけるL1IDの連続性やBCIDを確認することでデータの欠損や重複をチェックすることができる。
@@ -396,19 +422,21 @@ ASDテストパルス試験ではJATHub、PS board、ASDの間で固定位相で
     \vskip0.5\baselineskip
 \end{itemize}
 
-\subsubsection{L1 Buffer} \par
-L1 BufferはPS boardから受信した256 bitのヒット信号とECRID、L1ID、BCIDなどのタイミング情報を合わせた432 bitのデータを一時的に保管するためのリングバッファーである。TTC emulatorからL1Aが出されたイベントは後段のDerandomizerに転送され、それ以外のデータはここで捨てられる。25 nsごとに到着するヒット信号は、書き込み用ポインタが指すアドレスに格納される。書き込み用ポインタと読み出し用ポインタはLHCバンチ交差クロックに同期して、1ずつインクリメントする。書き込み用ポインタがBRAMの最後尾まで達した場合、次のクロックチックで再び先頭に戻る。L1 depthによって書き込み用ポインタと読み出し用ポインタのアドレスの差を設定することができ、Bufferの深さを任意の値に設定できる。また、L1Aが発行されてから何BC分のデータを読み出すかをReadoutBCによって設定することができる。デフォルトでは3に設定されており、一回のL1Aに対してprevious、current、nextの3バンチ分のデータ読み出す。ReadoutBCで設定されたBC分のデータを読み出している途中に再度L1A信号を受信すると、読みだしエラーを出力する。読み出しエラーが生じた場合、そのL1IDをControl Center内のレジスタに格納しユーザーが確認できるようになっている。
+\subsubsection{L1 Buffer} 
 \vskip0.5\baselineskip
+L1 BufferはPS boardから受信した256 bitのヒット信号とECRID、L1ID、BCIDなどのタイミング情報を合わせた432 bitのデータを一時的に保管するためのリングバッファーである。TTC emulatorからL1Aが出されたイベントは後段のDerandomizerに転送され、それ以外のデータはここで捨てられる。25 nsごとに到着するヒット信号は、書き込み用ポインタが指すアドレスに格納される。書き込み用ポインタと読み出し用ポインタはLHCバンチ交差クロックに同期して、1ずつインクリメントする。書き込み用ポインタがBRAMの最後尾まで達した場合、次のクロックチックで再び先頭に戻る。L1 depthによって書き込み用ポインタと読み出し用ポインタのアドレスの差を設定することができ、Bufferの深さを任意の値に設定できる。また、L1Aが発行されてから何BC分のデータを読み出すかをReadoutBCによって設定することができる。デフォルトでは3に設定されており、一回のL1Aに対してPrevious BC、Current BC、Next BCの3バンチ分のデータ読み出す。ReadoutBCで設定されたBC分のデータを読み出している途中に再度L1A信号を受信すると、読み出しエラーを出力する。読み出しエラーが生じた場合、そのL1IDをControl Center内のレジスタに格納し、ユーザーが確認できるようになっている。
 
-\subsubsection{Derandomizer} \par
+\subsubsection{Derandomizer}
+\vskip0.5\baselineskip
 Derandomizerは、後段で行われる読み出しの処理待ちバッファーであり、432 bitの入力データを32 bitずつ出力する。DerandomizerはFIFOを2つ直列に並べることで実装している。
-データの分割にはFIFO IPのスライス機能\footnote{FIFO IPでは入力bit幅の1/2、1/4、1/8のbit幅での出力が可能である。}を利用している。Derandomizerの出力はUbuntuのuint32\_t型と整合性のある32 bitが好ましい。そこで432 bitの入力データに不要な64 bitのデータを加え、512 bitのデータを2つのFIFOで1/4ずつスライスすることで、最終的な出力を32 bitにしている。64 bitの不要データは1つ目のFIFOと2つ目のFIFOの間で捨てられ、Ubunutuからの読み出しには関係しない。\par
-FIFOは入力されたデータを順番に出力する特性を持ったメモリーである。書き込みと読み出しを非同期に行うことができ、一般にクロックドメインをまたぐデータの送受信に利用される。本システムでは固定レイテンシーで動くFPGA内の読み出し回路とPS領域からのデータ読み出しをつなぐ目的で使用する。Derandomizerへのデータ書き込みレートがUbunruからの読み出しレートを上回る場合には、Derandomizerのoccupancyは増大していく。その状態が続くとバッファーのオーバーフローが発生し、データが欠損する。バッファーオバーフローが生じた場合の対応は後に紹介する。
-\vskip0.5\baselineskip
+データの分割にはFIFO IPのスライス機能\footnote{FIFO IPでは入力bit幅の1/2、1/4、1/8のbit幅での出力が可能である。}を利用している。Derandomizerの出力はUbuntuのuint32\_t型と整合性のある32 bitが好ましい。そこで432 bitの入力データに不要な64 bitのデータを加え、512 bitのデータを2つのFIFOで1/4ずつスライスすることで、最終的な出力を32 bitにしている。64 bitの不要データは1つ目のFIFOと2つ目のFIFOの間で捨てられ、Ubunutuからの読み出しには関係しない。
 
-\subsubsection{Event Builder} \par
-Event BuilderはDeradomizerに格納された32bit幅のデータを240 MHzのクロックチック毎に1ワードずつ順番に読み出し、イベントごとにパッケージする。図\ref{JATHubhitformat}に1イベント分の読み出しフォーマットを示す。PS boardから受信した256 bit $\times$ 3 BC分のデータに加えて、TTC emulator から発行されたTTC信号 (ECRID、L1ID、BCID)、PSBで発行されたBCIDも同時に読み出す。JATHub内で割り当てられたBCIDとPS boardから返ってきたBCIDの差を確認することで、固定レイテンシーでのデータ読み出しが実現されていることを確かめることができる。
+% FIFOは入力されたデータを順番に出力する特性を持ったメモリーである。書き込みと読み出しを非同期に行うことができ、一般にクロックドメインをまたぐデータの送受信に利用される。本システムでは固定レイテンシーで動くFPGA内の読み出し回路とPS領域からのデータ読み出しをつなぐ目的で使用する。
+Derandomizerへのデータ書き込みレートがUbuntuからの読み出しレートを上回る場合には、DerandomizerのOccupancyは増大していく。その状態が続くとバッファーのオーバーフローが発生し、データが欠損する。バッファーオバーフローが生じた場合の対応は後に紹介する。
+
+\subsubsection{Event Builder}
 \vskip0.5\baselineskip
+Event BuilderはDeradomizerに格納された32 bit幅のデータを240 MHzのクロックチック毎に1ワードずつ順番に読み出し、イベントごとに所定のフォーマットに成形する。図\ref{JATHubhitformat}に1イベント分の読み出しフォーマットを示す。PS boardから受信した256 bit $\times$ 3 BC分のデータに加えて、TTC emulator から発行されたTTC信号 (ECRID、L1ID、BCID)およびPSBで発行されたBCIDが含まれる。JATHub内で割り当てられたBCIDとPS boardから返ってきたBCIDの差を確認することで、固定レイテンシーでのデータ通信が実現されていることを確かめることができる。
 
 \begin{figure} 
 \centering
@@ -417,37 +445,37 @@ Event BuilderはDeradomizerに格納された32bit幅のデータを240 MHzの�
 \label{JATHubhitformat}
 \end{figure}
 
-\subsubsection{読み出し回路の性能} \par
-実装した読み出し回路における、読み出しレートの上限を概算することは、QAQC試験を設計するにあたり重要である。ASDテストパルス試験におけるTPT発行レートはこれにより決められる。Ubuntu上でDerandomizerからデータを読み出し続けるアプリケーションを走らせ、FIFOに格納された1000イベント分のパケットを読み出すのにかかる時間を測定した。
+\subsubsection{読み出し回路の性能}
+\vskip0.5\baselineskip
+実装した読み出し回路における、読み出しレートの上限を概算することは、QAQC試験を設計するにあたり重要である。例えば、ASDテストパルス試験におけるTPT発行レートはこれにより決められる。Ubuntu上でアプリケーションを実行し、FIFOに格納された1000イベント分のパケットを読み出すのにかかる時間を測定した。
 図\ref{JTAHubreadspeed}にその結果を示す。横軸に読み出したパケット数、縦軸に経過時間(s)をとる。得られた測定結果を線形フィットし、その傾きから1パケット読み出すのにかかる時間を概算した。その結果、1イベント分のデータを読み出すのに概ね$85\,\mu\mathrm{s}$かかることがわかった。
 
-\vskip0.5\baselineskip
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{fig/QAQC/JATHubreadspeed.pdf}
-\caption[PSからのヒットデータ読み出し速度の測定]{PSからのヒットデータ読み出し速度の測定。軸に読み出したパケット数、縦軸に経過時間(s)をとり、得られた測定結果を線形フィットしている。}
+\includegraphics[width=11cm]{fig/QAQC/JATHubreadspeed.pdf}
+\caption[PSからのヒットデータ読み出し速度の測定]{PSからのヒットデータ読み出し速度の測定。横軸に読み出したパケット数、縦軸に経過時間(s)をとり、得られた測定結果を線形フィットしている。1イベント分のパケットを読み出すのにかかる時間は85 $\mu\mathrm{s}$程度である。}
 \label{JTAHubreadspeed}
 \end{figure}
 
-\subsubsection{バッファーオーバーフローへの対応} \par
-万が一バッファーオーバーフローが生じた時においてもイベントパケットが崩れることのないよう、Derandomizerにはバックプレッシャー機能を実装した。Derandomizerのoccupancyがあらかじめ設定した容量閾値 (4000/4096) を超えると、L1 Bufferへalmost full信号が送られる。almost full信号を受け取ったL1 Bufferは、処理中のイベントのデータ出力を完遂させたのち (previousの出力中にalmost full信号が来た場合、current、nextのデータまで出力を終えた後) 、データの出力を一時的に停止する。Ubuntuからのデータ読み出しが進み、Derandomizerのoccupancyが容量閾値を下回ると、再びデータの出力を再開する。これにより、任意のタイミングで読み出しを開始/終了してもイベントのパケットを崩すことなくデータを読み出すことができる。
-ASDテストパルス試験ではUbuntuから読み出したイベント数を分母に、ヒットデータが入っていた割合をefficiencyとして定義する。そのため、この実装により、読み出し回路にバッファーオーバーフローが生じた場合でもQAQC試験に問題が生じることはない。
+\subsubsection{バッファーオーバーフローへの対応} 
 \vskip0.5\baselineskip
+万が一、バッファーオーバーフローが生じた場合においてもイベントパケットが崩れることのないよう、Derandomizerにはバックプレッシャー機能を実装した。DerandomizerのOccupancyがあらかじめ設定した容量閾値 (4000/4096) を超えると、L1 Bufferへalmost full信号が送られる。almost full信号を受け取ったL1 Bufferは、処理中のイベントのデータ出力を完遂させたのち (Previousの出力中にalmost full信号が来た場合、Current、Nextのデータまで出力を終えた後)、データの出力を一時的に停止する。Ubuntuからのデータ読み出しが進み、DerandomizerのOccupancyが容量閾値を下回ると、再びデータの出力を再開する。これにより、任意のタイミングで読み出しを開始/終了してもイベントのパケットを崩すことなくデータを読み出すことができる。
 
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JATHubbackpressure.png}
-\caption[リードアウト回路におけるバックプレッシャー機能]{リードアウト回路におけるバックプレッシャー機能。Derandomizerのoccupancyがあらかじめ設定した容量閾値を超えると、L1 Bufferにalmost full信号が送られる。almost full信号を受け取ったDerandomizerは処理中のイベントの出力が終わった後、Derandomizerへのデータ送信を停止する。}
+\caption[リードアウト回路におけるバックプレッシャー機能]{読み出し回路におけるバックプレッシャー機能。DerandomizerのOccupancyがあらかじめ設定した容量閾値を超えると、L1 Bufferにalmost full信号が送られる。almost full信号を受け取ったDerandomizerは処理中のイベントの出力が終わった後、Derandomizerへのデータ送信を停止する。}
 \label{JATHubbackpressure}
 \end{figure}
 
+\clearpage
 \section{PS board QAQC試験デモンストレーション}
 \label{sec_PSboardQAQCdemo}
 
 \subsection{試験環境}
 \label{subsec_testenv}
 東京大学に設置したテストベンチを利用して、開発したQAQC用JATHubの動作検証およびQAQC試験のデモンストレーションを行なった。
-セットアップを図\ref{QAQCsetup}に示す。QAQC用のJATHubはVMEクレートに設置しバックプレーンのJ3コネクターを通じて給電する。PS boardには3.3 Vデジタル電源、3.0 V、-3.0 Vアナログ電源を用意しデスクトップで給電する。QAQC用JATHubとPS boardは3本の光ファイバーと2本のCat-6ケーブルで接続する。1台のPS boardには16台のASDをシグナルケーブルで接続する。
+セットアップを図\ref{QAQCsetup}に示す。QAQC用のJATHubはVMEクレートに設置し、バックプレーンのJ3コネクターを通じて給電する。PS boardには3.3 Vデジタル電源、3.0 V、-3.0 Vアナログ電源を用意しデスクトップで給電する。QAQC用JATHubとPS boardは3本の光ファイバーと2本のCat-6ケーブルで接続する。1台のPS boardには16台のASDをシグナルケーブルで接続する。
 
 \begin{figure} 
 \centering
@@ -456,55 +484,50 @@ ASDテストパルス試験ではUbuntuから読み出したイベント数を�
 \label{QAQCsetup}
 \end{figure}
 
-\vskip\baselineskip
 
-\subsection{デモンストレーションの結果}
+\subsection{試験用パラメーターの決定とデモンストレーションの結果}
 \label{subsec_tb_result}
 QAQC試験では量産個体に対する試験に先んじて、PP ASICの遅延、DACの閾値電圧、L1A depthなどセットアップに依存する制御パラメーターを設定しておく必要がある\footnote{ここで決めるパラメーターはQAQC試験を行うためのパラメーターであり、実験時には改めてパラメーターを決めるための調査が行われる。}。
-以下に各パラメーターを定めるために行った事前試験の内容とその結果を示す。
+以下に各パラメーターを決定するために行った、事前試験の内容とその結果を示す。
 
 \subsubsection{PP ASIC遅延パラメーター}
-PP ASICの遅延パラメーターは、使用するシグナルケーブルの長さに依存するパラメーターである。ASDからのテストパルス信号の立ち上がりがPP ASIC陽子バンチ識別回路におけるLHCバンチ交差クロックの立ち上がりと極めて近い場合、イベントごとにアサインされるBCIDが1つに定まらない可能性がある。これを防ぐため、PP ASICの可変遅延回路の遅延パラメーターを変更し、両者の立ち上がりが十分離れるよう調整する。このパラメーターの決定のためディレイスキャンを行なった。ディレイスキャンとは、PP ASICの遅延パラメーターを1 stepずつ変更しながらデータを取得し、アサインされたBCIDの変化をみるものである。
-% 結果を図\ref{QAQCdelayscan}に示す。横軸に設定した遅延の大きさ、縦軸にefficiencyを表す。この測定では陽子バンチ識別回路の有効ゲート幅を25 ns、可変遅延回路の刻み幅を1.19 nsに設定している。遅延パラメーターを変更していくと、陽子バンチ識別回路でアサインされるBCがprevious → current → nextと遷移していく様子がわかる。current BCのプラトー領域にヒットが返ってくるよう、
-この試験の結果、QAQC試験で利用する遅延パラメーターは20 nsと決定した。
 \vskip0.5\baselineskip
+PP ASICの遅延パラメーターは、使用するシグナルケーブルの長さに依存するパラメーターである。ASDからのテストパルス信号の立ち上がりが、PP ASIC陽子バンチ識別回路におけるLHCバンチ交差クロックの立ち上がりと極めて近い場合、イベントごとに付与されるBCIDが1つに定まらない可能性がある。これを防ぐため、PP ASICの可変遅延回路の遅延パラメーターを変更し、両者の立ち上がりが十分離れるよう調整する。このパラメーターの決定のため、Delayスキャンを行なった。Delayスキャンとは、PP ASICの遅延パラメーターを1 stepずつ変更しながらデータを取得し、付与されたBCIDの変化をみるものである。
 
-% \begin{figure} 
-% \centering
-% \includegraphics[width=16cm]{fig/QAQC/QAQCdelayscan.png}
-% \caption[ディレイカーブ]{テストベンチで測定したdelay curve}
-% \begin{itembox}{要更新}
-%     これは青木さんの結果。自分で取り直したものに差し替える。
-% \end{itembox}
-% \label{QAQCdelayscan}
-% \end{figure}
-
-\subsubsection{L1Adepth}
-L1A depthはL1 Bufferの深さを決めるパラメーターであり、TTC emulatorでTPTを発行してからPS board からヒットデータが返ってくるまでのレイテンシーに合わせて調整する必要がある。主にPS boardからJATHubの間の光ケーブルの長さに依存するパラメーターである。このパラメーターはディレイスキャンと同時に設定を行なっており、0x 85に設定した。
-\vskip0.5\baselineskip
+あるASDに対するDelay Curveを図\ref{QAQCdelayscan}に示す。横軸に設定した遅延の大きさ、縦軸にEfficiencyを表す。この測定では、陽子バンチ識別回路の有効ゲート幅を25 ns、可変遅延回路の刻み幅を1.19 nsに設定している。遅延が0 nsの時に付与されるBCIDがPrevious BCになるようJATHub内のL1 Buffer Depthを調整した。遅延パラメーターを変更していくと、ヒット信号に付与されるBCIDが1つずつずれ、付与されるBunch tagがPrevious BC 、Current BC 、 Next BCと遷移していく。
+この試験の結果、テストパルスの立ち上がりとPP ASICの陽子バンチ識別回路におけるLHCバンチ交差クロックの立ち上がりが十分に離れるよう、遅延パラメーターを20 nsと決定した。
+\begin{figure} 
+\centering
+\includegraphics[width=16cm]{fig/QAQC/QAQCdelayscan.pdf}
+\caption[ディレイカーブ]{テストベンチで測定したDelay Curve。あるASDの 16 チャンネル分をまとめて書いている。陽子バンチ識別回路の有効ゲート幅を 25 ns、可変遅延回路の刻み幅を1.19 nsに設定した。遅延が 0 ns の時に付与されるBCIDがPrevious BC になるようL1 Buffer Depthを調整した。遅延を増やすことで、付与されるBCIDが期待通りPrevious BC 、Current BC、Next BCと遷移することがわかる。}
+\label{QAQCdelayscan}
+\end{figure}
 
 \subsubsection{ノイズスキャン}
-DACの閾値電圧は使用するASDのノイズの大きさに依存して変えるべきパラメーターである。ASDには$\mathcal{O}(10 \,\mathrm{mV})$のノイズが乗っていることが知られており、それよりも閾値電圧を低く設定してしまうと、ノイズをヒット信号として処理してしまう。閾値電圧はノイズの値よりも高く、かつテストパルスの波高より十分低く設定すべきである。そこで、DACの閾値電圧を変えながらテストパルスを測定するノイズスキャンを行なった。その結果を図\ref{QAQCnoisescan}に示す。
-1台のPS boardに搭載される16台のASDに印加する閾値電圧を10 mV ずつ変えていき、ノイズレートを測定した。閾値電圧が0 mV 程度になるとノイズによるヒットが見られるようになり、60 mV 以上の閾値電圧をかけるとノイズが消えていく。この結果から本セットアップでのDAC閾値は$\pm$それぞれ+90 mV、-40 mVと設定した。
 \vskip0.5\baselineskip
+DACの閾値電圧は、使用するASDのノイズの大きさに依存して変えるべきパラメーターである。ASDには$\mathcal{O}(10 \,\mathrm{mV})$のノイズが乗っていることが知られており、それよりも閾値電圧を低く設定してしまうと、ノイズをヒット信号として処理してしまう。閾値電圧はノイズの値よりも高く、かつテストパルスの波高より十分低く設定する。
 
+DACの閾値電圧を変えながらテストパルスを測定するノイズスキャンを行なった。1台のASDに対する結果を図\ref{QAQCnoisescan}に示す。
+ASDに印加する閾値電圧を10 mV ずつ変えていき、ノイズレートを測定した。閾値電圧が0 mV 程度になるとノイズによるヒットが見られるようになり、60 mV 以上の閾値電圧をかけるとノイズは消えた。この結果から本セットアップでのDAC閾値は$\pm$それぞれ+90 mV、-40 mVと設定した。
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/noise_A2.pdf}
-\caption[ノイズスキャンの結果]{ノイズスキャンの結果。PP ASIC に印加する閾値電圧を変えながら、10,000 回のテストパルスに対するノイズレートを測定した。ここでは8台あるPP ASICのうちの1台の結果を示している。閾値電圧が -10 mV から 60 mV の間でノイズによるヒットが見られる。}
+\caption[ノイズスキャンの結果]{ノイズスキャンの結果。ASD に印加する閾値電圧を変えながら、10,000 回のテストパルスに対するノイズレートを測定した。ここでは16台あるASDのうちの1台の結果を示している。閾値電圧が -10 mV から 60 mV の間でノイズによるヒットが見られた。}
 \label{QAQCnoisescan}
 \end{figure}
 
-これらのパラメーターをもとにASDテストパルス試験を行なった結果を図\ref{QAQCresult}示す。この試験ではパラメーターは固定した状態で10,000回TPTを発行した時の、Previous、Current、Nextそれぞれのefficiencyを測定している。結果はすべてのチャンネルでCurrentのefficiencyのみが1となっており、PS board上の各種パラメーターの設定が期待通り行えていること、また固定レイテンシーでの読み出しが実現できていることを確認することができた。
+\subsubsection{デモンストレーションの結果}
+\vskip0.5\baselineskip
+これらのパラメーターをもとにASDテストパルス試験を行なった。結果を図\ref{QAQCresult}示す。パラメーターを固定した状態で、10,000回テストパルスを発行し、Previous BC、Current BC、Next BCそれぞれのEfficiencyを測定した。結果は、期待通り、すべてのチャンネルでCurrent BCのEfficiencyのみが1となっており、PS board上の各種パラメーターの設定が正常に完了していること、また固定レイテンシーでの読み出しが実現できていることを確認した。
 
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/QAQCresult.pdf}
-\caption[ASDテストパルスの結果]{ASDテストパルス試験の結果。10,000回のテストパルスに対するEfficiencyをプロットしている。PS board が担う全256チャンネルでCurrent BCのEfficiencyが1である。また、Previous、NextのEfficiencyは0である。}
+\caption[ASDテストパルスの結果]{ASDテストパルス試験の結果。10,000回のテストパルスに対する各チャンネルのEfficiencyをプロット。PS board が担う全256チャンネルでCurrent BCのEfficiencyが1であり、Previous BC、Next BC のEfficiencyは0である。このことからASDテストパルスの発行から、読み出しまで固定レイテンシーでの動作が実現されていることがわかる。}
 \label{QAQCresult}
 \end{figure}
 
-その他の試験においても期待通りの結果が得られ、QAQC用JATHubシステムの実装がうまくいっていることを確認することができた。表\ref{table_testtime}各試験の所要時間を示す。
+JTAG/Recovery/Clock monitor試験についても、試験を行い期待通りの結果が得られた。これにより、QAQC用JATHubシステムの実装が精度良く達成されていることを確認した。表\ref{table_testtime}に各試験の所要時間を示す。
 
 \begin{table}[]
     \centering
@@ -524,41 +547,46 @@ DACの閾値電圧は使用するASDのノイズの大きさに依存して変�
 
 \subsection{試験並列化のためのシステムアップグレード}
 \label{subsec_parallel}
-QAQC試験のデモンストレーションにより、1枚のPS boardを試験するのに配線作業等も含めると、合計50分以上時間かかることが明らかになった。1500枚のPS boardに対して試験を行うには、24時間試験をやり続けたとしても2ヶ月程度かかる見込みで、現実的なタイムスケールで試験を完了させるためには試験の高速化が求められる。単純にはQAQC用JATHub1台とPS board1台のセットアップを複数用意することが考えられるが、イーサーネット通信のためのRJコネクターと光通信のためのSFP+コネクターを両方有しているJATHubは、1台しか用意することができない(JATHub 試作1号機)\footnote{イーサーネット通信のためのRJコネクターはネットワークテスト用に試作1号機にのみつけられており、試作2号機、量産機にはついていない}。並列化のためには新たなシステム設計が必要となる。そこで考案された並列化システムのセットアップを図\ref{QAQCpararell}に示す。システムのコンセプトは、試作1号機をQAQCマスターとして利用し、QAQCマスターから20台のQAQC用JATHub (QAQCスレーブ) を操作することである。ユーザーはQAQCマスターのみを操作して、QAQCスレーブに対して試験開始の命令や、試験状況の監視を行う。QAQCマスターとQAQCスレーブの通信を中継するため、TAMボードを\footnote{Mini-Rackに導入されるTGCエレクトロニクスの一つ。異なる1/24セクター間の陽子バンチ交差クロックの位相合わせに用いられる。}利用する。QAQC用マスターとTAMの通信は光ファイバーを介したシリアル通信を行い、TAMとQAQCスレーブの通信はVMEバックプレーンを通じたVME通信を行う。
+QAQC試験のデモンストレーションにより、1枚のPS boardの試験に、合計40 分以上の時間がかかることが明らかになった。1500枚のPS boardに対する試験を効率的に完了させるためには試験の高速化が求められる。単純にはQAQC用JATHub1台とPS board1台のセットアップを複数用意し、並列に試験を行うことが考えられるが、イーサーネット通信のためのRJコネクターと光通信のためのSFP+コネクターを両方有しているJATHubは、試作段階で作成された1台 (試作1号機) しか存在しない。並列化のためには、新たなシステム設計が必要となる。
+
+そこで、本研究ではVME通信を利用した並列化システムを考案した。システムのセットアップを図\ref{QAQCpararell}に示す。このシステムのコンセプトは、イーサーネット通信ができる試作1号機をQAQC試験におけるマスター(QAQC master)として利用し、QAQC masterから20台のQAQC用JATHub (QAQC slave) を操作することで、20台のPS boardを同時に試験することである。ユーザーはQAQC masterのみを操作して、QAQC slaveに対して試験開始の命令や、試験状況の監視を行う。
+QAQC masterはTAMボードを\footnote{Mini-Rackに導入されるTGCエレクトロニクスの一つ。異なる1/24セクター間の陽子バンチ交差クロックの位相合わせに用いられる。}中継して、QAQC slaveと通信する。QAQC masterとTAMは光ファイバーを介したシリアル通信を行う。TAMはVMEマスターとしてとQAQC slaveとVME通信を行う。
+
 \begin{figure} 
     \centering
     \includegraphics[width=16cm]{fig/QAQC/QAQCpararell.pdf}
-    \caption[並列化システムの概要]{並列化システムの概要。JATHub 1台 (QAQCスレーブ) とPS board 1台を用いた試験システムを20台並列に設置する。それに加えて、20台のJATHubの動作を制御するため、1台の検査マスターJATHub (QAQCマスター) を用意する。QAQCマスターとQAQCスレーブの通信はTAMボードを介して行う。QAQC用マスターとTAMは光ファイバーで接続し、高速光通信を行う。TAMとQAQCスレーブはVMEバックプレーンで接続され、VME通信を行う。}
+    \caption[並列化システムの概要]{QAQC試験並列化システムの概要。JATHub1台 (QAQC slave) とPS board1台を用いた試験システムを20個並列に設置する。20台のJATHubの動作を制御するため、1台の検査マスターJATHub (QAQC master) を用意する。QAQC masterとQAQC slaveの通信はTAMを介して行う。QAQC masterとTAMは光ファイバーで接続し、高速光通信を行う。TAMとQAQC slaveはVMEバックプレーンで接続され、VME通信を行う。}
     \label{QAQCpararell}
 \end{figure}
 
-QAQCスレーブにはネットワークが通じていないため、スレーブの操作はマスターからのレジスタ操作で行う。QAQCスレーブのUbuntuには起動と同時に試験用アプリケーションが走るよう設定し、マスターから試験開始を伝えるためのレジスタをポーリングさせる。マスターから合図が届くと自動で、1台のPS boardに対する試験を開始する。各試験の結果は2 bitのstatus bitで表され\footnote{0をidle、1をsuccess、2をfailで定義する}、QAQCマスターは任意のタイミングでそれを確認することができる。開発したアプリケーションによる試験ステータスモニターの例を図\ref{QAQC_monitor}に示す。またQAQCスレーブは各試験の詳細なログをとっておき、ローカルのSDカード上に保存する。試験でハードウェアの問題が確認された個体については、このログを参照することで問題を詳細に把握することができる。
-並列化システムについても、東京大学でテストベンチを構築し動作検証を行なった。図\ref{QAQCpararellpicture}にセットアップを示す。QAQCマスター、TAM、QAQC用スレーブ1台、PS board1台、ASD 16台を接続して、並列化システムの動作検証を行った。QAQCマスターの試験開始から、試験の終了まで問題なく動作することを確認した。
+QAQC slaveにはネットワークが通じていないため、slaveの操作はmasterからのレジスタ操作で行う。QAQC slaveのUbuntuには起動と同時に試験用アプリケーションが走るよう設定し、masterからの合図を起点に1台のPS boardに対する試験を開始する。各試験の結果は2 bitのstatus bitで表され\footnote{0をidle、1をsuccess、2をfailで定義する}、QAQC masterはそれを読み出すことで各slaveにおける試験の進行状況を把握する。またQAQC slaveは、デバッグ用に各試験の詳細なログをSDカード上に保存する。試験でハードウェアの問題が確認された個体については、このログを参照することで問題箇所を詳細に把握することができる。
 
-\begin{figure} 
-\centering
-\includegraphics[width=12cm]{fig/QAQC/QAQC_monitor.png}
-\caption[JATHubマスターからの試験状況のモニター]{JATHubマスターから試験状況をモニターしている様子。QAQCマスターのスレーブとして動作する20台のJATHubの試験状況をマスターから把握することができる。この写真はQAQC用スレーブ1台を用いた試験の際に取られたものであり、JATHub4がそれに該当する。}
-\label{QAQC_monitor}
-\end{figure}
+並列化システムについても、東京大学でテストベンチを構築した。図\ref{QAQCpararellpicture}にセットアップを示す。QAQC master、TAM、QAQC用 slave1台、PS board1台、ASD 16台を接続して、並列化システムの動作検証を行った。QAQC masterの試験開始から、試験の終了まで問題なく動作することを確認した。
+
+% \begin{figure} 
+% \centering
+% \includegraphics[width=12cm]{fig/QAQC/QAQC_monitor.png}
+% \caption[JATHub masterからの試験状況のモニター]{JATHub masterから試験状況をモニターしている様子。QAQCマスターの slaveとして動作する20台のJATHubの試験状況をマスターから把握することができる。この写真はQAQC用 slave1台を用いた試験の際に取られたものであり、JATHub4がそれに該当する。}
+% \label{QAQC_monitor}
+% \end{figure}
 
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/QAQCpararellpicture.pdf}
-\caption[並列化システムの写真]{並列化システムの写真}
+\caption[並列化システムのセットアップ]{並列化システムのセットアップ。QAQC master、QAQC slave、TAMがVMEクレートに設置されている。QAQC masterとTAMは光ファイバーで接続し、QAQC slaveとTAMはVMEバックプレーンで接続されている。QAQC slaveとPS boardは光ファイバーとCat-6ケーブルで接続されている。}
 \label{QAQCpararellpicture}
 \end{figure}
 
 \section{コンパクトDAQシステムとしての応用例}
 \label{sec_compactdaq}
-最後に、本研究で開発したQAQC用JATHubの応用例について紹介する。本システムは汎用的なUbuntuをPSに搭載しており拡張性に富んでいることに加え、デスクトップでも給電可能なコンパクトなシステムであることからDAQシステムとして幅広い応用が期待される。
+最後に、本研究で開発したQAQC用JATHubの応用例について紹介する。本システムは、Linuxを搭載しており拡張性に富んでいることに加え、デスクトップでも給電可能なコンパクトなシステムである。その柔軟性と利便性から汎用的なDAQシステムとして幅広い応用が期待される。
+
 実際に使用された例を2つ紹介する。1つ目はEIL4チェンバーの検査試験である。そのときのセットアップを図\ref{JATHubEIL4}に示す。この試験は、高輝度LHC-ATLAS実験に向けて新しく設置されるTGC EIチェンバーの検査を目的としたもので、チェンバーに取り付けたASDからの信号をPS boardで処理し、QAQC用JATHubから読み出している。ASDテストパルスを用いたノイズレートの測定や、宇宙線ミューオンによるチャンネルごとのefficiency測定が行われた\footnote{宇宙線ミューオンを取得できるよう、QAQC用JATHubにはセルフトリガー機構が追加実装された}。
-\vskip0.5\baselineskip
 
 \begin{figure}
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JATHubEIL4.pdf}
-\caption[QAQC用JATHubの使用例:EIL4チェンバー試験]{QAQC用JATHubの使用例:EIL4チェンバー試験\cite{mt_wada}。高輝度LHC-ALTAS実験で新しく導入される、tripletのEIL4チェンバーの性能評価を目的としてCERNで行われた。ASDをEIL4チェンバーに接続し、PS board、QAQC用JATHubを用いて信号処理を行った。宇宙線ミューオンを用いたチャンネルごとのefficiency測定などが行われた。}
+\caption[QAQC用JATHubの使用例 : EIL4チェンバー試験]{QAQC用JATHubの使用例 : TGC EIL4チェンバーの性能評価試験\cite{mt_wada}。高輝度LHC-ATLAS実験で新しく導入される、TripletのEIL4チェンバーの性能評価を目的としてCERNで行われた。ASDをEIL4チェンバーに接続し、PS board、QAQC用JATHubを用いて信号処理を行うことで、EIL4チェンバーのチャンネルごとの応答を調べている。ノイズスキャンや宇宙線ミューオンを用いたEfficiency測定が行われた。}
 \label{JATHubEIL4}
 \end{figure}
 
@@ -567,7 +595,7 @@ QAQCスレーブにはネットワークが通じていないため、スレー�
 \begin{figure}
 \centering
 \includegraphics[width=16cm]{fig/QAQC/JATHubSEU.pdf}
-\caption[QAQC用JATHubの使用例:PS board SEUモニター]{QAQC用JATHubの使用例:PS board SEUモニター\cite{mt_hashimoto}。ATLAS実験室内に設置したPS boardにおける、SEU発生頻度を測定することを目的にCERNで行われた。PS boardから送信されるモニター用データの読み出しにQAQC用JATHubが使われた。}
+\caption[QAQC用JATHubの使用例 : PS board SEUモニター]{QAQC用JATHubの使用例 : PS board SEUモニター\cite{mt_hashimoto}。ATLAS実験室内に設置したPS boardにおける、SEU発生頻度を測定することを目的にCERNで行われた。PS boardから送信されるモニター用データの読み出しにQAQC用JATHubが使われ、SEU発生頻度の測定が行われた。}
 \label{JATHubSEU}
 \end{figure}
 
