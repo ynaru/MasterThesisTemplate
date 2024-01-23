@@ -13,7 +13,7 @@
 
 高輝度LHC-ATLAS実験の運転初日から安定したデータ収集を実現するためには、量産された各個体にハードウェアとしての欠陥がないことを詳細に検査することが必要である。そのために行う品質保証試験のことをQuality Assurance and Quality Control (QAQC) 試験と呼ぶ。
 
-本章ではまず、PS board のハードウェアを網羅的に検査することができる試験内容を考案し、それを実現するセットアップを設計した。次に、試験の実行に必要なシステムを、\ref{chap_TriggerTest}章で述べたトリガー試験システムと多くの技術を共有する形で、開発した。最後に、開発したシステムの動作確認とデモンストレーションを行ない、PS board QAQC試験に向けたシステム構築を完了させた。
+本章ではまず、PS board のハードウェアを網羅的に検査することができる試験内容を考案し、それを実現するセットアップを設計した。次に、\ref{chap_TriggerTest}章で述べたシングルボード試験システムの応用として、QAQC試験に向けた試験システムを開発した。最後に、開発したシステムの動作確認とデモンストレーションを行い、PS board QAQC試験に向けたシステム構築を完了させた。
 
 \begin{figure} 
 \centering
@@ -74,23 +74,21 @@ QAQC試験ではエレクトロニクス上のすべての素子を網羅的に�
 
 QAQC用JATHubのZynq PS領域にはUbuntuを起動する。試験では、ローカルPCからイーサーネット経由でUbuntuにアクセスし、Ubuntu上で実行したアプリケーションを起点に試験用信号の送信や、試験用データの読み出しを行う。Ubuntuは汎用的なOSであり、既存のソフトウェアを用いてネットワークやwebサーバーを構築することができる。また、コンパイラをインストールすることでUbuntu上で直接アプリケーションを作成することができるため、開発を簡単に進めることができる。
 
-FPGA部分であるPL領域には試験用の新しくファームウェアを開発する。
-Cat-6ケーブルを介してPS boardを制御する機能 (JTAG線をドライブする機能、リカバリー手続き、クロックの位相測定) に加えて、光ファイバーを介してPS boardを制御する機能 (GTXトランシーバー、コントロール信号の送信、ヒットデータ読み出し) も実装することで、JATHub1台でPS boardの有する機能を網羅的に試験する。
+FPGA部分であるPL領域には試験用に新しくファームウェアを開発する。
+JATHubが担うCat-6ケーブルを介してPS boardを制御する機能 (JTAG線をドライブする機能、リカバリー手続き、クロックの位相測定) に加えて、SLが担う光ファイバーを介してPS boardを制御する機能 (高速光シリアル通信、固定位相でのクロック分配、コントロール信号の送信、固定時間でのヒットデータ読み出し) も実装することで、JATHub1台でPS boardの有する機能を網羅的に試験する。
 
 PS board ハードウェアの動作を網羅的に検証することができる試験として、ASDテストパルス試験とJTAG/Recovery/Clock monitor試験を考案した。以下にそれぞれの試験の概要を示す。
 
 \subsubsection{ASDテストパルス試験}
 \vskip0.5\baselineskip
 \label{subsubsec_testpulse}
-ASDテストパルスは、PP ASICからASDに送られる試験用の電荷であり、ASDからSLまでのデータパスの試験に使用される。高輝度LHC-ATLAS実験のTGCシステムでは、TPT信号を含むTTC信号は、CTPからSLを中継して各フロントエンドエレクトロニクスに分配される。PP ASIC内のテストパルス生成回路を図\ref{PSBtpg}に示す。テストパルス生成回路はTPT信号を受信すると、参照クロックである40 MHzクロックの立ち上がりと同期した差動の矩形波をASDに送信する。
+ASDテストパルスは、PP ASICからASDに送られる試験用の電荷であり、ASDからSLまでのデータパスの試験に使用される。高輝度LHC-ATLAS実験のTGCシステムでは、TPT信号を含むTTC信号は、CTPからSLを中継して各フロントエンドエレクトロニクスに分配される。テストパルス生成回路はTPT信号を受信すると、参照クロックである40 MHzクロックの立ち上がりと同期した差動の矩形波をASDに送信する。
 
 % SLにおいて、期待したタイミングにヒット信号得られることを確認することで、ASDからSLまでのトリガーパスにハードウェアの不具合がないこと、およびFixed latencyでのデータ処理を実現できていることを確かめることができる。
 
-PS board QAQC試験ではQAQC用JATHubが試験のマスターとして、TPT信号の発行や、ヒットデータの読み出しを行う。図\ref{QAQCasdtp}に概要を示す。Zynq SoCのPL領域にPS board制御と読み出しのための回路を実装し、Ubuntu上のアプリケーションを起点にTPTの発行およびヒットデータの読み出しを行う。Ubuntuから読み出されたヒットデータは、SDカード上にテキストファイルとして保存される。
+PS board QAQC試験ではQAQC用JATHubが試験のマスターとして、PS board を制御する。図\ref{QAQCasdtp}に概要を示す。Zynq SoCのPL領域にPS board制御とヒットデータ読み出し回路を実装し、Ubuntu上のアプリケーションを起点にそれらを制御する。Ubuntuから読み出したヒットデータは、SDカード上にテキストファイルとして保存される。
 
-この試験ではTPT信号の発行回数に対するヒット信号の割合をEfficiencyと定義し、PS boardが担当する256 チャンネルのEfficiencyが1であることを確認する。
-ASDテストパルスを期待通り動作させるにはPP ASIC、DAC、Si5395に適したパラーメーターを分配し、ASD、PP ASIC、PS board FPGA、高速シリアル通信が固定レイテンシーで同期して動作する必要がある。この試験により、PS board上に搭載されたほとんどの素子および素子間の導通を検証することができる。以下に試験の手順を示す。
-
+この試験ではTPT信号を発行してから、固定時間後のヒットビットマップを読み出し、PS board が担当する256チャンネル全てにヒットデータが含まれていることを確認する。これにより、PS boardの制御パスと読み出しパス、およびそれに関係する全ての素子、素子間の導通を検証することができる。具体的には光インターフェイス(SFP+)が正常に動作し光通信が問題なく行われていること。QSPIフラッシュメモリーへのパラメータ書き込みおよびPP ASIC、DAC、Si5395へのパラメータ分配が正常に行われていること。PP ASICによるヒットデータの処理、DACによる閾値電圧の供給、クロックジッタークリーナーによるクロックの分配が正常に動作していること、などを網羅的に検証することができる。以下に具体的な手順について述べる。
 % \begin{figure} 
 % \centering
 % \includegraphics[width=16cm]{fig/QAQC/PSBasdtp.png}
@@ -98,16 +96,16 @@ ASDテストパルスを期待通り動作させるにはPP ASIC、DAC、Si5395�
 % \label{PSBasdtp}
 % \end{figure}
 
-\begin{figure} 
-    \centering
-    \includegraphics[width=16cm]{fig/QAQC/PSBtpg.png}
-    \caption[テストパルス生成回路]{テストパルス生成回路。PS board FPGAからTPT信号(TRIG)を受け取り、参照クロックである40 MHzクロックの立ち上がりに同期して、ASDに対して差動の矩形波を送信する。}
-    \label{PSBtpg}
-\end{figure}
+% \begin{figure} 
+%     \centering
+%     \includegraphics[width=16cm]{fig/QAQC/PSBtpg.png}
+%     \caption[テストパルス生成回路]{テストパルス生成回路。PS board FPGAからTPT信号(TRIG)を受け取り、参照クロックである40 MHzクロックの立ち上がりに同期して、ASDに対して差動の矩形波を送信する。}
+%     \label{PSBtpg}
+% \end{figure}
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{fig/QAQC/QAQCasdtp.png}
+\includegraphics[width=16cm]{fig/QAQC/QAQCasdtp.pdf}
 \caption[QAQC用JATHubを用いたASDテストパルス試験]{QAQC用JATHubを用いたASDテストパルス試験の概要。QAQC用JATHubが試験のマスターとして、PS boardの制御、TPTの発行、ヒットデータの読み出しを行う。Zynq SoCのPL領域にPS board制御と読み出しのための回路を実装し、Ubuntu上のアプリケーションを起点にTPTの発行およびヒットデータの読み出しを行う。Ubuntuから読み出されたヒットデータは、SDカード上にテキストファイルとして保存される。}
 \label{QAQCasdtp}
 \end{figure}
@@ -120,7 +118,7 @@ ASDテストパルスを期待通り動作させるにはPP ASIC、DAC、Si5395�
     TPTを発行してからヒット信号が返ってくるまでのレイテンシーは、試験セットアップ (シグナルケーブルや光ファイバーの長さなど) に依存する。試験開始前にレイテンシーを測定し、Current BC にヒットが返ってくるよう試験パラメーターを設定する。
     \vskip0.5\baselineskip
 
-    \item TPTの発行とデータ読み出しを複数回繰り返し、読み出したデータにヒットが入っていた割合をEfficiencyとして評価する。PS boardが正常に動作している場合、Current BC のEfficiencyが1、Previous BC および Next BC のEfficiencyが0になる。
+    \item TPTの発行とデータ読み出しを複数回繰り返し、読み出したデータにヒットが入っていた割合をEfficiencyとして評価する。PS boardが期待通り動作している場合、Current BC のEfficiencyが1、Previous BC および Next BC のEfficiencyが0になる。
     \vskip0.5\baselineskip
 
 \end{enumerate}
@@ -161,18 +159,23 @@ SVF playerはSVFファイルと呼ばれる、JTAG4線をドライブするパ�
 \section{コンパクトDAQシステムの機能開発}
 \label{sec_QAQC_JATHub}
 本節では\ref{subsec_QAQCdesign}節で考案した試験を実現するために開発した、QAQC用JATHubの機能実装について述べる。
-
-\subsection{システム間通信の実装}
-\label{subsec_infra}
-% まず、試験セットアップにおけるシステムの概要と、システムをまたぐインターフェイスの実装方法について述べる。
-図\ref{JAThubinfra}に試験システムの全体像を示す。QAQC試験におけるコントロール信号はローカルPC、JATHub PS、JATHub PL、PS boardの順に伝えられる。ローカルPCとPSはイーサーネット通信を行う。PSとPLはAXIプロトコルで通信する。PLからPS boardへは、固定位相の光トランシーバーを用いた高速シリアル通信を行う。PS boardからのデータはその逆のパスを通ってローカルPCまで届けられる。PLからPSへのデータ読み出しはAXI GPIOを活用した自作調停回路を利用する。以下にPSに起動するUbuntuの起動方法と、システム間の通信インフラの設計について述べる。
+システムの全体像を図\ref{}に示す。本システムは大きく分けて3つの機能に分けられる。
 
 \begin{figure} 
 \centering
-\includegraphics[width=16cm]{fig/QAQC/JAThubinfra.png}
-\caption[QAQC用JATHubのシステム全体像]{QAQC用JATHubのシステム全体像。QAQC試験における制御信号はローカルPC、JATHub PS、JATHub PL、PS boardの順に伝えられる。ローカルPCとJATHub PSはイーサーネット通信を行う。PSとPLはAXIプロトコルで通信する。PL領域からPS boardへは高速シリアル通信を行う。PS boardからのデータはその逆のパスを通ってローカルPCまで届けられる。}
-\label{JAThubinfra}
+\includegraphics[width=16cm]{fig/QAQC/QAQCoverall.pdf}
+\caption[コンパクトDAQシステムの全体像]{コンパクトDAQシステムの全体像。本システムは大別して、インフラ機能(図中オレンジ色)、ASDテストパルス試験のための機能(図中み)、JTAG/Recovery/Clock試験機能(図中青色)の3つの機能に分けられる。PS 領域にはUbuntuを起動し、アプリケーションを起点にFPGAを操作する。UbuntuからFPGAの操作はAXI GPIOを利用し、読み出しには自作調停回路を用いる。TTC信号もJATHub内部で生成しPS boardへ分配する。ASDテストパルス試験のための機能は、高速光シリアル通信、PS board への制御信号の送信、固定時間でのヒットデータ読み出しで構成される。JTAG/Recovery/Clock試験に向けて、SVF player、リカバリー手続、クロック位相測定を実装する。}
+\label{fig_CTA}
 \end{figure}
+
+1つ目はQAQC用JATHub単体でPS board制御およびDAQを完結させるためのインフラの実装である(図中オレンジ色)。Zynq のPS領域にはUbuntuを起動し、LANケーブルを介したEthernet通信を行う。ASDテストパルス試験とJTAG/Recovery/Clock試験はいずれもUbuntu上のアプリケーションを起点に実行する。そのためにUbuntuからFPGAを操作する機能、FPGAからUbuntuへデータを読み出す機能をそれぞれ実装する。QAQC試験ではJATHubをマスターとして、PS board、ASDのタイミング制御も行うため、JAHTub上の水晶発振器で生成した160 MHzクロックを分周した40 MHzクロックをLHCバンチ交差クロックの代わりに、基準クロックとして利用する。またそれぞれのシステムのタイミングを制御するTTC信号もこれを元にJATHub上で生成する。
+
+2つ目はASDテストパルス試験のための実装で、基本的にはSLが担う機能を模したものである(図中緑色)。これにはPS boardとの高速光シリアル通信、固定位相でのクロック分配、PS board への制御信号の送信、固定時間でのヒットデータ読み出しが含まれる。
+
+3つ目はJTAG/Recovery/Clock試験のための実装で、本番運用でのJATHubの担う機能である(図中青色)。これにはSVF player、リカバリー手続、クロック位相測定が含まれる。本研究に取り組んだ2022年当時、高輝度LHC-ATLAS実験用のSLは開発段階にあったため、ASDテストパルス試験のための機能実装はRun3のSLを参考にした。JTAG/Recovery/Clock試験のための機能実装は、先行研究\cite{mt_atanaka}により機能開発が完了していたため、それをそのまま実装した。以下にそれぞれの機能実装について述べる。
+
+\subsection{インフラの実装}
+\label{subsec_infra}
 
 \subsubsection{Zynq PS領域におけるUbuntuの起動}
 \vskip0.5\baselineskip
@@ -228,46 +231,6 @@ PSからAXI GPIO レジスタへは少なくとも2通りの方法でアクセ�
 % \label{JATHuaddress}
 % \end{figure}
 
-\subsubsection{高速シリアル通信}
-\vskip0.5\baselineskip
-\label{subsubsec_gtx}
-PS boardとSL間の高速シリアル通信では、適切なBCIDとFixed latency schemeを実現するため、固定位相でのクロック分配および固定時間でのデータ転送が行われる。
-QAQC用JATHubにおいてもこれを達成するため、先行研究\cite{mt_aoki}で開発された高速シリアル通信システムを実装する。これにより、JATHubやPS boardにリセットや再コンフィギュレーションを施しても、両者の基準クロック間の位相関係は変わらず一定となる。この結果、ASDテストパルス試験に置いて、TPT信号の発行からヒットデータが返ってくるまでのレイテンシーが一定に保たれることが保証される。図\ref{JATHubgtx}にシステムの概要を示す。
-
-% SL-PS board間の通信では、光ファイバーを介した固定位相のクロック分配が行われる。
-% 固定位相のクロック分配とは、LHCバンチ交差クロックとPS boardで再構成されるクロックの位相関係が、電源の再投入や光リンクのリセットで変化しないことを意味する。
-% は、PP ASICで適切なBCIDをするのに必要不可欠な要請である。PS boardのこの機能を検証するため、QAQC用JATHubを用いたASDテストパルス試験においても固定位相でのDAQが実現されていることを確認する。
-
-% ASDテストパルス試験では固定レイテンシーでのデータ収集を行うため
-
-\begin{figure} 
-\centering
-\includegraphics[width=16cm]{fig/QAQC/JATHubgtx.png}
-\caption[QAQC用JATHubにおけるGTXトランシーバーの概要]{QAQC用JATHubにおける固定位相でのクロック分配GTXトランシーバーの概要。GTXトランシーバーはJATHub内部の水晶発振器で生成した160 MHzクロックを参照クロックとして利用する。TXユーザーロジックはGTX トランシーバーと同期した200 MHz のTXUSER CLOCKで動作する。RX ロジックでは、PS board から受信したシリアルデータから、固定位相でRXUSER CLOCKを再構成するため、Comma detectorを実装する。これによりJATHubとPS board間におけるデータの送受信が固定時間で行われることが保証される。}
-\label{JATHubgtx}
-\end{figure}
-
-
-\paragraph{TXロジック}　\par
-QAQC用JATHubとPS boardはJATHub上の水晶発振器で生成される160 MHz クロック\footnote{正確にはLHCバンチ交差クロック40.079 MHzの4倍に相当する160.316 MHz。}を基準クロックとして、これと同期して固定時間でデータを送受信する。
-
-TXロジックは160 MHzクロックを200 MHzに分周したものを、動作クロック (TXユーザークロック) として利用する。
-TXロジックは、200 MHzおきに32 bitのデータ (1ワード) をGTXトランシーバーに送信する。GTXトランシーバーは8b/10bのプロトコルでこれを40 bitのパラレルデータへとエンコードした後、シリアルデータへと変換する。生成されたシリアルデータは、参照クロックから生成した4 GHz クロックに乗せられ、PS boardに送信される。
-
-
-\paragraph{RXロジック}　\par
-QAQC用JATHubのRXロジックでは、Fixed latencyでのデータ受信を実現するため、受信したデータから固定位相でRXの動作クロック (RXユーザークロック) を再構成する必要がある。
-その実現に重要な役割を果たすのが、RX Clock Data Recovery機構(CDR)とComma detectorである。CDR機構とは受信したシリアルデータの立ち上がりまたは立ち下がりのタイミングに同期してクロックを再構成する機能で、受信データから固定位相で4 GHz クロックを再構成する。
-このクロックを1/20に分周し、200 MHzのRXユーザークロックを作るが、その過程で合計20種類の位相の不定性が生じる。この中から特定の1つの位相を決めるのがComma detectorである。Commaデータとは送信側と受信側の間で事前に取り決められた10 bitの予約語で、PS boardとの通信では40 MHzに1回送信するよう決める。Comma detectorはCommaデータが200 bitのシリアルデータの下位10 bitにくるまで、RX ユーザークロックをシフトする(図\ref{JATHubcomma})。これにより1/20の分周においても不定性なく、RXユーザークロックを再構成することができる。
-
-\begin{figure} 
-\centering
-\includegraphics[width=16cm]{fig/QAQC/JATHubcomma.png}
-\caption[Comma detectorの概要]{Comma detectorの概要。Comma detectorはGTXトランシーバーで再構成された200 bitのシリアルデータの下位10 bitがCommaワードと一致するまで、RX SLIDEを打ち続け、RXユーザークロックの位相をシフトさせる。これにより、受信するデータに対して、RXユーザークロックの位相を一位に定めることができる。}
-\label{JATHubcomma}
-\end{figure}
-
-
 \subsubsection{PLからPSへのデータ読み出し}
 \vskip0.5\baselineskip
 \label{subsubsec_readout}
@@ -306,23 +269,30 @@ AXI GPIO レジスタはFPGA内のFIFOからもUbuntuからも任意のタイミ
 
 作成した読み出しシステムの動作検証や性能評価は\ref{sec_PSboardQAQCdemo}節で行う。また、この読み出しシステムはPL領域からPS領域へのデータ読み出しに複数箇所使われており、汎用読み出しシステムと呼ぶ。
 
-\subsection{FPGAの機能実装}
-\label{subsec_function}
-QAQC用JATHub FPGAに実装した機能について述べる。実装する機能は大別してSLが担う、PS board制御機能、ヒットデータ読み出し機能とJATHubの担うJTAG/Recovery/Clock monitor機能である。
 
-% このシステムではJATHub内部の水晶発振器から生成される200 MHzのTX ユーザークロックを逓倍した40 MHzクロックを参照クロックとして利用する。JATHub内部の水晶発振器は、LHCバンチ交差クロック40.079 MHzの4倍に相当する160.316 MHzで動作する。このクロックを参照クロックとして利用することで、JATHub内部の機能はLHCバンチ交差クロックと同期して動作することができる。また、
+\subsubsection{TTC emulator}
+\vskip0.5\baselineskip
+ASDテストパルス試験ではJATHub、PS board、ASDの間で固定位相でLHCバンチ交差クロックを分配し、それぞれのエレクトロニクスが同期して動作する必要がある。TGCシステムではLHCバンチ交差クロックはCTPから分配されるが、本試験システムではJATHub 1台で試験を完結させるため、JATHub上の水晶発振器で生成されたクロックを基準クロックとして扱う。Bunch Counter Reset (BCR) 信号やEvent Counter Reset (ECR) などのTTC信号も、JATHub内で生成しPS boardへと分配する。この役割を果たすのがTTC emulatorである。ここで発行されたTTC信号はコントロール信号のワード0に埋め込まれ、光ファイバーを介してPS boardへと送られる。L1A信号もTTC emulatorから出力され、前述したようにTPTとL1Aを同期して制御することでFixed latencyのDAQを実現している。以下にTTC emulatorのサブモジュールを説明する。
 
-% PS boardに送信するコントロール信号に関係する機能は200 MHzのTXユーザークロックを動作クロックとして利用する。PS boardから受信するデータを処理するパスでは200 MHzのRXユーザークロックを動作クロックに利用する。
-開発を進めた2022年時点において、JATHubのファームウェアは先行研究\cite{mt_atanaka}での開発が完了していたため、JTAG/Recovery/Clock monitor機能はそれを本システムに組みこんだ。SLのファームウェアは開発段階であったため、Run 3で使われていたNew Sector Logic (NSL) のファームウェアを参考に、本研究で開発を進めた。以下に各機能の詳細を説明する。
-% \begin{itembox}{後で直すところ}
-%     全体像としてクロックドメインまとめたものを貼りたいところだよね
-% \end{itembox}
+\begin{itemize}
+    \item {TTC generator : } 40MHz LHCバンチ交差クロックで動作するカウンター。reset信号でカウンターをリセットし、1クロックチック毎にカウンターの値を1つずつインクリメントする。カウンターの値が3564に達したタイミングでBCR信号を発行する。デフォルトの設定ではTPT、L1AもBCRに合わせて3564 BCに一回発行しているが、TPT、L1Aの発行頻度は任意の値に設定することができる。TPT lengthを変更することで、TPTを複数BCに渡って出力することも可能になっている。
+    \vskip0.5\baselineskip
 
-\subsection*{コントロール機能}
+    \item{TTC Delay : }1 bit 幅、深さ 4096 列のBRAMで実装したディレイ回路。L1A、BCR、TPTに任意の遅延をかけることができる。L1A Delayを調整することでTPTからL1Aを発行するまでのレイテンシーを変更することができる。
+    \vskip0.5\baselineskip
+
+    \item{ID counter : }BCR、ECR、L1Aを受けてBCID、ECID、L1IDを数え上げるカウンター。ここで発行されたBCIDやL1IDはUbuntuからの読み出しフォーマットに組み込まれて出力される。読み出したデータにおけるL1IDの連続性やBCIDを確認することでデータの欠損や重複をチェックすることができる。
+    \vskip0.5\baselineskip
+    
+    \item{FPGAテストパルス発行機能 : }PS boardの持つFPGAテストパルスを発行するためのモジュール。FPGAテストパルスはPS board内のBRAMに保存される。BRAMのaddressを指定した状態で、TPTを発行するとBRAMから256 bitのヒットビットマップが取り出され、ASDからのヒット信号の代わりにJATHubに送信される。
+    \vskip0.5\baselineskip
+\end{itemize}
+
+\subsection{ASDテストパルス試験のための機能実装}
+
+
+\subsubsection{コントロール}
 \label{subsubsec_control}
-コントロール機能はQAQC用JATHubのファームウェア全体を制御するための機能であり、LHCバンチ交差クロックと同期する必要のないスローな制御を担当する。FPGA内のレジスタを制御し、読み出し機能に使われるパラメーターの変更や、PS boardに送るコントロール信号の操作を行う。
-
-\subsubsection{FPGA制御機能}
 QAQC用JATHub上の各機能の制御はControl Centerから行う。Control Centerでは複数のレジスタがインスタンス化されており、このレジスタの値を書き換えることでFPGA内の各機能を制御する。Control Centerの操作はUbuntu上で実行したアプリケーションを起点に行う。
 図\ref{JATHubccenter}にUbuntuとControl Centerの接続を示す。
 
@@ -335,7 +305,7 @@ QAQC用JATHub上の各機能の制御はControl Centerから行う。Control Cen
 
 Control Center内のレジスタ操作は、VMEプロトコルを模倣した独自のプロトコルに従って行い、Interpreterがその操作を仲介する。Zynq PS領域とInterpreterは16 bitのData、12 bitのAddress、読み書きモード選択用のそれぞれ1 bitの信号線で接続される。UbuntuはControl Center内のレジスタアドレスを指定し、read modeまたはwrite modeを1に引き上げることで、レジスタの読み書きを行う。この設計により、PSからControl Center内の各レジスタへ直接AXIバスを接続する必要がなく、PSからPLに伸びるAXIバスの本数を必要最小限にとどめることができる。Control Center からUbuntuへのデータ読み出しは、前述の汎用読み出しシステムを利用する。
 
-\subsubsection{PS board制御機能}
+\subsubsection{PS boardとの通信}
 PS boardの制御はSLとPS board間で定められた通信フォーマット(図\ref{TGC_PSBdownlink})に従って、高速光通信を介して行われる。
 QAQC用JATHubにも、このフォーマットに従ったパケット交換を行う機能を実装し、PS boardのコントロールおよびLHCクロックの分配を行う。200 MHzのTXユーザークロックで動作するステートマシンにより、40 MHzおきに5ワードを送信する。
 
@@ -396,7 +366,49 @@ PS board FPGAや各素子の状態のモニター値は、自立型制御機構�
     \end{tabular}
     \end{table}
 
-\subsection*{ヒットデータ読み出し機能}
+\subsubsection{高速光シリアル通信}
+\vskip0.5\baselineskip
+\label{subsubsec_gtx}
+PS boardとSL間の高速シリアル通信では、適切なBCIDとFixed latency schemeを実現するため、固定位相でのクロック分配および固定時間でのデータ転送が行われる。
+QAQC用JATHubにおいてもこれを達成するため、先行研究\cite{mt_aoki}で開発された高速シリアル通信システムを実装する。これにより、JATHubやPS boardにリセットや再コンフィギュレーションを施しても、両者の基準クロック間の位相関係は変わらず一定となる。この結果、ASDテストパルス試験に置いて、TPT信号の発行からヒットデータが返ってくるまでのレイテンシーが一定に保たれることが保証される。図\ref{JATHubgtx}にシステムの概要を示す。
+
+% SL-PS board間の通信では、光ファイバーを介した固定位相のクロック分配が行われる。
+% 固定位相のクロック分配とは、LHCバンチ交差クロックとPS boardで再構成されるクロックの位相関係が、電源の再投入や光リンクのリセットで変化しないことを意味する。
+% は、PP ASICで適切なBCIDをするのに必要不可欠な要請である。PS boardのこの機能を検証するため、QAQC用JATHubを用いたASDテストパルス試験においても固定位相でのDAQが実現されていることを確認する。
+
+% ASDテストパルス試験では固定レイテンシーでのデータ収集を行うため
+
+\begin{figure} 
+\centering
+\includegraphics[width=16cm]{fig/QAQC/JATHubgtx.png}
+\caption[QAQC用JATHubにおけるGTXトランシーバーの概要]{QAQC用JATHubにおける固定位相でのクロック分配GTXトランシーバーの概要。GTXトランシーバーはJATHub内部の水晶発振器で生成した160 MHzクロックを参照クロックとして利用する。TXユーザーロジックはGTX トランシーバーと同期した200 MHz のTXUSER CLOCKで動作する。RX ロジックでは、PS board から受信したシリアルデータから、固定位相でRXUSER CLOCKを再構成するため、Comma detectorを実装する。これによりJATHubとPS board間におけるデータの送受信が固定時間で行われることが保証される。}
+\label{JATHubgtx}
+\end{figure}
+
+
+\paragraph{TXロジック}　\par
+QAQC用JATHubとPS boardはJATHub上の水晶発振器で生成される160 MHz クロック\footnote{正確にはLHCバンチ交差クロック40.079 MHzの4倍に相当する160.316 MHz。}を基準クロックとして、これと同期して固定時間でデータを送受信する。
+
+TXロジックは160 MHzクロックを200 MHzに分周したものを、動作クロック (TXユーザークロック) として利用する。
+TXロジックは、200 MHzおきに32 bitのデータ (1ワード) をGTXトランシーバーに送信する。GTXトランシーバーは8b/10bのプロトコルでこれを40 bitのパラレルデータへとエンコードした後、シリアルデータへと変換する。生成されたシリアルデータは、参照クロックから生成した4 GHz クロックに乗せられ、PS boardに送信される。
+
+
+\paragraph{RXロジック}　\par
+QAQC用JATHubのRXロジックでは、Fixed latencyでのデータ受信を実現するため、受信したデータから固定位相でRXの動作クロック (RXユーザークロック) を再構成する必要がある。
+その実現に重要な役割を果たすのが、RX Clock Data Recovery機構(CDR)とComma detectorである。CDR機構とは受信したシリアルデータの立ち上がりまたは立ち下がりのタイミングに同期してクロックを再構成する機能で、受信データから固定位相で4 GHz クロックを再構成する。
+このクロックを1/20に分周し、200 MHzのRXユーザークロックを作るが、その過程で合計20種類の位相の不定性が生じる。この中から特定の1つの位相を決めるのがComma detectorである。Commaデータとは送信側と受信側の間で事前に取り決められた10 bitの予約語で、PS boardとの通信では40 MHzに1回送信するよう決める。Comma detectorはCommaデータが200 bitのシリアルデータの下位10 bitにくるまで、RX ユーザークロックをシフトする(図\ref{JATHubcomma})。これにより1/20の分周においても不定性なく、RXユーザークロックを再構成することができる。
+
+\begin{figure} 
+\centering
+\includegraphics[width=16cm]{fig/QAQC/JATHubcomma.png}
+\caption[Comma detectorの概要]{Comma detectorの概要。Comma detectorはGTXトランシーバーで再構成された200 bitのシリアルデータの下位10 bitがCommaワードと一致するまで、RX SLIDEを打ち続け、RXユーザークロックの位相をシフトさせる。これにより、受信するデータに対して、RXユーザークロックの位相を一位に定めることができる。}
+\label{JATHubcomma}
+\end{figure}
+
+
+
+
+\subsubsection{固定時間でのヒットデータ読み出し機能}
 \label{subsubsec_DAQ}
 ヒットデータ読み出し機能は、PS boardから受信するヒットデータをイベントごとにまとめ、Zynq PS領域へと安定的にデータを送る機能である。
 QAQC用JATHubは光ファイバーを介して、PS boardから25 nsごとに256 bitのヒット信号を受け取る。ヒットデータとそのデータに割り当てられたイベント情報 (BCID、L1ID) はFPGA上でバッファーされ (L1 Buffer)、L1Aにより取り出される。L1 Bufferから取り出された1 BC分のデータはFIFOメモリーにダンプされ、CPUの動作する任意のタイミングでデータパスとは非同期に読み出される。
@@ -410,24 +422,6 @@ QAQC用JATHubは光ファイバーを介して、PS boardから25 nsごとに256
 \caption[読み出し回路の全体像]{読み出し回路の全体像。PS boardから25 nsごとに送られる256 bitのヒット信号は、LHC交差クロックに同期してL1 Bufferに格納される。TTC emulatorはTPT信号から固定レイテンシー後にL1Aを発行し、テストパルスに該当するイベントをL1 Bufferから取り出す。取り出されたデータはDerandomizerに入れられ、CPUの動作する任意のタイミングでデータパスとは非同期に読み出される。}
 \label{JATHubdaq}
 \end{figure}
-
-\subsubsection{TTC emulator}
-\vskip0.5\baselineskip
-ASDテストパルス試験ではJATHub、PS board、ASDの間で固定位相でLHCバンチ交差クロックを分配し、それぞれのエレクトロニクスが同期して動作する必要がある。TGCシステムではLHCバンチ交差クロックはCTPから分配されるが、本試験システムではJATHub 1台で試験を完結させるため、JATHub上の水晶発振器で生成されたクロックを基準クロックとして扱う。Bunch Counter Reset (BCR) 信号やEvent Counter Reset (ECR) などのTTC信号も、JATHub内で生成しPS boardへと分配する。この役割を果たすのがTTC emulatorである。ここで発行されたTTC信号はコントロール信号のワード0に埋め込まれ、光ファイバーを介してPS boardへと送られる。L1A信号もTTC emulatorから出力され、前述したようにTPTとL1Aを同期して制御することでFixed latencyのDAQを実現している。以下にTTC emulatorのサブモジュールを説明する。
-
-\begin{itemize}
-    \item {TTC generator : } 40MHz LHCバンチ交差クロックで動作するカウンター。reset信号でカウンターをリセットし、1クロックチック毎にカウンターの値を1つずつインクリメントする。カウンターの値が3564に達したタイミングでBCR信号を発行する。デフォルトの設定ではTPT、L1AもBCRに合わせて3564 BCに一回発行しているが、TPT、L1Aの発行頻度は任意の値に設定することができる。TPT lengthを変更することで、TPTを複数BCに渡って出力することも可能になっている。
-    \vskip0.5\baselineskip
-
-    \item{TTC Delay : }1 bit 幅、深さ 4096 列のBRAMで実装したディレイ回路。L1A、BCR、TPTに任意の遅延をかけることができる。L1A Delayを調整することでTPTからL1Aを発行するまでのレイテンシーを変更することができる。
-    \vskip0.5\baselineskip
-
-    \item{ID counter : }BCR、ECR、L1Aを受けてBCID、ECID、L1IDを数え上げるカウンター。ここで発行されたBCIDやL1IDはUbuntuからの読み出しフォーマットに組み込まれて出力される。読み出したデータにおけるL1IDの連続性やBCIDを確認することでデータの欠損や重複をチェックすることができる。
-    \vskip0.5\baselineskip
-    
-    \item{FPGAテストパルス発行機能 : }PS boardの持つFPGAテストパルスを発行するためのモジュール。FPGAテストパルスはPS board内のBRAMに保存される。BRAMのaddressを指定した状態で、TPTを発行するとBRAMから256 bitのヒットビットマップが取り出され、ASDからのヒット信号の代わりにJATHubに送信される。
-    \vskip0.5\baselineskip
-\end{itemize}
 
 \subsubsection{L1 Buffer} 
 \vskip0.5\baselineskip
@@ -474,6 +468,7 @@ Event BuilderはDeradomizerに格納された32 bit幅のデータを240 MHzの�
 \caption[リードアウト回路におけるバックプレッシャー機能]{読み出し回路におけるバックプレッシャー機能。DerandomizerのOccupancyがあらかじめ設定した容量閾値を超えると、L1 Bufferにalmost full信号が送られる。almost full信号を受け取ったDerandomizerは処理中のイベントの出力が終わった後、Derandomizerへのデータ送信を停止する。}
 \label{JATHubbackpressure}
 \end{figure}
+
 
 \clearpage
 \section{PS board 品質保証試験のデモンストレーション}
