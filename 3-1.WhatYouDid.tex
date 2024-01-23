@@ -1,4 +1,4 @@
-\chapter{高輝度LHC-ATLAS実験に向けたエンドキャップミューオントリガーの統合}
+\chapter{高輝度LHC-ATLAS実験に向けたエンドキャップ部ミューオントリガー回路の統合}
 \label{chap_TriggerIntegration}
 高輝度LHC-ATLAS実験において、エンドキャップ部トリガーロジックは大規模論理回路としてSL FPGA上に実装される。
 本章では、まず、先行研究で開発されたトリガーロジックの概要および論理回路としての実装方法について説明する。次に、本研究で行った、トリガー論理回路の全体ファームウェアへの統合について議論する。
@@ -148,7 +148,7 @@ Wire segment Reconstructionで利用されるLUTはFPGAのURAM上に格納され
 \subsubsection*{Segment Selector}
 Segment Extractorから送られる最大8つのWire segment から マッチレイヤーの多さを基準に最大1つ選択して、Wire Strip Coincidence へと送信する。マッチレイヤーも同じものが複数ある場合には$\Delta\theta$がより小さいものを選ぶ。
 
-\subsection*{Strip segment Reconstruction}
+\subsubsection{Strip segment Reconstruction}
 このモジュールの駆動クロックは、LHC クロックに同期した周波数 240 MHz のクロックで、レイテンシーは 21 クロックチック分 (87.5 ns) である。
 Strip segment ReconstructionもUnit、Subunit呼ばれる単位領域でトリガーセクターを分割して、Subunitごとに並列にコインシデンスロジックを用意する。Strip では 1つのチェンバーを4分割するようUnitが定義される。エンドキャップ領域は5枚のチェンバーで構成されるため20 Unit、フォワード領域は1枚のチェンバーで構成されるため5 Unit 存在する。図\ref{StationCoin_unit_strip}にUnitの構造を示す。1つのUnitはM1ステーションの40 代表点、M2ステーションの 24代表点、M3ステーションの 16代表点をカバーする。また、1つのUnitを2等分するようにSubunitが定義されており、Subunitに1つパターンマッチング用のLUTが用意される。
 
@@ -385,7 +385,7 @@ Track SelectorはInner Coincidenceから出力される最大112個のミュー�
 \label{Sorting_16}
 \end{figure}
 
-\section{トリガーロジックの統合}
+\section{トリガー論理回路の統合}
 \label{sec_TriggerIntegration}
 2章で述べたように、SL FPGAは4つのシリコンダイで構成されており、トリガーロジックはそれぞれのSLR上に並列に配置される(図\ref{Trigger_floor})。
 PS board とのインターフェイスが実装されるSLR 0・2・3には、TGC BW Coincidenceが実装される。トリガーセクターごとにSLRが分けられ、SLR 0にEndcap $\phi\,0$、SLR 2にEndcap $\phi\,1$、SLR 3にForwardのロジックが配置される。磁場内部の検出器やMUCTPI、MDTTPとのインターフェイスはSLR 1に実装され、Inner Coincidence、Track Selectorが配置される。

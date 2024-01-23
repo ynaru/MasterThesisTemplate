@@ -72,8 +72,16 @@
 
 \usepackage[hang,small,bf]{caption}
 \usepackage[subrefformat=parens]{subcaption}
-\captionsetup{compatibility=false}
-
+% \captionsetup{compatibility=false}
+% \captionsetup{compatibility=false}
+\captionsetup[table]{  % figure でも同じ
+  width=.9\linewidth,format=plain, labelformat=simple,
+  skip=0pt, labelsep=quad,labelfont=normal
+}
+\captionsetup[figure]{  % figure でも同じ
+  width=.9\linewidth, format=plain, labelformat=simple,
+  skip=0pt, labelsep=quad,labelfont=normal
+}
 % 氏名などの情報が入っているファイル。各自で編集。
 \include{AuthorInfo}
 
@@ -101,7 +109,7 @@
 % \include{1.Introduction}
 % \include{2.Review}
 % \include{3-1.WhatYouDid}
-% \include{3-2.WhatYouDid}
+\include{3-2.WhatYouDid}
 % \include{3-3.WhatYouDid}
 % \include{4.LaTeX}
 % \include{5.Plagiarism}
