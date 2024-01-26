@@ -171,7 +171,7 @@ L0 TriggerはL0 Calo、L0 Muon、Global Trigger、CTPで構成される。L0 Muo
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/Intro/TGC_triggerconcept.pdf}
-\caption[TGCにおけるトリガーのコンセプト]{TGCにおけるトリガーのコンセプト\cite{mt_akatsuka}。ミューオンがTGCに残したヒット点から再構成した実際の飛跡と無限運動量飛跡の位置の差分 ($\mathrm{dR}$,$\mathrm{d\phi}$)を利用して\pt を概算する。}
+\caption[TGCにおけるトリガーのコンセプト]{TGCにおけるトリガーのコンセプト\cite{mt_akatsuka}。ミューオンがTGCに残したヒット点から再構成した実際の飛跡と無限運動量飛跡の位置の差分 ($\mathrm{d}R$,$\mathrm{d\phi}$)を利用して\pt を概算する。}
 \label{TGC_triggerconcept}
 \end{figure}
 
@@ -233,10 +233,10 @@ SL、ROD以降のエレクトロニクスはUSA15というATLAS回路室内に�
 \label{Run3_TTC}
 \end{figure}
 
-以上に述べたRun 3のTDAQシステムでは、高輝度LHC-ATLAS実験のトリガーおよび読み出し性能の要求を満たすことができない。この限界は、主にSLBに設置されるL1 Bufferの容量と、ATLAS実験室と回路室間の帯域幅に由来している。Run 3では、L1 Bufferは最大128イベント分のデータしか保存できないため、高輝度LHC-ATLAS実験のL0 latencyの要求である10us (400バンチ) の間データを保持することができない。さらに、1 MHzの初段トリガーレートに対応するデータ量を読み出すためには、現行システムのATLAS実験室と回路室間の帯域幅では不十分である。
+以上に述べたRun 3のTDAQシステムでは、高輝度LHC-ATLAS実験のトリガーおよび読み出し性能の要求を満たすことができない。この限界は、主にSLBに設置されるL1 Bufferの容量と、ATLAS実験室と回路室間の帯域幅に由来している。Run 3では、L1 Bufferは最大128イベント分のデータしか保存できないため、高輝度LHC-ATLAS実験のL0 latencyの要求である10 $\mu \mathrm{s}$ (400バンチ) の間データを保持することができない。さらに、1 MHzの初段トリガーレートに対応するデータ量を読み出すためには、現行システムのATLAS実験室と回路室間の帯域幅では不十分である。
 
     \subsection{高輝度LHC-ATLAS実験でのTGC検出器システム}  
-前節で述べた問題を解決するため、高輝度LHC-ATLAS実験ではTGC検出器のエレクトロニクスを大幅にアップグレードする。主な変更点はPS boardでBCIDしたすべてのヒット信号を、ヒットの有無に関わらず、すべてのBCについてSLに送る点である。Run 3のトリガーパスでは、検出器からの信号はSLBやHPTでのコインシデンスを通じて、段階的にデータ量を削減しながら回路室へ送られた。一方、高輝度LHC-ATLAS実験では、実験室と回路室の間で新しく高速シリアル通信技術を導入し、帯域幅を大幅に拡張することで、PS boardが処理した全チャンネル分のヒットビットマップをすべて、回路室のSLへ送信することができる。回路室では、ボードサイズや放射線耐性に対する制約が少なく、SLには大規模なFPGAを搭載することができる。その結果、CTPからL0Aが発行されるまでデータを保管しておくL0 Bufferも余裕を持って実装することができ、10 usのL0 latencyに対応することが可能となる。またSLに1つのトリガーセクター内の全てのPS boardからのヒット信号を集約させることで、TGC BW 7層分のヒットデータを利用した、より包括的なトリガーアルゴリズムを実現する。高輝度LHC-ATLAS実験でのトリガーロジックの詳細は\ref{sec_Phase2TriggerLogic}節で説明する。
+前節で述べた問題を解決するため、高輝度LHC-ATLAS実験ではTGC検出器のエレクトロニクスを大幅にアップグレードする。主な変更点はPS boardでBCIDしたすべてのヒット信号を、ヒットの有無に関わらず、すべてのBCについてSLに送る点である。Run 3のトリガーパスでは、検出器からの信号はSLBやHPTでのコインシデンスを通じて、段階的にデータ量を削減しながら回路室へ送られた。一方、高輝度LHC-ATLAS実験では、実験室と回路室の間で新しく高速シリアル通信技術を導入し、帯域幅を大幅に拡張することで、PS boardが処理した全チャンネル分のヒットビットマップをすべて、回路室のSLへ送信することができる。回路室では、ボードサイズや放射線耐性に対する制約が少なく、SLには大規模なFPGAを搭載することができる。その結果、CTPからL0Aが発行されるまでデータを保管しておくL0 Bufferも余裕を持って実装することができ、10 $\mu \mathrm{s}$のL0 latencyに対応することが可能となる。またSLに1つのトリガーセクター内の全てのPS boardからのヒット信号を集約させることで、TGC BW 7層分のヒットデータを利用した、より包括的なトリガーアルゴリズムを実現する。高輝度LHC-ATLAS実験でのトリガーロジックの詳細は\ref{sec_Phase2TriggerLogic}節で説明する。
 
 \subsection*{全体像}
 図\ref{TGC_phase2tdaq}に高輝度LHC-ATLAS実験でのTGC検出器エレクトロニクスの概要を示す。ASDは現行システムのものを引き続き使用する。一方で、Run 3で使われていたPS board、SLB、HPT、SLはすべて撤去され、新しくPrimary ProceSsor board  (PS board)、JTAG AssisTance Hub  (JATHub)、Endcap Sector Logic  (SL) が設置される。PS boardはRun 3と同様にPS-packに格納され、TGC検出器付近に設置される。JATHubはMini-pack内のVMEクレートに設置される。SLはUSA15のATCAクレートに設置される。1つのSLはTGCの1/24セクター担当し、このセクターを担当する最大31枚のPS boardからヒットデータを受け取る。

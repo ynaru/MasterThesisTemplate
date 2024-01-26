@@ -139,7 +139,7 @@ JATHubとのインターフェイスの動作検証のため、JATHubからの�
 
 \paragraph{JTAG試験}　\par
 JTAG試験はZynqに起動したOSからJTAG線をドライブして、QSPIフラッシュメモリーにファームウェアを書き込む試験である。これにはSerial Vector Format (SVF) playerと呼ばれるアプリケーションを用いる。
-SVF playerはSVFファイルと呼ばれる、JTAG4線をドライブするパターンを記述したACSII (テキスト) ファイルを読み込み、PS-PL間チップ通信を利用してJTAG線を操作する。SVFファイルはXilinx社が提供するFPGA開発用ソフトウェア "Vivado" で作成することができ、QAQC用JATHub内のSDカード上に置かれる。
+SVF playerはSVFファイルと呼ばれる、JTAG4線をドライブするパターンを記述したACSII (テキスト) ファイルを読み込み、PS-PL間チップ通信を利用してJTAG線を操作する。SVFファイルは、QAQC用JATHub内のSDカード上に置かれる。
 
 \paragraph{リカバリー試験}　\par
 %図作る
@@ -159,20 +159,20 @@ SVF playerはSVFファイルと呼ばれる、JTAG4線をドライブするパ�
 \section{コンパクトDAQシステムの機能開発}
 \label{sec_QAQC_JATHub}
 本節では\ref{subsec_QAQCdesign}節で考案した試験を実現するために開発した、QAQC用JATHubの機能実装について述べる。
-システムの全体像を図\ref{}に示す。本システムは大きく分けて3つの機能に分けられる。
+システムの全体像を図\ref{QAQCoverall}に示す。本システムは大きく分けて3つの機能に分けられる。
 
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/QAQCoverall.pdf}
-\caption[コンパクトDAQシステムの全体像]{コンパクトDAQシステムの全体像。本システムは大別して、インフラ機能(図中オレンジ色)、ASDテストパルス試験のための機能(図中み)、JTAG/Recovery/Clock試験機能(図中青色)の3つの機能に分けられる。PS 領域にはUbuntuを起動し、アプリケーションを起点にFPGAを操作する。UbuntuからFPGAの操作はAXI GPIOを利用し、読み出しには自作調停回路を用いる。TTC信号もJATHub内部で生成しPS boardへ分配する。ASDテストパルス試験のための機能は、高速光シリアル通信、PS board への制御信号の送信、固定時間でのヒットデータ読み出しで構成される。JTAG/Recovery/Clock試験に向けて、SVF player、リカバリー手続、クロック位相測定を実装する。}
-\label{fig_CTA}
+\caption[コンパクトDAQシステムの全体像]{コンパクトDAQシステムの全体像。本システムは大別して、インフラ機能(図中オレンジ色)、ASDテストパルス試験のための機能(図中緑色)、JTAG/Recovery/Clock試験機能(図中青色)の3つの機能に分けられる。PS 領域にはUbuntuを起動し、アプリケーションを起点にFPGAを操作する。UbuntuからFPGAの操作はAXI GPIOを利用し、読み出しには自作調停回路を用いる。TTC信号もJATHub内部で生成しPS boardへ分配する。ASDテストパルス試験のための機能は、高速光シリアル通信、PS board への制御信号の送信、固定時間でのヒットデータ読み出しで構成される。JTAG/Recovery/Clock試験に向けて、SVF player、リカバリー手続、クロック位相測定を実装する。}
+\label{QAQCoverall}
 \end{figure}
 
 1つ目はQAQC用JATHub単体でPS board制御およびDAQを完結させるためのインフラの実装である(図中オレンジ色)。Zynq のPS領域にはUbuntuを起動し、LANケーブルを介したEthernet通信を行う。ASDテストパルス試験とJTAG/Recovery/Clock試験はいずれもUbuntu上のアプリケーションを起点に実行する。そのためにUbuntuからFPGAを操作する機能、FPGAからUbuntuへデータを読み出す機能をそれぞれ実装する。QAQC試験ではJATHubをマスターとして、PS board、ASDのタイミング制御も行うため、JAHTub上の水晶発振器で生成した160 MHzクロックを分周した40 MHzクロックをLHCバンチ交差クロックの代わりに、基準クロックとして利用する。またそれぞれのシステムのタイミングを制御するTTC信号もこれを元にJATHub上で生成する。
 
 2つ目はASDテストパルス試験のための実装で、基本的にはSLが担う機能を模したものである(図中緑色)。これにはPS boardとの高速光シリアル通信、固定位相でのクロック分配、PS board への制御信号の送信、固定時間でのヒットデータ読み出しが含まれる。
 
-3つ目はJTAG/Recovery/Clock試験のための実装で、本番運用でのJATHubの担う機能である(図中青色)。これにはSVF player、リカバリー手続、クロック位相測定が含まれる。本研究に取り組んだ2022年当時、高輝度LHC-ATLAS実験用のSLは開発段階にあったため、ASDテストパルス試験のための機能実装はRun3のSLを参考にした。JTAG/Recovery/Clock試験のための機能実装は、先行研究\cite{mt_atanaka}により機能開発が完了していたため、それをそのまま実装した。以下にそれぞれの機能実装について述べる。
+3つ目はJTAG/Recovery/Clock試験のための実装で、本番運用でのJATHubの担う機能である(図中青色)。これにはSVF player、リカバリー手続、クロック位相測定が含まれる。本研究に取り組んだ2022年当時、高輝度LHC-ATLAS実験用のSLは開発段階にあったため、ASDテストパルス試験のための機能実装はRun3のSLを参考にSoCデバイス用に応用した。JTAG/Recovery/Clock試験のための機能実装は、先行研究\cite{mt_atanaka}により機能開発が完了していたため、それを用いた。以下にそれぞれの機能実装について述べる。
 
 \subsection{インフラの実装}
 \label{subsec_infra}
@@ -414,7 +414,7 @@ QAQC用JATHubのRXロジックでは、Fixed latencyでのデータ受信を実�
 QAQC用JATHubは光ファイバーを介して、PS boardから25 nsごとに256 bitのヒット信号を受け取る。ヒットデータとそのデータに割り当てられたイベント情報 (BCID、L1ID) はFPGA上でバッファーされ (L1 Buffer)、L1Aにより取り出される。L1 Bufferから取り出された1 BC分のデータはFIFOメモリーにダンプされ、CPUの動作する任意のタイミングでデータパスとは非同期に読み出される。
 
 ヒットデータ読み出し機能の全体像を図\ref{JATHubdaq}に示す。
-読み出し回路はTTC emulator、L1 Buffer、Derandomizer、Event Builderで構成される。Derandomizerの入力までのデータ処理はRXユーザークロックを基準クロックに行われ、固定レイテンシーで動作することが保証される。Derandomizerの出力以降は、LHCバンチ交差クロックとは非同期でUbuntuの動作速度に応じて、処理される。以下に各モジュールの役割を説明する。
+読み出し回路はL1 Buffer、Derandomizer、Event Builderで構成される。Derandomizerの入力までのデータ処理はRXユーザークロックを基準クロックに行われ、固定レイテンシーで動作することが保証される。Derandomizerの出力以降は、LHCバンチ交差クロックとは非同期でUbuntuの動作速度に応じて、処理される。以下に各モジュールの役割を説明する。
 
 \begin{figure} 
 \centering
@@ -425,7 +425,7 @@ QAQC用JATHubは光ファイバーを介して、PS boardから25 nsごとに256
 
 \subsubsection{L1 Buffer} 
 \vskip0.5\baselineskip
-L1 BufferはPS boardから受信した256 bitのヒット信号とECRID、L1ID、BCIDなどのタイミング情報を合わせた432 bitのデータを一時的に保管するためのリングバッファーである。TTC emulatorからL1Aが出されたイベントは後段のDerandomizerに転送され、それ以外のデータはここで捨てられる。25 nsごとに到着するヒット信号は、書き込み用ポインタが指すアドレスに格納される。書き込み用ポインタと読み出し用ポインタはLHCバンチ交差クロックに同期して、1ずつインクリメントする。書き込み用ポインタがBRAMの最後尾まで達した場合、次のクロックチックで再び先頭に戻る。L1 depthによって書き込み用ポインタと読み出し用ポインタのアドレスの差を設定することができ、Bufferの深さを任意の値に設定できる。また、L1Aが発行されてから何BC分のデータを読み出すかをReadoutBCによって設定することができる。デフォルトでは3に設定されており、一回のL1Aに対してPrevious BC、Current BC、Next BCの3バンチ分のデータ読み出す。ReadoutBCで設定されたBC分のデータを読み出している途中に再度L1A信号を受信すると、読み出しエラーを出力する。読み出しエラーが生じた場合、そのL1IDをControl Center内のレジスタに格納し、ユーザーが確認できるようになっている。
+L1 BufferはPS boardから受信した256 bitのヒット信号とECRID、L1ID、BCIDなどのタイミング情報を合わせた432 bitのデータを一時的に保管するためのリングバッファーである。TTC emulatorからL1Aが出されたイベントは後段のDerandomizerに転送され、それ以外のデータはここで捨てられる。25 nsごとに到着するヒット信号は、書き込み用ポインタが指すアドレスに格納される。書き込み用ポインタと読み出し用ポインタはLHCバンチ交差クロックに同期して、1ずつインクリメントする。書き込み用ポインタがBRAMの最後尾まで達した場合、次のクロックチックで再び先頭に戻る。L1 depthによって書き込み用ポインタと読み出し用ポインタのアドレスの差を設定することができ、Bufferの深さを任意の値に設定できる。また、L1Aが発行されてから何BC分のデータを読み出すかをReadoutBCによって設定することができる。デフォルトでは3に設定されており、一回のL1Aに対してPrevious BC、Current BC、Next BCの3バンチ分のデータ読み出す。ReadoutBCで設定されたBC分のデータを読み出している途中に再度L1A信号を受信すると、読み出しエラーを出力する。
 
 \subsubsection{Derandomizer}
 \vskip0.5\baselineskip
@@ -489,19 +489,19 @@ Event BuilderはDeradomizerに格納された32 bit幅のデータを240 MHzの�
 
 \subsection{試験用パラメーターの決定とデモンストレーションの結果}
 \label{subsec_tb_result}
-QAQC試験では量産個体に対する試験に先んじて、PP ASICの遅延、DACの閾値電圧、L1A depthなどセットアップに依存する制御パラメーターを設定しておく必要がある\footnote{ここで決めるパラメーターはQAQC試験を行うためのパラメーターであり、実験時には改めてパラメーターを決めるための調査が行われる。}。
+QAQC試験では量産個体に対する試験に先んじて、PP ASICの遅延、DACの閾値電圧、L1A depthなどセットアップに依存する制御パラメーターを設定しておく必要がある。
 以下に各パラメーターを決定するために行った、事前試験の内容とその結果を示す。
 
 \subsubsection{PP ASIC遅延パラメーター}
 \vskip0.5\baselineskip
 PP ASICの遅延パラメーターは、使用するシグナルケーブルの長さに依存するパラメーターである。ASDからのテストパルス信号の立ち上がりが、PP ASIC陽子バンチ識別回路におけるLHCバンチ交差クロックの立ち上がりと極めて近い場合、イベントごとに付与されるBCIDが1つに定まらない可能性がある。これを防ぐため、PP ASICの可変遅延回路の遅延パラメーターを変更し、両者の立ち上がりが十分離れるよう調整する。このパラメーターの決定のため、Delayスキャンを行なった。Delayスキャンとは、PP ASICの遅延パラメーターを1 stepずつ変更しながらデータを取得し、付与されたBCIDの変化をみるものである。
 
-あるASDに対するDelay Curveを図\ref{QAQCdelayscan}に示す。横軸に設定した遅延の大きさ、縦軸にEfficiencyを表す。この測定では、陽子バンチ識別回路の有効ゲート幅を25 ns、可変遅延回路の刻み幅を1.19 nsに設定している。遅延が0 nsの時に付与されるBCIDがPrevious BCになるようJATHub内のL1 Buffer Depthを調整した。遅延パラメーターを変更していくと、ヒット信号に付与されるBCIDが1つずつずれ、付与されるBunch tagがPrevious BC 、Current BC 、 Next BCと遷移していく。
+1つのASDに対するDelay Curveを図\ref{QAQCdelayscan}に示す。横軸に設定した遅延の大きさ、縦軸にEfficiencyを表す。この測定では、陽子バンチ識別回路の有効ゲート幅を25 ns、可変遅延回路の刻み幅を1.19 nsに設定している。遅延が0 nsの時に付与されるBCIDがPrevious BCになるようJATHub内のL1 Buffer Depthを調整した。遅延パラメーターを変更していくと、ヒット信号に付与されるBCIDが1つずつずれ、付与されるBunch tagがPrevious BC 、Current BC 、 Next BCと遷移していく。
 この試験の結果、テストパルスの立ち上がりとPP ASICの陽子バンチ識別回路におけるLHCバンチ交差クロックの立ち上がりが十分に離れるよう、遅延パラメーターを20 nsと決定した。
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/QAQC/QAQCdelayscan.pdf}
-\caption[ディレイカーブ]{テストベンチで測定したDelay Curve。あるASDの 16 チャンネル分をまとめて書いている。陽子バンチ識別回路の有効ゲート幅を 25 ns、可変遅延回路の刻み幅を1.19 nsに設定した。遅延が 0 ns の時に付与されるBCIDがPrevious BC になるようL1 Buffer Depthを調整した。遅延を増やすことで、付与されるBCIDが期待通りPrevious BC 、Current BC、Next BCと遷移することがわかる。}
+\caption[ディレイカーブ]{テストベンチで測定したDelay Curve。1つのASDにおける結果を示す。陽子バンチ識別回路の有効ゲート幅を 25 ns、可変遅延回路の刻み幅を1.19 nsに設定した。遅延が 0 ns の時に付与されるBCIDがPrevious BC になるようL1 Buffer Depthを調整した。遅延を増やすことで、付与されるBCIDが期待通りPrevious BC 、Current BC、Next BCと遷移することがわかる。}
 \label{QAQCdelayscan}
 \end{figure}
 
@@ -551,7 +551,7 @@ JTAG/Recovery/Clock monitor試験についても試験を行い、期待通り�
 \label{subsec_parallel}
 QAQC試験のデモンストレーションにより、1枚のPS boardを試験するのに、合計で40 分以上の時間が必要であることがわかった。1400枚のPS boardに対する試験を効率的に完了させるためには、試験の高速化が求められる。単純にはQAQC用JATHub1台とPS board1台のセットアップを複数用意し、並列に試験を行うことが考えられるが、イーサーネット通信のためのRJコネクターと光通信のためのSFP+コネクターを両方有しているJATHubは、試作段階で作成された1台 (試作1号機) しか存在しない。並列化のためには、工夫が必要となる。
 
-そこで、本研究ではVME通信を利用した並列化システムを考案した。システムのセットアップを図\ref{QAQCpararell}に示す。このシステムのコンセプトは、イーサーネット通信ができる試作1号機をQAQC試験におけるマスター(QAQC master)として利用し、QAQC masterから20台のQAQC用JATHub (QAQC slave) を操作することで、20台のPS boardの並列な試験を実現することである。試験の際にはQAQC masterのみを操作して、QAQC slaveに対して試験開始の命令や、試験状況の監視を行う。
+そこで、本研究ではVME通信を利用した並列化システムを考案した。システムのセットアップを図\ref{QAQCpararell}に示す。このシステムのコンセプトは、イーサーネット通信ができる試作1号機をQAQC試験におけるマスター(QAQC master)として利用し、QAQC masterから20台のQAQC用JATHub (QAQC slave) を操作することで、20台のPS boardを並列に試験することである。試験の際にはQAQC masterのみを操作して、QAQC slaveに対して試験開始の命令や、試験状況の監視を行う。
 QAQC masterはTAMボードを\footnote{Mini-Rackに導入されるTGCエレクトロニクスの一つ。異なる1/24セクター間の陽子バンチ交差クロックの位相合わせに用いられる。}中継して、QAQC slaveと通信する。QAQC masterとTAMは光ファイバーを介したシリアル通信を行い、TAMとQAQC slaveはVME通信を行う。
 
 \begin{figure} 
@@ -563,7 +563,7 @@ QAQC masterはTAMボードを\footnote{Mini-Rackに導入されるTGCエレク�
 
 QAQC slaveにはネットワークが通じていないため、slaveの操作はmasterからのレジスタ操作で行う。QAQC slaveのUbuntuには起動と同時に試験用アプリケーションが走るよう設定し、masterからの合図を起点に1台のPS boardに対する試験を開始する。各試験の結果は2 bitのstatus bitで表され、QAQC masterはそれを読み出すことで各slaveにおける試験の進行状況を把握する。
 
-並列化システムについても、東京大学でテストベンチを構築した。図\ref{QAQCpararellpicture}にセットアップを示す。QAQC master、TAM、QAQC用 slave1台、PS board1台、ASD 16台を接続して、並列化システムの動作検証を行った。QAQC masterの試験開始から、試験の終了まで問題なく動作することを確認した。
+並列化システムについても、東京大学でテストベンチを構築した。図\ref{QAQCpararellpicture}にセットアップを示す。QAQC master、TAM、QAQC用 slave1台、PS board1台、ASD 16台を接続して、並列化システムの動作検証を行った。QAQC masterの試験開始から、試験の終了まで期待通り動作することを確認した。
 
 % \begin{figure} 
 % \centering

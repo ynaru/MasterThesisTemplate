@@ -39,7 +39,7 @@
 % \item[\CID{00728}] 変数でない添字などが斜体になっていないか。$N_{trigger}$など。
 % \item[\CID{00728}] 自分で作成したものではない図や写真は、全て出典が明記され、転載であることを書いてあるか。
 % \end{itemize}
-\section{これまで行われた性能評価研究}
+\section{これまでに行われたトリガーロジックの性能評価研究}
 これまで、Inner Coincidenceまでのロジックはソフトウェアシミュレーターによる性能検証が完了しており、TGC BW CoincidenceまでのロジックはVivado シミュレーターによる動作検証も完了している。以下に先行研究で行われた、TGC BW Coincidenceまでの各モジュールの性能検証の結果を示す。
 
 \subsubsection*{ソフトウェアシミュレーターによるWire Strip Coincidenceのトリガー効率測定}
@@ -54,7 +54,7 @@
 \begin{figure} 
     \centering
     \includegraphics[width=16cm]{fig/Test/Soft_WS.pdf}
-    \caption[ソフトウェアシミュレーターで測定された、Wire Strip Coincidenceのトリガー効率]{ソフトウェアシミュレーターで測定された、Wire Strip Coincidenceのトリガー効率\cite{SLPDR}。20 < $p_\mathrm{T}$のプラトー領域でのefficiencyは94 \%程度である。}
+    \caption[ソフトウェアシミュレーターで測定された、Wire Strip Coincidenceのトリガー効率]{ソフトウェアシミュレーターで測定された、Wire Strip Coincidenceのトリガー効率\cite{SLPDR}。20 GeV < $p_\mathrm{T}$のプラトー領域でのEfficiencyは94 \%程度である。}
     \label{Soft_WS}
 \end{figure}
 
@@ -81,7 +81,7 @@ Vivado シミュレーターで測定された、Single Muon  MC に対する Wi
     \mathrm{Efficiency} = \frac{\mathrm{Wire \,Segment \,Reconstructionで}\,\Delta\theta\,\mathrm{を再構成できたイベント数}}{\mathrm{Truth ミューオン の数}}
 \end{equation}
 
-TGCチェンバーの構造やエンドキャップマグネットとの干渉によると考えられる、数\%のInefficiencyが局所的に見られるものの、Efficiencyは$\eta$、$\phi$全領域で95 \%程度に達している。これによりWire Segment Reconstructionの論理回路実装が期待通り達成されていることが検証された。
+TGCチェンバーの構造やエンドキャップマグネットとの干渉によると考えられる、数\%のInefficiencyが局所的に見られるものの、Efficiencyは$\eta$、$\phi$全領域で95 \%程度に達している。
 
 \subsubsection*{Vivado シミュレーターによるStrip Segment Reconstructionの動作検証}
 
@@ -116,7 +116,7 @@ Wire Strip Coincidenceの動作検証では、ソフトウェアシミュレー�
                                            & \multicolumn{1}{c|}{EC}      & FW      \\ \hline\hline
     飛跡情報が一致したイベント                          & \multicolumn{1}{c|}{98.4 \%} & 99.9 \% \\ \hline
     飛跡情報の異なったイベント                          & \multicolumn{1}{c|}{1.6 \%}  & 0.07 \% \\ \hline
-    イベントで最大の\textbackslash{}pt出力がことなったイベント & \multicolumn{1}{c|}{0.09 \%} & 0.02 \% \\ \hline
+    イベントで最大の$p_\mathrm{T}$出力が異なったイベント & \multicolumn{1}{c|}{0.09 \%} & 0.02 \% \\ \hline
     \end{tabular}
 \end{table}
 
@@ -236,7 +236,7 @@ Wire Strip Coincidenceの結果を図\ref{Inf_B_WS}に示す。Wire Strip Coinci
 \begin{figure} 
 \centering
 \includegraphics[width=16cm]{fig/Test/pt_before.png}
-\caption[]{Wire LUT修正前のTruth $p_\mathrm{T}$とWire Strip Coincidenceで判定された$p_\mathrm{T}$の関係。Truth $p_\mathrm{T}$ が5 GeVや10 GeVのイベントの多くが、$p_\mathrm{T}$閾値 20 GeVと判定されており、正しく\pt 判定がなされていないことがわかる。}
+\caption[]{Wire LUT修正前のTruth $p_\mathrm{T}$とWire Strip Coincidenceで判定された$p_\mathrm{T}$の関係。Truth $p_\mathrm{T}$ が5 GeVや10 GeVのイベントの多くが、$p_\mathrm{T}$閾値 20 GeVと判定されており、正しい\pt 判定がなされていないことがわかる。}
 \label{pt_before}
 \end{figure}
 
@@ -256,55 +256,55 @@ Wire Strip Coincidenceの結果を図\ref{Inf_B_WS}に示す。Wire Strip Coinci
 
 
 
-\clearpage
-\section{プラトー領域におけるInefficiencyの調査}
-\label{sec:appendix:plateau}
-図\ref{SM_A_WS_turnon}で示した、シングルミューオンモンテカルロデータを用いたトリガー効率測定によると、Truth \pt が 20 GeVより大きいプラトー領域においてもトリガー効率は94 \%程度であり、Truthの\pt によらず6 \%程度のInefficiencyが見られる。本節ではこのInefficiencyの原因について考察する。
+% \clearpage
+% \section{プラトー領域におけるInefficiencyの調査}
+% \label{sec:appendix:plateau}
+% 図\ref{SM_A_WS_turnon}で示した、シングルミューオンモンテカルロデータを用いたトリガー効率測定によると、Truth \pt が 20 GeVより大きいプラトー領域においてもトリガー効率は94 \%程度であり、Truthの\pt によらず6 \%程度のInefficiencyが見られる。本節ではこのInefficiencyの原因について考察する。
 
-Inefficiencyの原因として主に以下の2つが考えられる。1つ目はTGC検出器のミューオン検出効率が100 \%ではないことによるInefficiencyである。高輝度LHC-ATLAS実験でのトリガーロジックはワイヤーでは7層中5層かつ各ステーションに少なくても1つヒットがあること、ストリップでは6層中4層かつ各ステーションに少なくても1つヒットがあること、が要求される。そのため、例えばミューオンがM2の2層ともヒットを残さず、素通りしたとすると飛跡を再構成することはできない。2017年の運転におけるTGC各層のヒット検出効率分布を図\ref{tgchit_efficiency}に示す。1枚のガスレイヤーにおけるヒット検出効率の平均はワイヤーで92.7 \%、ストリップで92.1 \%程度であり、100 \%ではない。そのため、ある一定以上の確率でこのような避けられないInefficiencyが生じる。
+% Inefficiencyの原因として主に以下の2つが考えられる。1つ目はTGC検出器のミューオン検出効率が100 \%ではないことによるInefficiencyである。高輝度LHC-ATLAS実験でのトリガーロジックはワイヤーでは7層中5層かつ各ステーションに少なくても1つヒットがあること、ストリップでは6層中4層かつ各ステーションに少なくても1つヒットがあること、が要求される。そのため、例えばミューオンがM2の2層ともヒットを残さず、素通りしたとすると飛跡を再構成することはできない。2017年の運転におけるTGC各層のヒット検出効率分布を図\ref{tgchit_efficiency}に示す。1枚のガスレイヤーにおけるヒット検出効率の平均はワイヤーで92.7 \%、ストリップで92.1 \%程度であり、100 \%ではない。そのため、ある一定以上の確率でこのような避けられないInefficiencyが生じる。
 
-\begin{figure}
-\begin{minipage}[b]{.5\linewidth}
-\centering
-\includegraphics[height=5cm]{fig/Test/tgchit_wire.pdf}
-\subcaption{ワイヤー}
-\end{minipage}%
-\begin{minipage}[b]{.5\linewidth}
-\centering
-\includegraphics[height=5cm]{fig/Test/tgchit_strip.pdf}
-\subcaption{ストリップ}
-\end{minipage}%
-\caption[2017年運転における TGC 各層のヒット検出効率]{2017年運転における TGC 各層のヒット検出効率\cite{mt_kawaguchi}。一枚のガスレイヤーにおける検出効率の平均はワイヤーで92.7 \%、ストリップで92.1 \%である。}
-\label{tgchit_efficiency}
-\end{figure}
+% \begin{figure}
+% \begin{minipage}[b]{.5\linewidth}
+% \centering
+% \includegraphics[height=5cm]{fig/Test/tgchit_wire.pdf}
+% \subcaption{ワイヤー}
+% \end{minipage}%
+% \begin{minipage}[b]{.5\linewidth}
+% \centering
+% \includegraphics[height=5cm]{fig/Test/tgchit_strip.pdf}
+% \subcaption{ストリップ}
+% \end{minipage}%
+% \caption[2017年運転における TGC 各層のヒット検出効率]{2017年運転における TGC 各層のヒット検出効率\cite{mt_kawaguchi}。一枚のガスレイヤーにおける検出効率の平均はワイヤーで92.7 \%、ストリップで92.1 \%である。}
+% \label{tgchit_efficiency}
+% \end{figure}
 
-2つ目は、多重散乱や制動放射に起因するInefficiencyである。多重散乱によりミューオン飛跡が途中で大角度に屈折したり、制動放射で生じた光子から電磁シャワーが生じ大量のヒットがTGCに残される場合には、Segment Reconstructionで正しい飛跡を再構成できなくなる。このようなイベントの例を図\ref{Brems}に示す。この図は実際のシングルミューオンモンテカルロサンプルに含まれる、TGCのヒット情報を3次元的にプロットしたものである。$x$軸と$y$軸にヒットのあった座標位置、$z$方向にTGCのレイヤー番号を示す。$z$座標が小さい方から大きい方にミューオンが入射し、ヒットを残した3次元座標をプロットしている。赤色の点がWireのヒットで青色がStripのヒット情報を表す。この図から、このイベントでは3層目でミューオンが制動放射を起こし、それに起因する電磁シャワーが4層目以降に複数のヒットを残していると考えられる。
+% 2つ目は、多重散乱や制動放射に起因するInefficiencyである。多重散乱によりミューオン飛跡が途中で大角度に屈折したり、制動放射で生じた光子から電磁シャワーが生じ大量のヒットがTGCに残される場合には、Segment Reconstructionで正しい飛跡を再構成できなくなる。このようなイベントの例を図\ref{Brems}に示す。この図は実際のシングルミューオンモンテカルロサンプルに含まれる、TGCのヒット情報を3次元的にプロットしたものである。$x$軸と$y$軸にヒットのあった座標位置、$z$方向にTGCのレイヤー番号を示す。$z$座標が小さい方から大きい方にミューオンが入射し、ヒットを残した3次元座標をプロットしている。赤色の点がWireのヒットで青色がStripのヒット情報を表す。この図から、このイベントでは3層目でミューオンが制動放射を起こし、それに起因する電磁シャワーが4層目以降に複数のヒットを残していると考えられる。
 
-\begin{figure} 
-\centering
-\includegraphics[width=16cm]{fig/Test/Brems.png}
-\caption[制動放射が生じたと思われるイベントディスプレイ]{制動放射が生じたと思われるイベントディスプレイ。$x$軸と$y$軸にヒットのあった座標位置、$z$方向にTGCのレイヤー番号を示す。$z$座標が小さい方から大きい方にミューオンが入射し、ヒットを残した3次元座標をプロットしている。赤色の点がWireのヒットで青色がStripのヒット情報を表す。この図から、このイベントでは3層目でミューオンが制動放射を起こし、それに起因する電磁シャワーが4層目以降に複数のヒットを残していると考えられる。}
-\label{Brems}
-\end{figure}
+% \begin{figure} 
+% \centering
+% \includegraphics[width=16cm]{fig/Test/Brems.png}
+% \caption[制動放射が生じたと思われるイベントディスプレイ]{制動放射が生じたと思われるイベントディスプレイ。$x$軸と$y$軸にヒットのあった座標位置、$z$方向にTGCのレイヤー番号を示す。$z$座標が小さい方から大きい方にミューオンが入射し、ヒットを残した3次元座標をプロットしている。赤色の点がWireのヒットで青色がStripのヒット情報を表す。この図から、このイベントでは3層目でミューオンが制動放射を起こし、それに起因する電磁シャワーが4層目以降に複数のヒットを残していると考えられる。}
+% \label{Brems}
+% \end{figure}
 
-Wire Strip Coincidenceで見られた6 \%のInefficiencyがどのような理由で生じているか調査するため、実機試験で飛跡再構成に失敗したイベントに対してイベントディスプレイを作成し、アイスキャンで原因の分類を行った。
+% Wire Strip Coincidenceで見られた6 \%のInefficiencyがどのような理由で生じているか調査するため、実機試験で飛跡再構成に失敗したイベントに対してイベントディスプレイを作成し、アイスキャンで原因の分類を行った。
 
-データセットとして、フォワード領域のシングルミューオンイベントを10,000イベント用意した。このうちWire Strip Coincidenceで飛跡再構成に失敗したイベントは合計 583 イベントだった。
-アイスキャンの結果を表\ref{tab:eyscan}に示す。プラトー領域における6 \%程度のInefficiencyのうち、ヒットレイヤーが少ないいことによるものが3割、多重散乱や制動放射によルものが3割、原理的な困難はなくLUTの調整などにより解決できる可能性があるものが4割程度であるとわかった。
+% データセットとして、フォワード領域のシングルミューオンイベントを10,000イベント用意した。このうちWire Strip Coincidenceで飛跡再構成に失敗したイベントは合計 583 イベントだった。
+% アイスキャンの結果を表\ref{tab:eyscan}に示す。プラトー領域における6 \%程度のInefficiencyのうち、ヒットレイヤーが少ないいことによるものが3割、多重散乱や制動放射によルものが3割、原理的な困難はなくLUTの調整などにより解決できる可能性があるものが4割程度であるとわかった。
 
-\begin{table}[]
-  \centering
-  \caption{Wire Strip Coincidenceで飛跡再構成に失敗したイベントの調査結果}
-  \label{tab:eyscan}
-  \begin{tabular}{|c|c|}
-  \hline
-  飛跡再構成の原因                        & イベント数       \\ \hline\hline
-  ヒットを残したレイヤーが少なく原理的に飛跡再構成ができないもの & 169 / 10000 \\ \hline
-  多重散乱や制動放射により正しく飛跡を再構成することが困難なもの & 181 / 10000 \\ \hline
-  その他 (アイスキャンでは原因を判断できなかったものを含む)  & 233 / 10000 \\ \hline
-  合計                              & 583 / 10000 \\ \hline
-  \end{tabular}
-\end{table}
+% \begin{table}[]
+%   \centering
+%   \caption{Wire Strip Coincidenceで飛跡再構成に失敗したイベントの調査結果}
+%   \label{tab:eyscan}
+%   \begin{tabular}{|c|c|}
+%   \hline
+%   飛跡再構成の原因                        & イベント数       \\ \hline\hline
+%   ヒットを残したレイヤーが少なく原理的に飛跡再構成ができないもの & 169 / 10000 \\ \hline
+%   多重散乱や制動放射により正しく飛跡を再構成することが困難なもの & 181 / 10000 \\ \hline
+%   その他 (アイスキャンでは原因を判断できなかったものを含む)  & 233 / 10000 \\ \hline
+%   合計                              & 583 / 10000 \\ \hline
+%   \end{tabular}
+% \end{table}
 
 
 % \section{アライメントのずれに対するInefficiencyの考察}

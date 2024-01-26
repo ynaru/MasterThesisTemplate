@@ -36,7 +36,7 @@ Channel Mappingモジュールは単純なワイヤーとOR回路で実装され
 
 \subsection{Station Coincidence}
 \subsubsection*{概要}
-図\ref{Concept_station}にStation Coincidenceの概要を示す\footnote{Station CoincidenceをIntra Station Coincidence、Segment Reconstruction を Inter Station Coincidenceと呼ぶ場合もある。}。TGC検出器はスタッガリング構造を取っており、ステーション内のワイヤーは互いに$\eta$方向にずらして、ストリップは互いに$\phi$方向にずらして設置されている。M1、M2、M3の各チャンネルが重複してカバーする$\eta$領域、$\phi$領域を代表点 (スタッガードチャンネル) と呼ぶ。Station CoincidenceはM1の3層、M2の2層、M3の2層のヒットチャンネルを入力として、コインシデンスが取れた代表点を出力する。これによりデータ量を落としながら、より位置分解能を上げてミューオンのヒット位置を特定することができる。WireとStripのStation Coincidenceはそれぞれ独立に実装される。
+図\ref{Concept_station}にStation Coincidenceの概要を示す\footnote{Station CoincidenceをIntra Station Coincidence、Segment Reconstruction を Inter Station Coincidenceと呼ぶ場合もある。}。TGC検出器はスタッガリング構造を取っており、ステーション内のワイヤーは互いに$\eta$方向にずらして、ストリップは互いに$\phi$方向にずらして設置されている。3層の各チャンネルが重複してカバーする$\eta$領域、$\phi$領域を代表点 (スタッガードチャンネル) と呼ぶ。Station CoincidenceはM1の3層、M2の2層、M3の2層のヒットチャンネルを入力として、コインシデンスが取れた代表点を出力する。これによりデータ量を落としながら、より位置分解能を上げてミューオンのヒット位置を特定することができる。WireとStripのStation Coincidenceはそれぞれ独立に実装される。
 
 \begin{figure} 
 \centering
